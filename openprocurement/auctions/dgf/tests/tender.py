@@ -1025,8 +1025,8 @@ class AuctionResourceTest(BaseWebTest):
         self.assertEqual(len(response.json['data']['items']), 1)
 
         response = self.app.patch_json('/auctions/{}'.format(auction['id']), {'data': {'items': [{"classification": {
-            "scheme": u"CAV",
-            "id": u"04000000-8",
+            "scheme": u"CPV",
+            "id": u"19212310-1",
             "description": u"Нерухоме майно"
         }}]}})
         self.assertEqual(response.status, '200 OK')

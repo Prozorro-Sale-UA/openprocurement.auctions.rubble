@@ -37,16 +37,10 @@ def read_json(name):
     return loads(data)
 
 
-CAV_CODES = read_json('cav.json')
 ORA_CODES = ORA_CODES[:]
 ORA_CODES[0:0] = ["UA-IPN", "UA-FIN"]
 
 DGF_ID_REQUIRED_FROM = datetime(2017, 1, 1, tzinfo=TZ)
-
-
-class CAVClassification(Classification):
-    scheme = StringType(required=True, default=u'CAV', choices=[u'CAV'])
-    id = StringType(required=True, choices=CAV_CODES)
 
 
 class Item(BaseItem):
@@ -56,7 +50,6 @@ class Item(BaseItem):
             'create': blacklist('deliveryLocation', 'deliveryAddress', 'deliveryDate'),
             'edit_active.tendering': blacklist('deliveryLocation', 'deliveryAddress', 'deliveryDate'),
         }
-    classification = ModelType(CAVClassification, required=True)
     additionalClassifications = ListType(ModelType(Classification), default=list())
     address = ModelType(Address)
     location = ModelType(Location)

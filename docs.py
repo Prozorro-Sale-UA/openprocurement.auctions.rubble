@@ -127,6 +127,7 @@ test_auction_maximum_data = {
     "title": u"футляри до державних нагород",
     "title_en": u"Cases with state awards",
     "title_ru": u"футляры к государственным наградам",
+    "dgfID": "ID",
     "procuringEntity": {
         "name": u"Державне управління справами",
         "identifier": {
@@ -160,8 +161,8 @@ test_auction_maximum_data = {
             "id": test_max_uid,
             "description": u"Земля для військовослужбовців",
             "classification": {
-                "scheme": u"CAV",
-                "id": u"06000000-2",
+                "scheme": u"CPV",
+                "id": u"66113000-5",
                 "description": u"Земельні ділянки"
             },
             "unit": {

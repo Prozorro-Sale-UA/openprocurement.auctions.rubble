@@ -1,12 +1,12 @@
-POST /api/2.3/auctions/2d8e78cabae043838db7d364b71533a2/awards/a0d0ead108df49058e3789d5b3e59b94/documents?acc_token=3525886d14aa4539a905a9866eba0af8 HTTP/1.0
+POST /api/2.3/auctions/e697023cacc24697a8d03c234753bbd0/awards/ad468ef737c34ac2b2ae65a80b2ca8e1/documents?acc_token=9575071a6c92489782d67ec29cbcc30f HTTP/1.0
 Authorization: Basic YnJva2VyOg==
-Content-Length: 386
+Content-Length: 384
 Content-Type: application/json
 Host: api-sandbox.ea.openprocurement.org
 
 {
   "data": {
-    "url": "http://public.docs-sandbox.ea.openprocurement.org/get/2639ea6f1a824fa2b4bd4fecb8929cc3?KeyID=b2c8b813&Signature=69ObArFucDNKe%2FTVwt6UzrDjuVkwPE1%2Fu2v%2BRzQxi0CTIP03Jgu2gIDvVriJoNKdm247dMJOfXgRWa8lgBAkCA%3D%3D", 
+    "url": "http://public.docs-sandbox.ea.openprocurement.org/get/eebd2b6d4c7b4e1497dcbf6b1791585a?KeyID=18f3f87d&Signature=z7WjUFfhIWueIQVv9vBzcE%2FX2HlEAnfPwVEGhASkoPMb2F8ddBmupq9UeDjJaA3Mufs%2FwW23te0ROWICx53tCg%3D%3D", 
     "title": "Disqualified_reason.pdf", 
     "hash": "md5:00000000000000000000000000000000", 
     "description": "Disqualification reason", 
@@ -17,19 +17,19 @@ Host: api-sandbox.ea.openprocurement.org
 
 201 Created
 Content-Type: application/json; charset=UTF-8
-Location: http://api-sandbox.ea.openprocurement.org/api/2.3/auctions/2d8e78cabae043838db7d364b71533a2/awards/a0d0ead108df49058e3789d5b3e59b94/documents/b2b16b7724644e898bdd4cd10416fcda
+Location: http://api-sandbox.ea.openprocurement.org/api/2.3/auctions/e697023cacc24697a8d03c234753bbd0/awards/ad468ef737c34ac2b2ae65a80b2ca8e1/documents/76a5b88495ea4ee6a777c5ce9d9d2d37
 
 {
   "data": {
     "hash": "md5:00000000000000000000000000000000", 
     "description": "Disqualification reason", 
     "format": "application/pdf", 
-    "url": "http://public.docs-sandbox.ea.openprocurement.org/get/2639ea6f1a824fa2b4bd4fecb8929cc3?KeyID=b2c8b813&Signature=vQGtJhiOMZ8vCuP0CyxIfgpIPaB7Ys2%252BVIXNrlydsZalcR%2FMNj42cEqYtWp4vMy%2FoW75fpBTypjYcwH7XYFQBg%253D%253D", 
+    "url": "http://public.docs-sandbox.ea.openprocurement.org/get/eebd2b6d4c7b4e1497dcbf6b1791585a?KeyID=18f3f87d&Signature=NH89p3ErX15HXsSQldd2va7q1Qz6coZnuMgw5tpE7dWXLoXh5M5oEAGNTMRXS%252B9uzvEEMPI1Tv%2FZTMg6YhRBDQ%253D%253D", 
     "title": "Disqualified_reason.pdf", 
     "documentOf": "tender", 
-    "datePublished": "2016-12-02T18:39:06.983849+02:00", 
-    "dateModified": "2016-12-02T18:39:06.983902+02:00", 
-    "id": "b2b16b7724644e898bdd4cd10416fcda"
+    "datePublished": "2017-03-29T15:47:31.285744+03:00", 
+    "dateModified": "2017-03-29T15:47:31.285770+03:00", 
+    "id": "76a5b88495ea4ee6a777c5ce9d9d2d37"
   }
 }
 

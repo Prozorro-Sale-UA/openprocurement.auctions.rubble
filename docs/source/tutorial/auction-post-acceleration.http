@@ -1,6 +1,6 @@
 POST /api/2.3/auctions?opt_pretty=1 HTTP/1.0
 Authorization: Basic YnJva2VyOg==
-Content-Length: 2015
+Content-Length: 2036
 Content-Type: application/json
 Host: api-sandbox.ea.openprocurement.org
 
@@ -11,9 +11,8 @@ Host: api-sandbox.ea.openprocurement.org
       "currency": "UAH", 
       "amount": 35
     }, 
-    "auctionPeriod": {
-      "startDate": "2016-12-02T18:44:00.612207"
-    }, 
+    "procurementMethodDetails": "quick, accelerator=1440", 
+    "tenderAttempts": 1, 
     "procurementMethodType": "dgfOtherAssets", 
     "value": {
       "currency": "UAH", 
@@ -40,12 +39,14 @@ Host: api-sandbox.ea.openprocurement.org
     }, 
     "submissionMethodDetails": "quick", 
     "mode": "test", 
-    "procurementMethodDetails": "quick, accelerator=1440", 
+    "auctionPeriod": {
+      "startDate": "2017-03-29T15:52:26.507025"
+    }, 
     "items": [
       {
         "classification": {
-          "scheme": "CAV", 
-          "id": "06000000-2", 
+          "scheme": "CPV", 
+          "id": "66113000-5", 
           "description": "Земельні ділянки"
         }, 
         "quantity": 5, 
@@ -70,21 +71,21 @@ Host: api-sandbox.ea.openprocurement.org
 
 201 Created
 Content-Type: application/json; charset=UTF-8
-Location: http://api-sandbox.ea.openprocurement.org/api/2.3/auctions/cc4e9d1e6b0c42f58150bf1f52de8676
+Location: http://api-sandbox.ea.openprocurement.org/api/2.3/auctions/4c9a3e70b85847e58639e469e3708443
 
 {
   "access": {
-    "token": "d31d8b099a084898b753c51501adc009"
+    "token": "32aa7a2aa7ed47dcbd37d7f7d84a26ef"
   }, 
   "data": {
     "procurementMethod": "open", 
-    "auctionID": "UA-EA-2016-12-02-000001", 
+    "auctionID": "UA-PS-2017-03-29-000001", 
     "enquiryPeriod": {
-      "startDate": "2016-12-02T18:39:04.131909+02:00", 
-      "endDate": "2016-12-02T18:43:03.778448+02:00"
+      "startDate": "2017-03-29T15:47:29.135030+03:00", 
+      "endDate": "2017-03-29T15:51:36.821950+03:00"
     }, 
     "submissionMethod": "electronicAuction", 
-    "next_check": "2016-12-02T18:43:03.778448+02:00", 
+    "next_check": "2017-03-29T15:51:36.821950+03:00", 
     "procuringEntity": {
       "contactPoint": {
         "name": "Державне управління справами", 
@@ -106,29 +107,30 @@ Location: http://api-sandbox.ea.openprocurement.org/api/2.3/auctions/cc4e9d1e6b0
     }, 
     "owner": "broker", 
     "title_en": "[TESTING] ", 
-    "id": "cc4e9d1e6b0c42f58150bf1f52de8676", 
+    "id": "4c9a3e70b85847e58639e469e3708443", 
     "title": "[ТЕСТУВАННЯ] футляри до державних нагород", 
+    "tenderAttempts": 1, 
     "procurementMethodDetails": "quick, accelerator=1440", 
-    "dateModified": "2016-12-02T18:39:04.135578+02:00", 
+    "dateModified": "2017-03-29T15:47:29.137781+03:00", 
     "status": "active.tendering", 
     "tenderPeriod": {
-      "startDate": "2016-12-02T18:39:04.131909+02:00", 
-      "endDate": "2016-12-02T18:43:03.778448+02:00"
+      "startDate": "2017-03-29T15:47:29.135030+03:00", 
+      "endDate": "2017-03-29T15:51:36.821950+03:00"
     }, 
     "auctionPeriod": {
-      "shouldStartAfter": "2016-12-02T18:43:03.778448+02:00"
+      "shouldStartAfter": "2017-03-29T15:51:36.821950+03:00"
     }, 
     "procurementMethodType": "dgfOtherAssets", 
     "dgfID": "219560", 
-    "date": "2016-12-02T18:39:04.131909+02:00", 
+    "date": "2017-03-29T15:47:29.135030+03:00", 
     "submissionMethodDetails": "quick", 
     "items": [
       {
         "description": "Земля для військовослужбовців", 
         "classification": {
-          "scheme": "CAV", 
+          "scheme": "CPV", 
           "description": "Земельні ділянки", 
-          "id": "06000000-2"
+          "id": "66113000-5"
         }, 
         "address": {
           "postalCode": "79000", 
@@ -137,7 +139,7 @@ Location: http://api-sandbox.ea.openprocurement.org/api/2.3/auctions/cc4e9d1e6b0
           "region": "м. Київ", 
           "locality": "м. Київ"
         }, 
-        "id": "4e0d58433d944dd599c170c6cce6db24", 
+        "id": "71f3612361194ca483bdcad685332064", 
         "unit": {
           "code": "44617100-9", 
           "name": "item"

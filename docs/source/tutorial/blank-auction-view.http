@@ -1,4 +1,4 @@
-GET /api/2.3/auctions/fd2836042da3470fba3c7aa3edebaa94 HTTP/1.0
+GET /api/2.3/auctions/a3fe480fc194429db59b3517ac2becff HTTP/1.0
 Authorization: Basic YnJva2VyOg==
 Host: api-sandbox.ea.openprocurement.org
 
@@ -9,34 +9,13 @@ Content-Type: application/json; charset=UTF-8
 {
   "data": {
     "procurementMethod": "open", 
-    "auctionID": "UA-EA-2016-12-02-000001", 
-    "tenderPeriod": {
-      "startDate": "2016-12-02T18:39:10.425688+02:00", 
-      "endDate": "2016-12-15T23:59:50+02:00"
-    }, 
-    "title": "футляри до державних нагород", 
-    "minimalStep": {
-      "currency": "UAH", 
-      "amount": 35.0, 
-      "valueAddedTaxIncluded": true
-    }, 
-    "auctionPeriod": {
-      "shouldStartAfter": "2016-12-16T00:00:00+02:00"
-    }, 
-    "procurementMethodType": "dgfOtherAssets", 
-    "value": {
-      "currency": "UAH", 
-      "amount": 100.0, 
-      "valueAddedTaxIncluded": true
+    "auctionID": "UA-PS-2017-03-29-000001", 
+    "enquiryPeriod": {
+      "startDate": "2017-03-29T15:47:33.994721+03:00", 
+      "endDate": "2017-04-11T23:59:50+03:00"
     }, 
     "submissionMethod": "electronicAuction", 
-    "enquiryPeriod": {
-      "startDate": "2016-12-02T18:39:10.425688+02:00", 
-      "endDate": "2016-12-15T23:59:50+02:00"
-    }, 
-    "date": "2016-12-02T18:39:10.425688+02:00", 
-    "dateModified": "2016-12-02T18:39:10.429470+02:00", 
-    "status": "active.tendering", 
+    "next_check": "2017-04-11T23:59:50+03:00", 
     "procuringEntity": {
       "contactPoint": {
         "name": "Державне управління справами", 
@@ -56,17 +35,35 @@ Content-Type: application/json; charset=UTF-8
         "locality": "м. Київ"
       }
     }, 
-    "dgfID": "219560", 
-    "procurementMethodDetails": "quick, accelerator=1440", 
     "owner": "broker", 
-    "next_check": "2016-12-15T23:59:50+02:00", 
+    "id": "a3fe480fc194429db59b3517ac2becff", 
+    "title": "футляри до державних нагород", 
+    "tenderAttempts": 1, 
+    "procurementMethodDetails": "quick, accelerator=1440", 
+    "dateModified": "2017-03-29T15:47:33.997773+03:00", 
+    "status": "active.tendering", 
+    "tenderPeriod": {
+      "startDate": "2017-03-29T15:47:33.994721+03:00", 
+      "endDate": "2017-04-11T23:59:50+03:00"
+    }, 
+    "auctionPeriod": {
+      "shouldStartAfter": "2017-04-12T00:00:00+03:00"
+    }, 
+    "procurementMethodType": "dgfOtherAssets", 
+    "dgfID": "219560", 
+    "date": "2017-03-29T15:47:33.994721+03:00", 
+    "minimalStep": {
+      "currency": "UAH", 
+      "amount": 35.0, 
+      "valueAddedTaxIncluded": true
+    }, 
     "items": [
       {
         "description": "Земля для військовослужбовців", 
         "classification": {
-          "scheme": "CAV", 
+          "scheme": "CPV", 
           "description": "Земельні ділянки", 
-          "id": "06000000-2"
+          "id": "66113000-5"
         }, 
         "address": {
           "postalCode": "79000", 
@@ -75,7 +72,7 @@ Content-Type: application/json; charset=UTF-8
           "region": "м. Київ", 
           "locality": "м. Київ"
         }, 
-        "id": "dd4e3b63276342239cace836b94f4b3c", 
+        "id": "d3a6b745e6ec4a3fabba32445167d78c", 
         "unit": {
           "code": "44617100-9", 
           "name": "item"
@@ -83,7 +80,11 @@ Content-Type: application/json; charset=UTF-8
         "quantity": 5
       }
     ], 
-    "id": "fd2836042da3470fba3c7aa3edebaa94", 
+    "value": {
+      "currency": "UAH", 
+      "amount": 100.0, 
+      "valueAddedTaxIncluded": true
+    }, 
     "awardCriteria": "highestCost"
   }
 }

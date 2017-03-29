@@ -1,6 +1,6 @@
 POST /api/2.3/auctions?opt_pretty=1 HTTP/1.0
 Authorization: Basic YnJva2VyOg==
-Content-Length: 1966
+Content-Length: 1987
 Content-Type: application/json
 Host: api-sandbox.ea.openprocurement.org
 
@@ -12,21 +12,22 @@ Host: api-sandbox.ea.openprocurement.org
       "currency": "UAH", 
       "amount": 35
     }, 
-    "auctionPeriod": {
-      "startDate": "2016-12-16"
-    }, 
+    "procurementMethodDetails": "quick, accelerator=1440", 
+    "tenderAttempts": 1, 
     "procurementMethodType": "dgfOtherAssets", 
     "value": {
       "currency": "UAH", 
       "amount": 100
     }, 
     "dgfID": "219560", 
-    "procurementMethodDetails": "quick, accelerator=1440", 
+    "auctionPeriod": {
+      "startDate": "2017-04-12"
+    }, 
     "items": [
       {
         "classification": {
-          "scheme": "CAV", 
-          "id": "06000000-2", 
+          "scheme": "CPV", 
+          "id": "66113000-5", 
           "description": "Земельні ділянки"
         }, 
         "quantity": 5, 
@@ -69,18 +70,18 @@ Host: api-sandbox.ea.openprocurement.org
 
 201 Created
 Content-Type: application/json; charset=UTF-8
-Location: http://api-sandbox.ea.openprocurement.org/api/2.3/auctions/d2814df6cd1f42849b53ecd86c0dcb4f
+Location: http://api-sandbox.ea.openprocurement.org/api/2.3/auctions/72737375d94941d0be9101e03ad1f2ea
 
 {
   "access": {
-    "token": "aa8da8f30d864adc8c915ea6a56553ba"
+    "token": "0a361047084244efa11702da631adc67"
   }, 
   "data": {
     "procurementMethod": "open", 
-    "auctionID": "UA-EA-2016-12-02-000001", 
+    "auctionID": "UA-PS-2017-03-29-000001", 
     "tenderPeriod": {
-      "startDate": "2016-12-02T18:39:02.903025+02:00", 
-      "endDate": "2016-12-15T23:59:50+02:00"
+      "startDate": "2017-03-29T15:47:28.230957+03:00", 
+      "endDate": "2017-04-11T23:59:50+03:00"
     }, 
     "title": "футляри до державних нагород", 
     "minimalStep": {
@@ -89,6 +90,7 @@ Location: http://api-sandbox.ea.openprocurement.org/api/2.3/auctions/d2814df6cd1
       "valueAddedTaxIncluded": true
     }, 
     "procurementMethodDetails": "quick, accelerator=1440", 
+    "tenderAttempts": 1, 
     "procurementMethodType": "dgfOtherAssets", 
     "value": {
       "currency": "UAH", 
@@ -96,7 +98,7 @@ Location: http://api-sandbox.ea.openprocurement.org/api/2.3/auctions/d2814df6cd1
       "valueAddedTaxIncluded": true
     }, 
     "submissionMethod": "electronicAuction", 
-    "date": "2016-12-02T18:39:02.903025+02:00", 
+    "date": "2017-03-29T15:47:28.230957+03:00", 
     "status": "draft", 
     "procuringEntity": {
       "contactPoint": {
@@ -119,18 +121,18 @@ Location: http://api-sandbox.ea.openprocurement.org/api/2.3/auctions/d2814df6cd1
     }, 
     "dgfID": "219560", 
     "enquiryPeriod": {
-      "startDate": "2016-12-02T18:39:02.903025+02:00", 
-      "endDate": "2016-12-15T23:59:50+02:00"
+      "startDate": "2017-03-29T15:47:28.230957+03:00", 
+      "endDate": "2017-04-11T23:59:50+03:00"
     }, 
     "owner": "broker", 
-    "dateModified": "2016-12-02T18:39:02.906830+02:00", 
+    "dateModified": "2017-03-29T15:47:28.233931+03:00", 
     "items": [
       {
         "description": "Земля для військовослужбовців", 
         "classification": {
-          "scheme": "CAV", 
+          "scheme": "CPV", 
           "description": "Земельні ділянки", 
-          "id": "06000000-2"
+          "id": "66113000-5"
         }, 
         "address": {
           "postalCode": "79000", 
@@ -139,7 +141,7 @@ Location: http://api-sandbox.ea.openprocurement.org/api/2.3/auctions/d2814df6cd1
           "region": "м. Київ", 
           "locality": "м. Київ"
         }, 
-        "id": "b6659a2847714867b5a6865641611822", 
+        "id": "06b4a0e8017347de80a227fec7fdc098", 
         "unit": {
           "code": "44617100-9", 
           "name": "item"
@@ -147,7 +149,7 @@ Location: http://api-sandbox.ea.openprocurement.org/api/2.3/auctions/d2814df6cd1
         "quantity": 5
       }
     ], 
-    "id": "d2814df6cd1f42849b53ecd86c0dcb4f", 
+    "id": "72737375d94941d0be9101e03ad1f2ea", 
     "awardCriteria": "highestCost"
   }
 }

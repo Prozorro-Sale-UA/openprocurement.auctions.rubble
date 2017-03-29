@@ -1,6 +1,6 @@
 POST /api/2.3/auctions?opt_pretty=1 HTTP/1.0
 Authorization: Basic YnJva2VyOg==
-Content-Length: 1934
+Content-Length: 1949
 Content-Type: application/json
 Host: api-sandbox.ea.openprocurement.org
 
@@ -12,9 +12,9 @@ Host: api-sandbox.ea.openprocurement.org
       "amount": 35
     }, 
     "auctionPeriod": {
-      "startDate": "2016-12-16T18:39:00.612207"
+      "startDate": "2017-04-12T15:47:26.507025"
     }, 
-    "procurementMethodType": "dgfOtherAssets", 
+    "title_en": "Cases with state awards", 
     "value": {
       "currency": "UAH", 
       "amount": 500
@@ -39,16 +39,18 @@ Host: api-sandbox.ea.openprocurement.org
         "locality": "м. Київ"
       }
     }, 
+    "procurementMethodType": "dgfOtherAssets", 
+    "dgfID": "ID", 
     "title_ru": "футляры к государственным наградам", 
     "items": [
       {
         "classification": {
-          "scheme": "CAV", 
-          "id": "06000000-2", 
+          "scheme": "CPV", 
+          "id": "66113000-5", 
           "description": "Земельні ділянки"
         }, 
         "description": "Земля для військовослужбовців", 
-        "id": "56515f10246e42e9abb4428c49b0a5e2", 
+        "id": "3df25a294eb340cbbb2b621784a1d664", 
         "unit": {
           "code": "44617100-9", 
           "name": "item"
@@ -56,7 +58,6 @@ Host: api-sandbox.ea.openprocurement.org
         "quantity": 5
       }
     ], 
-    "title_en": "Cases with state awards", 
     "mode": "test"
   }
 }
@@ -64,21 +65,21 @@ Host: api-sandbox.ea.openprocurement.org
 
 201 Created
 Content-Type: application/json; charset=UTF-8
-Location: http://api-sandbox.ea.openprocurement.org/api/2.3/auctions/bac3e8cca170444aab5865da5e87394b
+Location: http://api-sandbox.ea.openprocurement.org/api/2.3/auctions/a3c07dbe0907424fb2796afcd8e7d870
 
 {
   "access": {
-    "token": "5766488c6b9a40b28d3b3dae29936571"
+    "token": "4b4dc549169c4efa9a7d26444e6593c1"
   }, 
   "data": {
     "procurementMethod": "open", 
-    "auctionID": "UA-EA-2016-12-02-000002", 
+    "auctionID": "UA-PS-2017-03-29-000002", 
     "enquiryPeriod": {
-      "startDate": "2016-12-02T18:39:10.595410+02:00", 
-      "endDate": "2016-12-15T20:00:00+02:00"
+      "startDate": "2017-03-29T15:47:34.155349+03:00", 
+      "endDate": "2017-04-11T20:00:00+03:00"
     }, 
     "submissionMethod": "electronicAuction", 
-    "next_check": "2016-12-15T20:00:00+02:00", 
+    "next_check": "2017-04-11T20:00:00+03:00", 
     "procuringEntity": {
       "contactPoint": {
         "name": "Державне управління справами", 
@@ -101,19 +102,20 @@ Location: http://api-sandbox.ea.openprocurement.org/api/2.3/auctions/bac3e8cca17
     }, 
     "owner": "broker", 
     "title_en": "[TESTING] Cases with state awards", 
-    "id": "bac3e8cca170444aab5865da5e87394b", 
+    "id": "a3c07dbe0907424fb2796afcd8e7d870", 
     "title": "[ТЕСТУВАННЯ] футляри до державних нагород", 
-    "dateModified": "2016-12-02T18:39:10.598547+02:00", 
+    "dateModified": "2017-03-29T15:47:34.157915+03:00", 
     "status": "active.tendering", 
     "tenderPeriod": {
-      "startDate": "2016-12-02T18:39:10.595410+02:00", 
-      "endDate": "2016-12-15T20:00:00+02:00"
+      "startDate": "2017-03-29T15:47:34.155349+03:00", 
+      "endDate": "2017-04-11T20:00:00+03:00"
     }, 
     "auctionPeriod": {
-      "shouldStartAfter": "2016-12-16T00:00:00+02:00"
+      "shouldStartAfter": "2017-04-12T00:00:00+03:00"
     }, 
     "procurementMethodType": "dgfOtherAssets", 
-    "date": "2016-12-02T18:39:10.595410+02:00", 
+    "dgfID": "ID", 
+    "date": "2017-03-29T15:47:34.155349+03:00", 
     "minimalStep": {
       "currency": "UAH", 
       "amount": 35.0, 
@@ -121,16 +123,16 @@ Location: http://api-sandbox.ea.openprocurement.org/api/2.3/auctions/bac3e8cca17
     }, 
     "items": [
       {
+        "classification": {
+          "scheme": "CPV", 
+          "description": "Земельні ділянки", 
+          "id": "66113000-5"
+        }, 
+        "description": "Земля для військовослужбовців", 
+        "id": "3df25a294eb340cbbb2b621784a1d664", 
         "unit": {
           "code": "44617100-9", 
           "name": "item"
-        }, 
-        "description": "Земля для військовослужбовців", 
-        "id": "56515f10246e42e9abb4428c49b0a5e2", 
-        "classification": {
-          "scheme": "CAV", 
-          "description": "Земельні ділянки", 
-          "id": "06000000-2"
         }, 
         "quantity": 5
       }

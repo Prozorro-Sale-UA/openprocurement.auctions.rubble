@@ -1,4 +1,4 @@
-GET /api/2.3/auctions/e863584e9dbb4c9caac9df3fddd8443e HTTP/1.0
+GET /api/2.3/auctions/a66af4ecf50e4a9ba3c0a287b0c13de1 HTTP/1.0
 Authorization: Basic YnJva2VyOg==
 Host: api-sandbox.ea.openprocurement.org
 
@@ -9,13 +9,13 @@ Content-Type: application/json; charset=UTF-8
 {
   "data": {
     "procurementMethod": "open", 
-    "auctionID": "UA-EA-2016-12-02-000001", 
+    "auctionID": "UA-PS-2017-03-29-000001", 
     "enquiryPeriod": {
-      "startDate": "2016-12-02T18:39:08.293152+02:00", 
-      "endDate": "2016-12-15T23:59:50+02:00"
+      "startDate": "2017-03-29T15:47:32.460753+03:00", 
+      "endDate": "2017-04-11T23:59:50+03:00"
     }, 
     "submissionMethod": "electronicAuction", 
-    "next_check": "2016-12-15T23:59:50+02:00", 
+    "next_check": "2017-04-11T23:59:50+03:00", 
     "procuringEntity": {
       "contactPoint": {
         "name": "Державне управління справами", 
@@ -36,24 +36,25 @@ Content-Type: application/json; charset=UTF-8
       }
     }, 
     "owner": "broker", 
-    "id": "e863584e9dbb4c9caac9df3fddd8443e", 
+    "id": "a66af4ecf50e4a9ba3c0a287b0c13de1", 
     "eligibilityCriteria_ru": "К участию допускаются только лицензированные финансовые учреждения.", 
     "title": "футляри до державних нагород", 
+    "tenderAttempts": 1, 
     "eligibilityCriteria_en": "Only licensed financial institutions are eligible to participate.", 
     "procurementMethodDetails": "quick, accelerator=1440", 
-    "dateModified": "2016-12-02T18:39:08.296295+02:00", 
+    "dateModified": "2017-03-29T15:47:32.463700+03:00", 
     "status": "active.tendering", 
     "eligibilityCriteria": "До участі допускаються лише ліцензовані фінансові установи.", 
     "tenderPeriod": {
-      "startDate": "2016-12-02T18:39:08.293152+02:00", 
-      "endDate": "2016-12-15T23:59:50+02:00"
+      "startDate": "2017-03-29T15:47:32.460753+03:00", 
+      "endDate": "2017-04-11T23:59:50+03:00"
     }, 
     "auctionPeriod": {
-      "shouldStartAfter": "2016-12-16T00:00:00+02:00"
+      "shouldStartAfter": "2017-04-12T00:00:00+03:00"
     }, 
     "procurementMethodType": "dgfFinancialAssets", 
     "dgfID": "219560", 
-    "date": "2016-12-02T18:39:08.293152+02:00", 
+    "date": "2017-03-29T15:47:32.460753+03:00", 
     "minimalStep": {
       "currency": "UAH", 
       "amount": 35.0, 
@@ -63,9 +64,9 @@ Content-Type: application/json; charset=UTF-8
       {
         "description": "Земля для військовослужбовців", 
         "classification": {
-          "scheme": "CAV", 
+          "scheme": "CPV", 
           "description": "Земельні ділянки", 
-          "id": "06000000-2"
+          "id": "66113000-5"
         }, 
         "address": {
           "postalCode": "79000", 
@@ -74,7 +75,7 @@ Content-Type: application/json; charset=UTF-8
           "region": "м. Київ", 
           "locality": "м. Київ"
         }, 
-        "id": "71cbede8874c41a68a17fdc8fbc8c2b5", 
+        "id": "2d869cd128564dd188b763524a4143cc", 
         "unit": {
           "code": "44617100-9", 
           "name": "item"

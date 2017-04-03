@@ -245,6 +245,22 @@ msgstr ""
 #~ "даних. Містить інформацію про те де і коли певний документ можна переглянути"
 #~ " вживу."
 
+msgid "`x_presentation` - **Presentation**"
+msgstr "`x_presentation` - **Презентація**"
+
+msgid "Presentation about an asset that is being sold."
+msgstr "Презентація активу виставленого на продаж."
+
+msgid "`x_nda` - **Non-disclosure Agreement (NDA)**"
+msgstr "`x_nda` - **Договір про нерозголошення (NDA)**"
+
+msgid ""
+"A non-disclosure agreement between a participant and a bank/Deposit "
+"Guarantee Fund."
+msgstr ""
+"Договір про нерозголошення між учасником та банком/Фондом Гарантування"
+" Вкладів."
+
 #~ msgid "`biddingDocuments` - **Bidding Documents**"
 #~ msgstr "`biddingDocuments` - **Документи закупівлі**"
 

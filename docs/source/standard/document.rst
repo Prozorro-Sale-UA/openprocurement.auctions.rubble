@@ -45,8 +45,16 @@ Schema
     * `illustration` - **Illustrations**
 
     * `x_dgfAssetFamiliarization` - **Asset Familiarization**
-      
+
       Goods examination procedure rules / Asset familiarization procedure in data room. Contains information on where and when a given document can be examined offline.
+
+    * `x_presentation` - **Presentation**
+
+      Presentation about an asset that is being sold.
+
+    * `x_nda` - **Non-disclosure Agreement (NDA)**
+
+      A non-disclosure agreement between a participant and a bank/Deposit Guarantee Fund.
 
     Possible values for :ref:`award`
 

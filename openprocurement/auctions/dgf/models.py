@@ -85,6 +85,7 @@ class Document(BaseDocument):
         'eligibilityCriteria', 'contractProforma', 'commercialProposal',
         'qualificationDocuments', 'eligibilityDocuments', 'tenderNotice',
         'illustration', 'auctionProtocol', 'x_dgfAssetFamiliarization',
+        'x_presentation', 'x_nda',
     ])
 
     @serializable(serialized_name="url", serialize_when_none=False)
@@ -380,6 +381,7 @@ class Document(Document):
         'qualificationDocuments', 'eligibilityDocuments', 'tenderNotice',
         'illustration', 'financialLicense', 'virtualDataRoom',
         'auctionProtocol', 'x_dgfAssetFamiliarization',
+        'x_presentation', 'x_nda',
     ])
 
 

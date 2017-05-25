@@ -15,6 +15,9 @@ from openprocurement.auctions.core.validation import (
 from openprocurement.auctions.dgf.utils import (
     check_status,
 )
+from openprocurement.auctions.dgf.validation import (
+    validate_change_price_criteria_reduction_by_administrator
+)
 
 
 @opresource(name='dgfOtherAssets:Auction',
@@ -127,7 +130,7 @@ class AuctionResource(APIResource):
         #apply_patch(self.request, src=self.request.validated['auction_src'])
         #return {'data': auction.serialize(auction.status)}
 
-    @json_view(content_type="application/json", validators=(validate_patch_auction_data, ), permission='edit_auction')
+    @json_view(content_type="application/json", validators=(validate_patch_auction_data, validate_change_price_criteria_reduction_by_administrator, ), permission='edit_auction')
     def patch(self):
         """Auction Edit (partial)
 

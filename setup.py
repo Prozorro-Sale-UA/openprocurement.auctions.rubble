@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 import os
 
-version = '1.0.9-sale'
+version = '1.0.10-sale'
 
 entry_points = {
     'openprocurement.auctions.core.plugins': [

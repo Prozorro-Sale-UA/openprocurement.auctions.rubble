@@ -57,6 +57,7 @@ class AuctionTest(BaseWebTest):
             'procurementMethodRationale', 'procurementMethodRationale_en', 'procurementMethodRationale_ru',
             'procuringEntity',
             'submissionMethodDetails', 'submissionMethodDetails_en', 'submissionMethodDetails_ru',
+            'value', 'minimalStep', 'guarantee'
         ])
         if SANDBOX_MODE:
             fields.add('procurementMethodDetails')
@@ -949,7 +950,10 @@ class AuctionResourceTest(BaseWebTest):
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(len(response.json['data']), 0)
 
-        response = self.app.post_json('/auctions', {'data': self.initial_data})
+        data = deepcopy(self.initial_data)
+        data['guarantee'] = {"amount": 100, "currency": "UAH"}
+
+        response = self.app.post_json('/auctions', {'data': data})
         self.assertEqual(response.status, '201 Created')
         auction = response.json['data']
         owner_token = response.json['access']['token']
@@ -1066,6 +1070,52 @@ class AuctionResourceTest(BaseWebTest):
         #self.assertEqual(response.content_type, 'application/json')
         #self.assertIn('auctionUrl', response.json['data'])
 
+
+        # Check availability of value, minimalStep, guarantee
+
+        response = self.app.get('/auctions/{}'.format(auction['id']))
+        self.assertIn('value', response.json['data'])
+        self.assertIn('guarantee', response.json['data'])
+        self.assertIn('minimalStep', response.json['data'])
+
+        # Only amount change is allowed
+        response = self.app.patch_json('/auctions/{}'.format(auction['id']), {'data': { 'value': {'valueAddedTaxIncluded': True }}}, status=403)
+        self.assertEqual(response.json['errors'], [{u'description': u'Only amount change is allowed', u'location': u'body', u'name': u'data'}])  
+
+        # Try to decrease amount of value, guarantee, minimalStep
+
+        for param in ['value', 'minimalStep', 'guarantee']:
+            response = self.app.patch_json('/auctions/{}'.format(auction['id']), {'data': { param: {'amount': auction[param]['amount'] - 10 }}}, status=200)
+            self.assertEqual(response.json['data'][param]['amount'], auction[param]['amount'] - 10)
+
+
+        # Try to increase amount of value, guarantee, minimalStep
+
+        for param in ['value', 'minimalStep', 'guarantee']:
+            response = self.app.patch_json('/auctions/{}'.format(auction['id']), {'data': { param: {'amount': auction[param]['amount'] + 20 }}}, status=403)
+            if param != 'value':
+                self.assertEqual(response.json['errors'],[{"location": "body", "name": "data", "description": "Only reducing {} is allowed".format(param)}])
+            else:
+                self.assertEqual(response.json['errors'],[{"location": "body", "name": "data", "description": "Only {} reduction for not more than 50% is allowed".format(param)}])
+
+        # Try to decrease value and increase minimal Step  with guarantee
+
+        response = self.app.patch_json('/auctions/{}'.format(auction['id']),
+            {'data': {'value': {'amount': auction['value']['amount'] - 15},
+                      'guarantee': {'amount': auction['guarantee']['amount'] + 15},
+                    'minimalStep': {'amount': auction['minimalStep']['amount'] + 10}}}, status=403)
+        self.assertEqual(response.json['errors'], [{'description': 'Only reducing minimalStep is allowed', 'location': 'body', 'name': 'data'},
+                          {'description': 'Only reducing guarantee is allowed', 'location': 'body', 'name': 'data'}])
+
+        #  Check decrease value more than 50%
+
+        response = self.app.patch_json('/auctions/{}'.format(auction['id']),{'data': {'value': {'amount': auction['value']['amount'] - 60}}}, status=403)
+        self.assertEqual(response.json['errors'], [{"location": "body", "name": "data", "description": "Only value reduction for not more than 50% is allowed"}])
+
+        # 422 very low amount
+        response = self.app.patch_json('/auctions/{}'.format(auction['id']),{'data': {'value': {'amount': auction['value']['amount'] - 80}}}, status=422)
+        self.assertEqual(response.json['errors'], [{'location': 'body', 'name': 'minimalStep', 'description': [u'value should be less than value of auction']}])
+
         auction_data = self.db.get(auction['id'])
         auction_data['status'] = 'complete'
         self.db.save(auction_data)
@@ -1074,6 +1124,7 @@ class AuctionResourceTest(BaseWebTest):
         self.assertEqual(response.status, '403 Forbidden')
         self.assertEqual(response.content_type, 'application/json')
         self.assertEqual(response.json['errors'][0]["description"], "Can't update auction in current (complete) status")
+  
 
     def test_dateModified_auction(self):
         response = self.app.get('/auctions')

@@ -1078,9 +1078,13 @@ class AuctionResourceTest(BaseWebTest):
         self.assertIn('guarantee', response.json['data'])
         self.assertIn('minimalStep', response.json['data'])
 
+        value = response.json['data']['value']
+
         # Only amount change is allowed
-        response = self.app.patch_json('/auctions/{}'.format(auction['id']), {'data': { 'value': {'valueAddedTaxIncluded': True }}}, status=403)
-        self.assertEqual(response.json['errors'], [{u'description': u'Only amount change is allowed', u'location': u'body', u'name': u'data'}])  
+        response = self.app.patch_json('/auctions/{}'.format(auction['id']), {'data': { 'value': {'valueAddedTaxIncluded': False, 'amount': value['amount']},
+                                                                                        'minimalStep':{'valueAddedTaxIncluded': False}}}, status=403)
+        self.assertEqual(response.json['errors'][0], {u'description': u'Only amount change is allowed', u'location': u'body', u'name': u'data'})
+        self.assertEqual(response.json['errors'][1], {u'description': u'Only amount change is allowed', u'location': u'body', u'name': u'data'})
 
         # Try to decrease amount of value, guarantee, minimalStep
 

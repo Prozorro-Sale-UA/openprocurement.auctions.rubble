@@ -10,11 +10,10 @@ def validate_change_price_criteria_reduction(request):
     """
     if request.context.status == 'active.tendering':
         for key in request.json['data']:
-
             if key in ['value', 'minimalStep', 'guarantee']:
                 new_amount = request.json['data'][key].get('amount')
 
-                if request.json['data'][key].keys() != ['amount']:
+                if any([request.validated['data'][key][i] != request.context[key][i] for i in request.validated['data'][key] if i != 'amount']):
                     request.errors.add('body', 'data', 'Only amount change is allowed')
 
                 elif key == 'value' and not request.context.value.amount * 0.5 <= new_amount <= request.context.value.amount:

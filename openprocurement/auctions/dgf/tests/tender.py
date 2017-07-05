@@ -745,9 +745,9 @@ class AuctionResourceTest(BaseWebTest):
 
     def test_additionalClassifications(self):
         auction_data = deepcopy(self.initial_data)
-         # CAV classification test
+         # CAV-PS classification test
         auction_data['items'][0]['classification'] = {
-            "scheme" : u"CAV",
+            "scheme" : u"CAV-PS",
             "id": u"07227000-6",
             "description": u"Застава - Інше"
         }
@@ -755,14 +755,14 @@ class AuctionResourceTest(BaseWebTest):
         self.assertEqual(response.status, '201 Created')
         self.assertEqual(response.content_type, 'application/json')
         data = response.json['data']
-        self.assertEqual(data['items'][0]['classification']['scheme'], 'CAV')
+        self.assertEqual(data['items'][0]['classification']['scheme'], 'CAV-PS')
         self.assertEqual(data['items'][0]['classification']['id'], '07227000-6')
 
-        # CAV and CPV classification in different items
+        # CAV-PS and CPV classification in different items
         auction_data = deepcopy(self.initial_data)
         item = deepcopy(auction_data['items'][0])
         item['classification'] = {
-            "scheme" : u"CAV",
+            "scheme" : u"CAV-PS",
             "id": u"07227000-6",
             "description": u"Застава - Інше"
         }
@@ -771,7 +771,7 @@ class AuctionResourceTest(BaseWebTest):
         self.assertEqual(response.status, '201 Created')
         self.assertEqual(response.content_type, 'application/json')
         data = response.json['data']
-        self.assertEqual(data['items'][1]['classification']['scheme'], 'CAV')
+        self.assertEqual(data['items'][1]['classification']['scheme'], 'CAV-PS')
         self.assertEqual(data['items'][1]['classification']['id'], '07227000-6')
         self.assertEqual(data['items'][0]['classification']['scheme'], 'CPV')
         self.assertEqual(data['items'][0]['classification']['id'], '66113000-5')
@@ -788,9 +788,9 @@ class AuctionResourceTest(BaseWebTest):
         self.assertEqual(data['items'][0]['additionalClassifications'][0]['scheme'], 'CPVS')
         self.assertEqual(data['items'][0]['additionalClassifications'][0]['id'], 'PA01-7')
 
-        # CAV classification fail test
+        # CAV-PS classification fail test
         auction_data['items'][0]['classification'] = {
-            "scheme" : u"CAV",
+            "scheme" : u"CAV-PS",
             "id": u"07227000-3", # last number is wrong
             "description": u"Застава - Інше"
         }
@@ -804,7 +804,7 @@ class AuctionResourceTest(BaseWebTest):
             "description": u"Застава - Інше"
         }
         response = self.app.post_json('/auctions', {'data': auction_data}, status=422)
-        self.assertEqual(response.json['errors'], [{u'description': [{u'classification': {u'scheme': [u"Value must be one of [u'CPV', u'CAV']."]}}], u'location': u'body', u'name': u'items'}])
+        self.assertEqual(response.json['errors'], [{u'description': [{u'classification': {u'scheme': [u"Value must be one of [u'CPV', u'CAV-PS']."]}}], u'location': u'body', u'name': u'items'}])
 
         # Additional Classification wrong id
         auction_data['items'][0]['additionalClassifications'] = [{

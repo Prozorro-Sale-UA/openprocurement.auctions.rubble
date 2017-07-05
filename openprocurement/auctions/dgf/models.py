@@ -42,21 +42,21 @@ ORA_CODES[0:0] = ["UA-IPN", "UA-FIN"]
 
 CLASSIFICATION_PRECISELY_FROM = datetime(2017, 6, 19, tzinfo=TZ)
 
-CAV_CODES = read_json('cav.json')
+CAVPS_CODES = read_json('cav_ps.json')
 CPVS_CODES = read_json('cpvs.json')
 
 DGF_ID_REQUIRED_FROM = datetime(2017, 1, 1, tzinfo=TZ)
 
 
 class CPVCAVClassification(Classification):
-    scheme = StringType(required=True, default=u'CPV', choices=[u'CPV', u'CAV'])
+    scheme = StringType(required=True, default=u'CPV', choices=[u'CPV', u'CAV-PS'])
     id = StringType(required=True)
 
     def validate_id(self, data, code):
         if data.get('scheme') == u'CPV' and code not in CPV_CODES:
             raise ValidationError(BaseType.MESSAGES['choices'].format(unicode(CPV_CODES)))
-        elif data.get('scheme') == u'CAV' and code not in CAV_CODES:
-            raise ValidationError(BaseType.MESSAGES['choices'].format(unicode(CAV_CODES)))
+        elif data.get('scheme') == u'CAV-PS' and code not in CAVPS_CODES:
+            raise ValidationError(BaseType.MESSAGES['choices'].format(unicode(CAVPS_CODES)))
         if code.find("00000-") > 0 and (data.get('revisions')[0].date if data.get('revisions') else get_now()) > CLASSIFICATION_PRECISELY_FROM:
             raise ValidationError('At least {} classification class (XXXX0000-Y) should be specified more precisely'.format(data.get('scheme')))
 

@@ -1415,7 +1415,7 @@ class AuctionProcessTest(BaseAuctionWebTest):
         response = self.app.get('/auctions/{}'.format(auction_id))
         self.assertEqual(response.json['data']['status'], 'cancelled')
 
-    def _test_one_valid_bid_auction(self):
+    def test_one_valid_bid_auction(self):
         self.app.authorization = ('Basic', ('broker', ''))
         # empty auctions listing
         response = self.app.get('/auctions')
@@ -1470,7 +1470,7 @@ class AuctionProcessTest(BaseAuctionWebTest):
         response = self.app.get('/auctions/{}'.format(auction_id))
         self.assertEqual(response.json['data']['status'], 'complete')
 
-    def _test_one_invalid_bid_auction(self):
+    def test_one_invalid_bid_auction(self):
         self.app.authorization = ('Basic', ('broker', ''))
         # empty auctions listing
         response = self.app.get('/auctions')

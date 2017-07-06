@@ -8,7 +8,7 @@ from openprocurement.api.utils import (
 )
 from openprocurement.auctions.core.utils import (
     cleanup_bids_for_cancelled_lots, check_complaint_status,
-    check_auction_status, remove_draft_bids,
+    check_auction_status, remove_draft_bids, check_bids
 )
 
 PKG = get_distribution(__package__)
@@ -37,21 +37,6 @@ def get_file(request):
         request.response.location = document.url
         return document.url
     return base_get_file(request)
-
-
-def check_bids(request):
-    auction = request.validated['auction']
-    if auction.lots:
-        [setattr(i.auctionPeriod, 'startDate', None) for i in auction.lots if i.numberOfBids < 2 and i.auctionPeriod and i.auctionPeriod.startDate]
-        [setattr(i, 'status', 'unsuccessful') for i in auction.lots if i.numberOfBids < 2 and i.status == 'active']
-        cleanup_bids_for_cancelled_lots(auction)
-        if not set([i.status for i in auction.lots]).difference(set(['unsuccessful', 'cancelled'])):
-            auction.status = 'unsuccessful'
-    else:
-        if auction.numberOfBids < 2:
-            if auction.auctionPeriod and auction.auctionPeriod.startDate:
-                auction.auctionPeriod.startDate = None
-            auction.status = 'unsuccessful'
 
 
 def check_status(request):

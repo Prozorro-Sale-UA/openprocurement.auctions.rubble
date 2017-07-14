@@ -248,7 +248,7 @@ class Auction(BaseAuction):
     features = ListType(ModelType(Feature), validators=[validate_features_uniq, validate_not_available])
     lots = ListType(ModelType(Lot), default=list(), validators=[validate_lots_uniq, validate_not_available])
     items = ListType(ModelType(Item), required=True, min_size=1, validators=[validate_items_uniq])
-    minNumberOfQualifiedBids = IntType(choices=[1, 2], default=2, required=True)
+    minNumberOfQualifiedBids = IntType(choices=[1, 2])
 
     def initialize(self):
         if not self.enquiryPeriod:

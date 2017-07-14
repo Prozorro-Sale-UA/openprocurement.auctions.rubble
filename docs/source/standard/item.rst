@@ -57,6 +57,10 @@ Schema
     |ocdsDescription|
     The number of units required
 
+:contractPeriod:
+    :ref:`Period`
+    Contract period
+
 :address:
     :ref:`Address`
 

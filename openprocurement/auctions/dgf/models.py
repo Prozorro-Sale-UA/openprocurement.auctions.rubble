@@ -47,8 +47,8 @@ class Item(BaseItem):
     """A good, service, or work to be contracted."""
     class Options:
         roles = {
-            'create': blacklist('deliveryLocation', 'deliveryAddress', 'deliveryDate'),
-            'edit_active.tendering': blacklist('deliveryLocation', 'deliveryAddress', 'deliveryDate'),
+            'create': blacklist('deliveryLocation', 'deliveryAddress', 'contractPeriod'),
+            'edit_active.tendering': blacklist('deliveryLocation', 'deliveryAddress', 'contractPeriod'),
         }
     additionalClassifications = ListType(ModelType(Classification), default=list())
     address = ModelType(Address)

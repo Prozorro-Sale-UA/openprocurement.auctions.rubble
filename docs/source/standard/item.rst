@@ -59,7 +59,8 @@ Schema
 
 :contractPeriod:
     :ref:`Period`
-    Contract period
+    
+    The period which is used to indicate the duration of a lease within which it is valid.
 
 :address:
     :ref:`Address`

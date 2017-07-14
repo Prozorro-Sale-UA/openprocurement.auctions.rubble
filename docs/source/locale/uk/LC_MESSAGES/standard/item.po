@@ -189,9 +189,18 @@ msgstr ""
 "Класифікація `classification.scheme` обов’язково повинна бути `CAV`.  "
 "`classification.id` повинно бути дійсним CAV кодом."
 
-#: ../../source/standard/item.rst:23
 msgid "Auction subject / asset description."
 msgstr "Опис активу / предмету торгів"
+
+msgid ":ref:`Period` Contract period"
+msgstr ":ref:`Period` Contract period"
+
+msgid ""
+"The period which is used to indicate the duration of "
+"a lease within which it is valid."
+msgstr ""
+"Період, що вказує на тривалість контракту, укладеного по оренді."
+
 
 #~ msgid "ID of related :ref:`lot`."
 #~ msgstr "ID пов’язаного :ref:`lot`."

@@ -42,7 +42,7 @@ def get_file(request):
 def check_bids(request):
     auction = request.validated['auction']
     if auction.auctionPeriod:
-        if auction.numberOfBids < auction.minNumberOfQualifiedBids:
+        if auction.numberOfBids < (auction.minNumberOfQualifiedBids or 2):
             auction.auctionPeriod.startDate = None
             auction.status = 'unsuccessful'
         elif auction.numberOfBids == 1:

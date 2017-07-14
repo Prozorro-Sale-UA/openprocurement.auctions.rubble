@@ -42,7 +42,7 @@ class AuctionTest(BaseWebTest):
             'description', 'description_en', 'description_ru', 'dgfID', 'tenderAttempts',
             'features', 'guarantee', 'hasEnquiries', 'items', 'lots', 'minimalStep', 'mode',
             'procurementMethodRationale', 'procurementMethodRationale_en', 'procurementMethodRationale_ru',
-            'procurementMethodType', 'procuringEntity',
+            'procurementMethodType', 'procuringEntity', 'minNumberOfQualifiedBids',
             'submissionMethodDetails', 'submissionMethodDetails_en', 'submissionMethodDetails_ru',
             'title', 'title_en', 'title_ru', 'value', 'auctionPeriod',
         ])
@@ -631,7 +631,7 @@ class AuctionResourceTest(BaseWebTest):
             u'procurementMethodType', u'id', u'date', u'dateModified', u'auctionID', u'status', u'enquiryPeriod',
             u'tenderPeriod', u'minimalStep', u'items', u'value', u'procuringEntity', u'next_check', u'dgfID',
             u'procurementMethod', u'awardCriteria', u'submissionMethod', u'title', u'owner', u'auctionPeriod',
-            u'tenderAttempts'
+            u'tenderAttempts', u'minNumberOfQualifiedBids'
         ]))
         self.assertNotEqual(data['id'], auction['id'])
         self.assertNotEqual(data['doc_id'], auction['id'])
@@ -679,11 +679,11 @@ class AuctionResourceTest(BaseWebTest):
             self.assertEqual(set(auction) - set(self.initial_data), set([
                 u'id', u'dateModified', u'auctionID', u'date', u'status', u'procurementMethod',
                 u'awardCriteria', u'submissionMethod', u'next_check', u'owner', u'enquiryPeriod', u'tenderPeriod',
-                u'eligibilityCriteria_en', u'eligibilityCriteria', u'eligibilityCriteria_ru'
+                u'eligibilityCriteria_en', u'eligibilityCriteria', u'eligibilityCriteria_ru', u'minNumberOfQualifiedBids'
             ]))
         else:
             self.assertEqual(set(auction) - set(self.initial_data), set([
-                u'id', u'dateModified', u'auctionID', u'date', u'status', u'procurementMethod',
+                u'id', u'dateModified', u'auctionID', u'date', u'status', u'procurementMethod', u'minNumberOfQualifiedBids',
                 u'awardCriteria', u'submissionMethod', u'next_check', u'owner', u'enquiryPeriod', u'tenderPeriod',
             ]))
         self.assertIn(auction['id'], response.headers['Location'])
@@ -1421,8 +1421,12 @@ class AuctionProcessTest(BaseAuctionWebTest):
         response = self.app.get('/auctions')
         self.assertEqual(response.json['data'], [])
         # create auction
+
+        data = deepcopy(self.initial_data)
+        data['minNumberOfQualifiedBids'] = 1
+
         response = self.app.post_json('/auctions',
-                                      {"data": self.initial_data})
+                                      {"data": data})
         auction_id = self.auction_id = response.json['data']['id']
         owner_token = response.json['access']['token']
         # switch to active.tendering
@@ -1476,8 +1480,11 @@ class AuctionProcessTest(BaseAuctionWebTest):
         response = self.app.get('/auctions')
         self.assertEqual(response.json['data'], [])
         # create auction
+        data = deepcopy(self.initial_data)
+        data['minNumberOfQualifiedBids'] = 1
+
         response = self.app.post_json('/auctions',
-                                      {"data": self.initial_data})
+                                      {"data": data})
         auction_id = self.auction_id = response.json['data']['id']
         owner_token = response.json['access']['token']
         # switch to active.tendering
@@ -1679,7 +1686,7 @@ class FinancialAuctionResourceTest(AuctionResourceTest):
             u'procurementMethodType', u'id', u'date', u'dateModified', u'auctionID', u'status', u'enquiryPeriod',
             u'tenderPeriod', u'minimalStep', u'items', u'value', u'procuringEntity', u'next_check', u'dgfID',
             u'procurementMethod', u'awardCriteria', u'submissionMethod', u'title', u'owner', u'auctionPeriod',
-            u'eligibilityCriteria', u'eligibilityCriteria_en', u'eligibilityCriteria_ru', u'tenderAttempts'
+            u'eligibilityCriteria', u'eligibilityCriteria_en', u'eligibilityCriteria_ru', u'tenderAttempts', u'minNumberOfQualifiedBids'
         ]))
         self.assertNotEqual(data['id'], auction['id'])
         self.assertNotEqual(data['doc_id'], auction['id'])

@@ -102,7 +102,7 @@ class AuctionResource(APIResource):
                     "awardPeriod": {
                         "endDate": "2014-11-13T00:00:00"
                     },
-                    "deliveryDate": {
+                    "contractPeriod": {
                         "endDate": "2014-11-20T00:00:00"
                     },
                     "minimalStep": {

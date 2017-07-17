@@ -26,12 +26,12 @@ Schema
     :ref:`Classification`
 
     |ocdsDescription|
-    The primary classification for the item. See the
-    `itemClassificationScheme` to identify preferred classification lists,
-    including CAV and GSIN.
+    The primary classification for the item. See the `itemClassificationScheme` to 
+    identify preferred classification lists.
 
-    It is required for `classification.scheme` to be `CAV`. The
-    `classification.id` should be valid CAV code.
+    Possible variants of available primary classifiers are CPV and CAV-PS. 
+    Additionally, there is a validation for the input of these classifiers due to which 
+    the accuracy of at least a class has to be used.
 
 :additionalClassifications:
     List of :ref:`Classification` objects
@@ -39,10 +39,6 @@ Schema
     |ocdsDescription|
     An array of additional classifications for the item. See the
     `itemClassificationScheme` codelist for common options to use in OCDS. 
-    This may also be used to present codes from an internal classification
-    scheme.
-
-    It is required to have at least one item with `ДКПП` as `scheme`.
 
 :unit:
     :ref:`Unit`

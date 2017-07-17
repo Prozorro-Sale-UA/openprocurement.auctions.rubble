@@ -137,22 +137,6 @@ msgstr "Код одиниці виміру в UN/CEFACT Recommendation 20."
 msgid "|ocdsDescription| Name of the unit"
 msgstr "|ocdsDescription| Назва одиниці виміру"
 
-#: ../../source/standard/item.rst:39
-msgid ""
-"|ocdsDescription| An array of additional classifications for the item. See "
-"the `itemClassificationScheme` codelist for common options to use in OCDS. "
-"This may also be used to present codes from an internal classification "
-"scheme."
-msgstr ""
-"|ocdsDescription| Масив додаткових класифікацій для елемента. Дивіться у "
-"список кодів `itemClassificationScheme`, щоб використати поширені варіанти в"
-" OCDS. Також можна використовувати для представлення кодів з внутрішньої "
-"схеми класифікації."
-
-#: ../../source/standard/item.rst:45
-msgid "It is required to have at least one item with `ДКПП` as `scheme`."
-msgstr "Обов’язково мати хоча б один елемент з `ДКПП` у стрічці `scheme`."
-
 #: ../../source/standard/item.rst:63
 msgid "Address, where the item is located."
 msgstr "Адреса, де розташований елемент."
@@ -173,21 +157,28 @@ msgstr ""
 
 #: ../../source/standard/item.rst:28
 msgid ""
-"|ocdsDescription| The primary classification for the item. See the "
-"`itemClassificationScheme` to identify preferred classification lists, "
-"including CAV and GSIN."
+"|ocdsDescription| The primary classification for the item. See "
+"the `itemClassificationScheme` to identify preferred classification lists."
 msgstr ""
-"|ocdsDescription| Початкова класифікація елемента. Дивіться у "
-"`itemClassificationScheme`, щоб визначити бажані списки класифікації, "
-"включно з CAV та GSIN."
+"|ocdsDescription| Початкова класифікація елемента. Дивіться "
+"у `itemClassificationScheme`, щоб визначити бажані списки класифікації."
 
-#: ../../source/standard/item.rst:33
+#: ../../source/standard/item.rst:32
 msgid ""
-"It is required for `classification.scheme` to be `CAV`. The "
-"`classification.id` should be valid CAV code."
+"Possible variants of available primary classifiers are CPV and CAV-PS. "
+"Additionally, there is a validation for the input of these classifiers due to which "
+"the accuracy of at least a class has to be used."
 msgstr ""
-"Класифікація `classification.scheme` обов’язково повинна бути `CAV`.  "
-"`classification.id` повинно бути дійсним CAV кодом."
+"Класифікатори, що можуть використовуватись при заведенні закупівлі як основні, - CPV та CAV-PS. "
+"Додатково здійснюється валідація введення CAV-PS та CPV з точністю не менше класу."
+
+#: ../../source/standard/item.rst:39
+msgid ""
+"|ocdsDescription| An array of additional classifications for the item. See "
+"the `itemClassificationScheme` codelist for common options to use in OCDS."
+msgstr ""
+"|ocdsDescription| Масив додаткових класифікацій для елемента. Дивіться у "
+"список кодів `itemClassificationScheme`, щоб використати поширені варіанти в OCDS."
 
 #: ../../source/standard/item.rst:23
 msgid "Auction subject / asset description."

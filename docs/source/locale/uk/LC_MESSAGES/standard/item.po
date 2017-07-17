@@ -189,9 +189,20 @@ msgstr ""
 "Класифікація `classification.scheme` обов’язково повинна бути `CAV`.  "
 "`classification.id` повинно бути дійсним CAV кодом."
 
-#: ../../source/standard/item.rst:23
 msgid "Auction subject / asset description."
 msgstr "Опис активу / предмету торгів"
+
+msgid "contractPeriod"
+msgstr "contractPeriod"
+
+msgid ""
+"The period which is used to indicate the duration of a contract within which it is valid. "
+"Contract period represents the start and end date for the contract signed after the property or asset has been sold. "
+"It is also can be used to specify the timeframe of a contact for a lease."
+msgstr ""
+"Період, що вказує на тривалість дії укладеного договору. "
+"СontractPeriod ідентифікує дату початку та завершення договору, підписаного під час проведення торгів з продажу майна (активів) банку. "
+"Також, contractPeriod може використовуватись для детермінування часового проміжку дії аренди."
 
 #~ msgid "ID of related :ref:`lot`."
 #~ msgstr "ID пов’язаного :ref:`lot`."

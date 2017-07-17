@@ -40,7 +40,7 @@ def read_json(name):
 ORA_CODES = ORA_CODES[:]
 ORA_CODES[0:0] = ["UA-IPN", "UA-FIN"]
 
-CLASSIFICATION_PRECISELY_FROM = datetime(2017, 6, 19, tzinfo=TZ)
+CLASSIFICATION_PRECISELY_FROM = datetime(2017, 7, 19, tzinfo=TZ)
 
 CAVPS_CODES = read_json('cav_ps.json')
 CPVS_CODES = read_json('cpvs.json')

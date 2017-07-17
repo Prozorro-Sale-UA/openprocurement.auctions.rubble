@@ -16,51 +16,65 @@ msgstr ""
 "=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 "X-Generator: Lokalize 2.0\n"
 
-#: ../../source/standard/auction.rst:8
 msgid "Auction"
 msgstr "Auction"
 
-#: ../../source/standard/auction.rst:11
 msgid "Schema"
 msgstr "Схема"
 
-#: ../../source/standard/auction.rst:19
 msgid "string, multilingual"
 msgstr "рядок, багатомовний"
 
-#: ../../source/standard/auction.rst:24
 msgid "string, auto-generated, read-only"
 msgstr "рядок, генерується автоматично, лише для читання"
 
-#: ../../source/standard/auction.rst:26
 msgid "The auction identifier to refer auction to in \"paper\" documentation."
 msgstr "Ідентифікатор аукціону, щоб знайти його у \"паперовій\" документації"
 
-#: ../../source/standard/auction.rst:38
 msgid ":ref:`ProcuringEntity`, required"
 msgstr ":ref:`ProcuringEntity`, обов'язково"
 
-#: ../../source/standard/auction.rst:40
 msgid "Organization conducting the auction."
 msgstr "Організатор (організація, що проводить аукціон)."
 
-#: ../../source/standard/auction.rst:48 ../../source/standard/auction.rst:98
 msgid ":ref:`value`, required"
 msgstr ":ref:`value`, обов'язково"
 
-#: ../../source/standard/auction.rst:56
 msgid ":ref:`Guarantee`"
 msgstr ":ref:`Guarantee`"
 
-#: ../../source/standard/auction.rst:58
+msgid "minNumberOfQualifiedBids"
+msgstr "minNumberOfQualifiedBids"
+
+msgid "integer, optional"
+msgstr "ціле число, не обов’язково"
+
+msgid ""
+"The field that indicates the minimal number of qualified bids. "
+"The possible values for the field are 1 or 2."
+msgstr ""
+"Поле, що вказує на мінімальну кількість кваліфікованих пропозицій. "
+"Можливі значення, що можна присвоїти: 1 або 2."
+
+msgid ""
+"In case of the field has been remained blank, the workflow will be similar to the auction with 2 bids."
+msgstr ""
+"Якщо поле залишилось незаповненим, то порядок дій такий же, як і при наявності двох учасників."
+
+msgid ""
+"You can also fill in the field, assigning the value "1". This will show "
+"that the only one bidder is needed for the procedure to be successful. "
+"Therewith the auction is omitted and that bid turns to a qualified award."
+msgstr ""
+"При присвоєнні полю значення "1" пропозиція учасника торгів автоматично стає "
+"award'ом, що пройшов етап кваліфікації. Сам же аукціон в такому випадку відсутній. Процедура вважається успішною."
+
 msgid "Bid guarantee"
 msgstr "Гарантійний внесок"
 
-#: ../../source/standard/auction.rst:61
 msgid "list of :ref:`item` objects, required"
 msgstr "список об’єктів :ref:`item`, обов’язково"
 
-#: ../../source/standard/auction.rst:65
 msgid ""
 "|ocdsDescription| The goods and services to be purchased, broken into line "
 "items wherever possible. Items should not be duplicated, but a quantity of 2"

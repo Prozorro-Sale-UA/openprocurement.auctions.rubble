@@ -94,6 +94,16 @@ Schema
    |ocdsDescription|
    A list of all the companies who entered submissions for the auction.
 
+:minNumberOfQualifiedBids:
+   integer, optional
+   
+   The field that indicates the minimal number of qualified bids. The possible values for the field are 1 or 2.
+   
+   In case of the field has been remained blank, the workflow will be similar to the auction with 2 bids.
+   
+   You can also fill in the field, assigning the value "1". This will show that the only one bidder is needed 
+   for the procedure to be successful. Therewith the auction is omitted and that bid turns to a qualified award.
+   
 :minimalStep:
    :ref:`value`, required
 

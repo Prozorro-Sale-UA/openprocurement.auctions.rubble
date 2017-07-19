@@ -53,11 +53,12 @@ class CPVCAVClassification(Classification):
     id = StringType(required=True)
 
     def validate_id(self, data, code):
+        auction = get_auction(data['__parent__'])
         if data.get('scheme') == u'CPV' and code not in CPV_CODES:
             raise ValidationError(BaseType.MESSAGES['choices'].format(unicode(CPV_CODES)))
         elif data.get('scheme') == u'CAV-PS' and code not in CAVPS_CODES:
             raise ValidationError(BaseType.MESSAGES['choices'].format(unicode(CAVPS_CODES)))
-        if code.find("00000-") > 0 and (data.get('revisions')[0].date if data.get('revisions') else get_now()) > CLASSIFICATION_PRECISELY_FROM:
+        if code.find("00000-") > 0 and (auction.get('revisions')[0].date if auction.get('revisions') else get_now()) > CLASSIFICATION_PRECISELY_FROM:
             raise ValidationError('At least {} classification class (XXXX0000-Y) should be specified more precisely'.format(data.get('scheme')))
 
 

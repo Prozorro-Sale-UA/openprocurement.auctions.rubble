@@ -827,6 +827,7 @@ class AuctionResourceTest(BaseWebTest):
 
         response = self.app.post_json('/auctions', {'data': data})
         self.assertEqual(response.status, '201 Created')
+        auction = response.json['data']
 
         response = self.app.patch_json('/auctions/{}'.format(auction['id']), {'data': {'items': [{"classification": {
             "scheme": u"CPV",

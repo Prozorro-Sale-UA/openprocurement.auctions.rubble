@@ -42,7 +42,7 @@ class AuctionTest(BaseWebTest):
             'description', 'description_en', 'description_ru', 'dgfID', 'tenderAttempts',
             'features', 'guarantee', 'hasEnquiries', 'items', 'lots', 'minimalStep', 'mode',
             'procurementMethodRationale', 'procurementMethodRationale_en', 'procurementMethodRationale_ru',
-            'procurementMethodType', 'procuringEntity',
+            'procurementMethodType', 'procuringEntity', 'minNumberOfQualifiedBids',
             'submissionMethodDetails', 'submissionMethodDetails_en', 'submissionMethodDetails_ru',
             'title', 'title_en', 'title_ru', 'value', 'auctionPeriod',
         ])
@@ -1428,14 +1428,18 @@ class AuctionProcessTest(BaseAuctionWebTest):
         response = self.app.get('/auctions/{}'.format(auction_id))
         self.assertEqual(response.json['data']['status'], 'cancelled')
 
-    def _test_one_valid_bid_auction(self):
+    def test_one_valid_bid_auction(self):
         self.app.authorization = ('Basic', ('broker', ''))
         # empty auctions listing
         response = self.app.get('/auctions')
         self.assertEqual(response.json['data'], [])
         # create auction
+
+        data = deepcopy(self.initial_data)
+        data['minNumberOfQualifiedBids'] = 1
+
         response = self.app.post_json('/auctions',
-                                      {"data": self.initial_data})
+                                      {"data": data})
         auction_id = self.auction_id = response.json['data']['id']
         owner_token = response.json['access']['token']
         # switch to active.tendering
@@ -1483,14 +1487,17 @@ class AuctionProcessTest(BaseAuctionWebTest):
         response = self.app.get('/auctions/{}'.format(auction_id))
         self.assertEqual(response.json['data']['status'], 'complete')
 
-    def _test_one_invalid_bid_auction(self):
+    def test_one_invalid_bid_auction(self):
         self.app.authorization = ('Basic', ('broker', ''))
         # empty auctions listing
         response = self.app.get('/auctions')
         self.assertEqual(response.json['data'], [])
         # create auction
+        data = deepcopy(self.initial_data)
+        data['minNumberOfQualifiedBids'] = 1
+
         response = self.app.post_json('/auctions',
-                                      {"data": self.initial_data})
+                                      {"data": data})
         auction_id = self.auction_id = response.json['data']['id']
         owner_token = response.json['access']['token']
         # switch to active.tendering

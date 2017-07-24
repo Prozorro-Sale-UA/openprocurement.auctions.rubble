@@ -8,7 +8,7 @@ from openprocurement.api.utils import (
 )
 from openprocurement.auctions.core.utils import (
     cleanup_bids_for_cancelled_lots, check_complaint_status,
-    check_auction_status, remove_draft_bids,
+    check_auction_status, remove_draft_bids, add_next_award
 )
 
 PKG = get_distribution(__package__)
@@ -41,17 +41,13 @@ def get_file(request):
 
 def check_bids(request):
     auction = request.validated['auction']
-    if auction.lots:
-        [setattr(i.auctionPeriod, 'startDate', None) for i in auction.lots if i.numberOfBids < 2 and i.auctionPeriod and i.auctionPeriod.startDate]
-        [setattr(i, 'status', 'unsuccessful') for i in auction.lots if i.numberOfBids < 2 and i.status == 'active']
-        cleanup_bids_for_cancelled_lots(auction)
-        if not set([i.status for i in auction.lots]).difference(set(['unsuccessful', 'cancelled'])):
+    if auction.auctionPeriod:
+        if auction.numberOfBids < (auction.minNumberOfQualifiedBids or 2):
+            auction.auctionPeriod.startDate = None
             auction.status = 'unsuccessful'
-    else:
-        if auction.numberOfBids < 2:
-            if auction.auctionPeriod and auction.auctionPeriod.startDate:
-                auction.auctionPeriod.startDate = None
-            auction.status = 'unsuccessful'
+        elif auction.numberOfBids == 1:
+            auction.auctionPeriod.startDate = None
+            add_next_award(request)
 
 
 def check_status(request):
@@ -68,8 +64,6 @@ def check_status(request):
         auction.status = 'active.auction'
         remove_draft_bids(request)
         check_bids(request)
-        if auction.numberOfBids < 2 and auction.auctionPeriod:
-            auction.auctionPeriod.startDate = None
         return
     elif auction.lots and auction.status == 'active.tendering' and auction.tenderPeriod.endDate <= now:
         LOGGER.info('Switched auction {} to {}'.format(auction['id'], 'active.auction'),

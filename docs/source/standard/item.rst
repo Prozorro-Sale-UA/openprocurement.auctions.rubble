@@ -52,7 +52,14 @@ Schema
 
     |ocdsDescription|
     The number of units required
-
+    
+:contractPeriod:
+     :ref:`Period`
+     
+     The period which is used to indicate the duration of a contract within which it is valid.
+     Contract period represents the start and end date for the contract signed after the property or asset has been sold.
+     It is also can be used to specify the timeframe of a contact for a lease.
+     
 :address:
     :ref:`Address`
 

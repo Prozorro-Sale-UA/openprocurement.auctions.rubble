@@ -58,6 +58,10 @@ test_auction_data = {
                 "code": u"44617100-9"
             },
             "quantity": 5,
+            "contractPeriod": {
+                "startDate": (now + timedelta(days=2)).isoformat(),
+                "endDate": (now + timedelta(days=5)).isoformat()
+            },
             "address": {
                 "countryName": u"Україна",
                 "postalCode": "79000",

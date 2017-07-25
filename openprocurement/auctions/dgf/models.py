@@ -70,11 +70,6 @@ class AdditionalClassification(Classification):
 
 class Item(BaseItem):
     """A good, service, or work to be contracted."""
-    class Options:
-        roles = {
-            'create': blacklist('deliveryLocation', 'deliveryAddress', 'contractPeriod'),
-            'edit_active.tendering': blacklist('deliveryLocation', 'deliveryAddress', 'contractPeriod'),
-        }
     classification = ModelType(CPVCAVClassification, required=True)
     additionalClassifications = ListType(ModelType(AdditionalClassification), default=list())
     address = ModelType(Address)

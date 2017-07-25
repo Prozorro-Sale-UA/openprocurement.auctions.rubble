@@ -45,11 +45,6 @@ DGF_ID_REQUIRED_FROM = datetime(2017, 1, 1, tzinfo=TZ)
 
 class Item(BaseItem):
     """A good, service, or work to be contracted."""
-    class Options:
-        roles = {
-            'create': blacklist('deliveryLocation', 'deliveryAddress', 'contractPeriod'),
-            'edit_active.tendering': blacklist('deliveryLocation', 'deliveryAddress', 'contractPeriod'),
-        }
     additionalClassifications = ListType(ModelType(Classification), default=list())
     address = ModelType(Address)
     location = ModelType(Location)

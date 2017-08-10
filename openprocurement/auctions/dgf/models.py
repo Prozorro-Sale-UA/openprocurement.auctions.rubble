@@ -72,8 +72,8 @@ class Item(BaseItem):
     """A good, service, or work to be contracted."""
     class Options:
         roles = {
-            'create': blacklist('deliveryLocation', 'deliveryAddress', 'contractPeriod'),
-            'edit_active.tendering': blacklist('deliveryLocation', 'deliveryAddress', 'contractPeriod'),
+            'create': blacklist('deliveryLocation', 'deliveryAddress'),
+            'edit_active.tendering': blacklist('deliveryLocation', 'deliveryAddress'),
         }
     classification = ModelType(CPVCAVClassification, required=True)
     additionalClassifications = ListType(ModelType(AdditionalClassification), default=list())

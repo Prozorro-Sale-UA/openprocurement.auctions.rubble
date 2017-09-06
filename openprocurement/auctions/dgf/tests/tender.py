@@ -517,6 +517,18 @@ class AuctionResourceTest(BaseWebTest):
             {u'description': [u'period should begin after auctionPeriod'], u'location': u'body', u'name': u'awardPeriod'}
         ])
 
+        # Lot exposition time period validation
+        data = self.initial_data['auctionPeriod']
+        self.initial_data['auctionPeriod'] = {'startDate': (now + timedelta(days=5)).isoformat()}
+        response = self.app.post_json(request_path, {'data': self.initial_data}, status=422)
+        self.initial_data['auctionPeriod'] = data
+        self.assertEqual(response.status, '422 Unprocessable Entity')
+        self.assertEqual(response.content_type, 'application/json')
+        self.assertEqual(response.json['status'], 'error')
+        self.assertEqual(response.json['errors'], [
+            {u'description': [u'tenderPeriod should be greater than 6 days'], u'location': u'body', u'name': u'tenderPeriod'}
+        ])
+
         data = self.initial_data['minimalStep']
         self.initial_data['minimalStep'] = {'amount': '1000.0'}
         response = self.app.post_json(request_path, {'data': self.initial_data}, status=422)

@@ -14,6 +14,7 @@ Features
 --------
 
 * No need to specify enquiries period (there is no *active.enquiries* status), since it overlaps with *active.tendering* period.
+* `tenderPeriod` must be at least 7 calendar days.
 * Procedure can be switched from *draft* status to *active.tendering*.
 * During *active.tendering* period participants can ask questions, submit proposals, and upload documents.
 * The only date Organizer has to provide is *Tender.auctionPeriod.startDate*, the rest will be calculated automatically.

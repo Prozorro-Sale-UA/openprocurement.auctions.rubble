@@ -182,10 +182,11 @@ class AuctionAuctionPeriodResourceTest(BaseAuctionWebTest):
         auction = self.db.get(self.auction_id)
         self.assertGreater(auction['next_check'], response.json['data']['tenderPeriod']['endDate'])
         auction['tenderPeriod']['endDate'] = auction['tenderPeriod']['startDate']
+        auction['tenderPeriod']['startDate'] = (datetime.strptime(auction['tenderPeriod']['endDate'][:19], "%Y-%m-%dT%H:%M:%S")  - timedelta(days=10)).isoformat()
         if self.initial_lots:
-            auction['lots'][0]['auctionPeriod']['startDate'] = auction['tenderPeriod']['startDate']
+            auction['lots'][0]['auctionPeriod']['startDate'] = auction['tenderPeriod']['endDate']
         else:
-            auction['auctionPeriod']['startDate'] = auction['tenderPeriod']['startDate']
+            auction['auctionPeriod']['startDate'] = auction['tenderPeriod']['endDate']
         self.db.save(auction)
 
         response = self.app.patch_json('/auctions/{}'.format(self.auction_id), {'data': {'id': self.auction_id}})

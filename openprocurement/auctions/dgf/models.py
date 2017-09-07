@@ -25,6 +25,7 @@ from openprocurement.auctions.flash.models import (
     ProcuringEntity as BaseProcuringEntity, Question as BaseQuestion,
     get_auction, Administrator_role
 )
+from openprocurement.auctions.dgf.constants import (MINIMAL_EXPOSITION_PERIOD, MINIMAL_EXPOSITION_REQUIRED_FROM)
 
 
 def read_json(name):
@@ -40,7 +41,7 @@ def read_json(name):
 ORA_CODES = ORA_CODES[:]
 ORA_CODES[0:0] = ["UA-IPN", "UA-FIN"]
 
-CLASSIFICATION_PRECISELY_FROM = datetime(2017, 6, 19, tzinfo=TZ)
+CLASSIFICATION_PRECISELY_FROM = datetime(2017, 7, 19, tzinfo=TZ)
 
 CAVPS_CODES = read_json('cav_ps.json')
 CPVS_CODES = read_json('cpvs.json')
@@ -70,6 +71,11 @@ class AdditionalClassification(Classification):
 
 class Item(BaseItem):
     """A good, service, or work to be contracted."""
+    class Options:
+        roles = {
+            'create': blacklist('deliveryLocation', 'deliveryAddress'),
+            'edit_active.tendering': blacklist('deliveryLocation', 'deliveryAddress'),
+        }
     classification = ModelType(CPVCAVClassification, required=True)
     additionalClassifications = ListType(ModelType(AdditionalClassification), default=list())
     address = ModelType(Address)
@@ -288,7 +294,13 @@ class Auction(BaseAuction):
                 lot.date = now
 
     def validate_tenderPeriod(self, data, period):
-        pass
+        """Auction start date must be not closer than MINIMAL_EXPOSITION_PERIOD days and not a holiday"""
+        if not (period and period.startDate and period.endDate):
+            return
+        if (data.get('revisions')[0].date if data.get('revisions') else get_now()) < MINIMAL_EXPOSITION_REQUIRED_FROM:
+            return
+        if calculate_business_date(period.startDate, MINIMAL_EXPOSITION_PERIOD) > period.endDate:
+            raise ValidationError(u"tenderPeriod should be greater than 6 days")
 
     def validate_value(self, data, value):
         if value.currency != u'UAH':

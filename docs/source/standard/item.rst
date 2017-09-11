@@ -35,6 +35,9 @@ Schema
 
 :additionalClassifications:
     List of :ref:`Classification` objects
+    
+    Additional classifier is CPVS. The property can be leased, when entering value PA01-7
+    in the classifier CPVS field.
 
     |ocdsDescription|
     An array of additional classifications for the item. See the

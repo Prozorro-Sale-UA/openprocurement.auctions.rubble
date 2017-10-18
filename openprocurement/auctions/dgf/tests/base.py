@@ -11,6 +11,9 @@ from openprocurement.auctions.flash.tests.base import (
 )
 
 
+DEFAULT_ACCELERATION = 1440
+
+
 now = datetime.now()
 test_organization = {
     "name": u"Державне управління справами",
@@ -77,7 +80,7 @@ test_auction_data = {
     "procurementMethodType": "dgfOtherAssets",
 }
 if SANDBOX_MODE:
-    test_auction_data['procurementMethodDetails'] = 'quick, accelerator=1440'
+    test_auction_data['procurementMethodDetails'] = 'quick, accelerator={}'.format(DEFAULT_ACCELERATION)
 test_features_auction_data = test_auction_data.copy()
 test_features_item = test_features_auction_data['items'][0].copy()
 test_features_item['id'] = "1"

@@ -9,7 +9,7 @@ from iso8601 import parse_date
 from openprocurement.api.utils import ROUTE_PREFIX
 from openprocurement.api.models import get_now, SANDBOX_MODE, TZ
 from openprocurement.auctions.dgf.models import DGFOtherAssets, DGFFinancialAssets, DGF_ID_REQUIRED_FROM, CLASSIFICATION_PRECISELY_FROM
-from openprocurement.auctions.dgf.tests.base import test_auction_data, test_financial_auction_data, test_organization, test_financial_organization, BaseWebTest, BaseAuctionWebTest
+from openprocurement.auctions.dgf.tests.base import test_auction_data, test_financial_auction_data, test_organization, test_financial_organization, BaseWebTest, BaseAuctionWebTest, DEFAULT_ACCELERATION
 
 
 class AuctionTest(BaseWebTest):
@@ -360,6 +360,31 @@ class AuctionResourceTest(BaseWebTest):
         self.assertEqual(set([i['dateModified'] for i in response.json['data']]), set([i['dateModified'] for i in auctions]))
         self.assertEqual([i['dateModified'] for i in response.json['data']], sorted([i['dateModified'] for i in auctions]))
 
+    def test_create_auction_validation_accelerated(self):
+        request_path = '/auctions'
+        now = get_now()
+        data = self.initial_data.copy()
+        auction_data = deepcopy(self.initial_data)
+        if SANDBOX_MODE:
+            startDate = (now + timedelta(days=8) / DEFAULT_ACCELERATION).isoformat()
+        else:
+            startDate = (now + timedelta(days=8)).isoformat()
+        auction_data['auctionPeriod'] = {'startDate': startDate}
+        response = self.app.post_json(request_path, {'data': auction_data}, status=201)
+        auction = response.json['data']
+        self.assertEqual(response.status, '201 Created')
+        self.assertEqual(response.content_type, 'application/json')
+        tender_period_startDate = parse_date(auction['tenderPeriod']['startDate'], None)
+        if not tender_period_startDate.tzinfo:
+            tender_period_startDate = TZ.localize(tender_period_startDate)
+        tender_period_endDate = parse_date(auction['tenderPeriod']['endDate'], None)
+        if not tender_period_endDate.tzinfo:
+            tender_period_endDate = TZ.localize(tender_period_endDate)
+        if SANDBOX_MODE:
+            self.assertLess((tender_period_endDate - tender_period_startDate), timedelta(days=8) / DEFAULT_ACCELERATION)
+        else:
+            self.assertLess((tender_period_endDate - tender_period_startDate), timedelta(days=8))
+
     def test_create_auction_invalid(self):
         request_path = '/auctions'
         response = self.app.post(request_path, 'data', status=415)
@@ -517,11 +542,12 @@ class AuctionResourceTest(BaseWebTest):
             {u'description': [u'period should begin after auctionPeriod'], u'location': u'body', u'name': u'awardPeriod'}
         ])
 
-        # Lot exposition time period validation
-        data = self.initial_data['auctionPeriod']
-        self.initial_data['auctionPeriod'] = {'startDate': (now + timedelta(days=5)).isoformat()}
-        response = self.app.post_json(request_path, {'data': self.initial_data}, status=422)
-        self.initial_data['auctionPeriod'] = data
+        auction_data = deepcopy(self.initial_data)
+        if SANDBOX_MODE:
+            auction_data['auctionPeriod'] = {'startDate': (now + timedelta(days=5) / DEFAULT_ACCELERATION).isoformat()}
+        else:
+            auction_data['auctionPeriod'] = {'startDate': (now + timedelta(days=5)).isoformat()}
+        response = self.app.post_json(request_path, {'data': auction_data}, status=422)
         self.assertEqual(response.status, '422 Unprocessable Entity')
         self.assertEqual(response.content_type, 'application/json')
         self.assertEqual(response.json['status'], 'error')

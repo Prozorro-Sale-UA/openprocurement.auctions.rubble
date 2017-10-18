@@ -299,7 +299,7 @@ class Auction(BaseAuction):
             return
         if (data.get('revisions')[0].date if data.get('revisions') else get_now()) < MINIMAL_EXPOSITION_REQUIRED_FROM:
             return
-        if calculate_business_date(period.startDate, MINIMAL_EXPOSITION_PERIOD) > period.endDate:
+        if calculate_business_date(period.startDate, MINIMAL_EXPOSITION_PERIOD, data) > period.endDate:
             raise ValidationError(u"tenderPeriod should be greater than 6 days")
 
     def validate_value(self, data, value):

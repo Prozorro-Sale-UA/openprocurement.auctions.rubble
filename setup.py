@@ -1,11 +1,14 @@
 from setuptools import setup, find_packages
 import os
 
-version = '1.0.14-sale'
+version = '1.0.11'
 
 entry_points = {
     'openprocurement.auctions.core.plugins': [
         'auctions.dgf = openprocurement.auctions.dgf:includeme'
+    ],
+    'openprocurement.api.migrations': [
+        'auctions = openprocurement.auctions.dgf.migration:migrate_data'
     ]
 }
 

@@ -79,10 +79,9 @@ def create_awards(request):
     auction.awardPeriod = type(auction).awardPeriod({'startDate': now})
 
     bids = chef(auction.bids, auction.features or [], [], True)
-
-    for i, status in enumerate(['pending.verification', 'pending.waiting']):
-        # import pdb; pdb.set_trace()
-        bid = bids[i].serialize()
+    for i, bid in enumerate(bids):
+        bid = bid.serialize()
+        status = 'pending.verification' if i == 0 else 'pending.waiting'
         award = type(auction).awards.model_class({
             '__parent__': request.context,
             'bid_id': bid['id'],

@@ -1,13 +1,35 @@
 # -*- coding: utf-8 -*-
 import unittest
 from datetime import timedelta
+from copy import deepcopy
 
 from openprocurement.api.models import get_now
 from openprocurement.auctions.dgf.tests.base import (
-    BaseAuctionWebTest, test_auction_data, test_bids, test_lots,
-    test_financial_auction_data, test_financial_bids,
+    BaseAuctionWebTest, test_auction_data, test_lots, test_organization,
+    test_bids as base_bids,
+    test_financial_auction_data,
     test_financial_organization,
 )
+bid = {
+        "tenderers": [
+            test_organization
+        ],
+        "value": {
+            "amount": 459,
+            "currency": "UAH",
+            "valueAddedTaxIncluded": True
+        },
+        "qualified": True
+       }
+test_bids = deepcopy(base_bids)
+test_bids.append(bid)
+
+test_financial_bids = []
+for i in test_bids:
+    bid = deepcopy(i)
+    bid.update({'eligible': True})
+    bid['tenderers'] = [test_financial_organization]
+    test_financial_bids.append(bid)
 
 
 class CreateAuctionAwardTest(BaseAuctionWebTest):
@@ -302,8 +324,10 @@ class AuctionAwardProcessTest(BaseAuctionWebTest):
         self.assertEqual('active.qualification', auction["status"])
         self.first_award = auction['awards'][0]
         self.second_award = auction['awards'][1]
+        self.third_award = auction['awards'][2]
         self.first_award_id = self.first_award['id']
         self.second_award_id = self.second_award['id']
+        self.third_award_id = self.third_award['id']
         self.app.authorization = authorization
 
     def test_invalid_patch_auction_award(self):
@@ -503,7 +527,7 @@ class AuctionAwardProcessTest(BaseAuctionWebTest):
         response = self.app.get(request_path)
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(len(response.json['data']), 2)
+        self.assertEqual(len(response.json['data']), 3)
 
         response = self.app.patch_json('/auctions/{}/awards/some_id'.format(self.auction_id), {"data": {"status": "unsuccessful"}}, status=404)
         self.assertEqual(response.status, '404 Not Found')
@@ -547,7 +571,7 @@ class AuctionAwardProcessTest(BaseAuctionWebTest):
         response = self.app.get(request_path)
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(len(response.json['data']), 2)
+        self.assertEqual(len(response.json['data']), 3)
         self.assertIn(response.json['data'][1]['id'], new_award_location)
 
         response = self.app.patch_json('/auctions/{}/awards/{}?acc_token={}'.format(self.auction_id, self.second_award_id, self.auction_token),
@@ -585,7 +609,7 @@ class AuctionAwardProcessTest(BaseAuctionWebTest):
         response = self.app.get(request_path)
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(len(response.json['data']), 2)
+        self.assertEqual(len(response.json['data']), 3)
         authorization = self.app.authorization
 
         self.app.authorization = ('Basic', ('administrator', ''))
@@ -749,7 +773,7 @@ class AuctionAwardProcessTest(BaseAuctionWebTest):
         response = self.app.get(request_path)
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(len(response.json['data']), 2)
+        self.assertEqual(len(response.json['data']), 3)
         self.assertIn(response.json['data'][1]['id'], new_award_location)
         new_award = response.json['data'][-1]
 
@@ -791,6 +815,10 @@ class AuctionAwardProcessTest(BaseAuctionWebTest):
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
 
+        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.third_award_id), {"data": {"status": "unsuccessful"}})
+        self.assertEqual(response.status, '200 OK')
+        self.assertEqual(response.content_type, 'application/json')
+
         response = self.app.get('/auctions/{}'.format(self.auction_id))
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
@@ -809,6 +837,10 @@ class AuctionAwardProcessTest(BaseAuctionWebTest):
         self.assertEqual(response.content_type, 'application/json')
 
         response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.first_award_id), {"data": {"status": "unsuccessful"}})
+        self.assertEqual(response.status, '200 OK')
+        self.assertEqual(response.content_type, 'application/json')
+
+        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.third_award_id), {"data": {"status": "unsuccessful"}})
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
 
@@ -837,6 +869,10 @@ class AuctionAwardProcessTest(BaseAuctionWebTest):
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
 
+        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.third_award_id), {"data": {"status": "unsuccessful"}})
+        self.assertEqual(response.status, '200 OK')
+        self.assertEqual(response.content_type, 'application/json')
+
         response = self.app.get('/auctions/{}'.format(self.auction_id))
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
@@ -859,6 +895,10 @@ class AuctionAwardProcessTest(BaseAuctionWebTest):
         self.assertEqual(response.content_type, 'application/json')
 
         response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.first_award_id), {"data": {"status": "unsuccessful"}})
+        self.assertEqual(response.status, '200 OK')
+        self.assertEqual(response.content_type, 'application/json')
+
+        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.third_award_id), {"data": {"status": "unsuccessful"}})
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
 
@@ -887,6 +927,10 @@ class AuctionAwardProcessTest(BaseAuctionWebTest):
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
 
+        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.third_award_id), {"data": {"status": "unsuccessful"}})
+        self.assertEqual(response.status, '200 OK')
+        self.assertEqual(response.content_type, 'application/json')
+
         response = self.app.get('/auctions/{}'.format(self.auction_id))
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
@@ -896,7 +940,7 @@ class AuctionAwardProcessTest(BaseAuctionWebTest):
         response = self.app.get('/auctions/{}/awards'.format(self.auction_id))
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(len(response.json['data']), 2)
+        self.assertEqual(len(response.json['data']), 3)
         fist_award = response.json['data'][0]
         second_award = response.json['data'][1]
 
@@ -1021,7 +1065,7 @@ class AuctionLotAwardResourceTest(BaseAuctionWebTest):
         response = self.app.get(request_path)
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(len(response.json['data']), 2)
+        self.assertEqual(len(response.json['data']), 3)
         self.assertIn(response.json['data'][-1]['id'], new_award_location)
         new_award = response.json['data'][-1]
 
@@ -1032,7 +1076,7 @@ class AuctionLotAwardResourceTest(BaseAuctionWebTest):
         response = self.app.get(request_path)
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(len(response.json['data']), 2)
+        self.assertEqual(len(response.json['data']), 3)
 
         response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.second_award_id), {"data": {"status": "cancelled"}})
         self.assertEqual(response.status, '200 OK')
@@ -1077,7 +1121,7 @@ class AuctionLotAwardResourceTest(BaseAuctionWebTest):
         response = self.app.get(request_path)
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(len(response.json['data']), 2)
+        self.assertEqual(len(response.json['data']), 3)
 
         response = self.app.post_json('/auctions/{}/awards/{}/complaints'.format(self.auction_id, award['id']), {'data': {
             'title': 'complaint title',
@@ -1192,7 +1236,7 @@ class Auction2LotAwardResourceTest(BaseAuctionWebTest):
         response = self.app.get(request_path)
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(len(response.json['data']), 2)
+        self.assertEqual(len(response.json['data']), 3)
         new_award = response.json['data'][-1]
         response = self.app.post_json('/auctions/{}/cancellations'.format(self.auction_id), {'data': {
             'reason': 'cancellation reason',

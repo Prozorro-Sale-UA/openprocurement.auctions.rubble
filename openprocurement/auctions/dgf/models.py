@@ -42,7 +42,7 @@ ORA_CODES = ORA_CODES[:]
 ORA_CODES[0:0] = ["UA-IPN", "UA-FIN"]
 
 DOCUMENT_TYPE_OFFLINE = ['x_dgfAssetFamiliarization']
-DOCUMENT_TYPE_URL_ONLY = ['virtualDataRoom', 'x_dgfPublicAssetCertificate', 'x_dgfPlatformLegalDetails']
+DOCUMENT_TYPE_URL_ONLY = ['virtualDataRoom', 'x_dgfPlatformLegalDetails']
 
 CLASSIFICATION_PRECISELY_FROM = datetime(2017, 7, 19, tzinfo=TZ)
 
@@ -121,7 +121,7 @@ class Document(BaseDocument):
         'eligibilityCriteria', 'contractProforma', 'commercialProposal',
         'qualificationDocuments', 'eligibilityDocuments', 'tenderNotice',
         'illustration', 'auctionProtocol', 'x_dgfAssetFamiliarization',
-        'x_presentation', 'x_nda', 'x_dgfPublicAssetCertificate'
+        'x_presentation', 'x_nda'
     ])
 
     @serializable(serialized_name="url", serialize_when_none=False)
@@ -498,7 +498,7 @@ class Document(Document):
         'qualificationDocuments', 'eligibilityDocuments', 'tenderNotice',
         'illustration', 'financialLicense', 'virtualDataRoom',
         'auctionProtocol', 'x_dgfAssetFamiliarization',
-        'x_presentation', 'x_nda', 'x_dgfPublicAssetCertificate',
+        'x_presentation', 'x_nda',
     ])
 
 
@@ -507,6 +507,7 @@ class Bid(Bid):
         roles = {
             'create': whitelist('value', 'tenderers', 'parameters', 'lotValues', 'status', 'qualified', 'eligible'),
         }
+    status = StringType(choices=['active', 'draft', 'invalid'], default='active')
     documents = ListType(ModelType(Document), default=list())
     tenderers = ListType(ModelType(FinantialOrganization), required=True, min_size=1, max_size=1)
     eligible = BooleanType(required=True, choices=[True])

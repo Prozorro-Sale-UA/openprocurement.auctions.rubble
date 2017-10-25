@@ -139,17 +139,7 @@ base_test_bids = [
             "currency": "UAH",
             "valueAddedTaxIncluded": True
         }
-    },
-    # {
-    #     "tenderers": [
-    #         test_organization
-    #     ],
-    #     "value": {
-    #         "amount": 459,
-    #         "currency": "UAH",
-    #         "valueAddedTaxIncluded": True
-    #     }
-    # }
+    }
 ]
 
 test_bids = []

@@ -366,9 +366,9 @@ class AuctionResourceTest(BaseWebTest):
         data = self.initial_data.copy()
         auction_data = deepcopy(self.initial_data)
         if SANDBOX_MODE:
-            startDate = (now + timedelta(days=8) / DEFAULT_ACCELERATION).isoformat()
+            startDate = (now + timedelta(days=8, hours=4) / DEFAULT_ACCELERATION).isoformat()
         else:
-            startDate = (now + timedelta(days=8)).isoformat()
+            startDate = (now + timedelta(days=8, hours=4)).isoformat()
         auction_data['auctionPeriod'] = {'startDate': startDate}
         response = self.app.post_json(request_path, {'data': auction_data}, status=201)
         auction = response.json['data']
@@ -381,9 +381,9 @@ class AuctionResourceTest(BaseWebTest):
         if not tender_period_endDate.tzinfo:
             tender_period_endDate = TZ.localize(tender_period_endDate)
         if SANDBOX_MODE:
-            self.assertLess((tender_period_endDate - tender_period_startDate), timedelta(days=8) / DEFAULT_ACCELERATION)
+            self.assertLess((tender_period_endDate - tender_period_startDate), timedelta(days=8, hours=4) / DEFAULT_ACCELERATION)
         else:
-            self.assertLess((tender_period_endDate - tender_period_startDate), timedelta(days=8))
+            self.assertLess((tender_period_endDate - tender_period_startDate), timedelta(days=8, hours=4))
 
     def test_create_auction_invalid(self):
         request_path = '/auctions'

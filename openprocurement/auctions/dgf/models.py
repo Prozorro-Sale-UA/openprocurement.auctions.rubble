@@ -320,9 +320,9 @@ class AuctionAuctionPeriod(Period):
             raise ValidationError(u'This field is required.')
 
 
-create_role = (schematics_embedded_role + blacklist('owner_token', 'owner', '_attachments', 'revisions', 'date', 'dateModified', 'doc_id', 'auctionID', 'bids', 'documents', 'awards', 'questions', 'complaints', 'auctionUrl', 'status', 'enquiryPeriod', 'tenderPeriod', 'awardPeriod', 'procurementMethod', 'eligibilityCriteria', 'eligibilityCriteria_en', 'eligibilityCriteria_ru', 'awardCriteria', 'submissionMethod', 'cancellations', 'numberOfBidders', 'contracts', 'suspended'))
-edit_role = (edit_role + blacklist('enquiryPeriod', 'tenderPeriod', 'value', 'auction_value', 'minimalStep', 'auction_minimalStep', 'guarantee', 'auction_guarantee', 'eligibilityCriteria', 'eligibilityCriteria_en', 'eligibilityCriteria_ru', 'awardCriteriaDetails', 'awardCriteriaDetails_en', 'awardCriteriaDetails_ru', 'procurementMethodRationale', 'procurementMethodRationale_en', 'procurementMethodRationale_ru', 'submissionMethodDetails', 'submissionMethodDetails_en', 'submissionMethodDetails_ru', 'items', 'procuringEntity', 'suspended', 'minNumberOfQualifiedBids'))
-Administrator_role = (whitelist('suspended', 'awards') + Administrator_role)
+create_role = (schematics_embedded_role + blacklist('owner_token', 'owner', '_attachments', 'revisions', 'date', 'dateModified', 'doc_id', 'auctionID', 'bids', 'documents', 'awards', 'questions', 'complaints', 'auctionUrl', 'status', 'enquiryPeriod', 'tenderPeriod', 'awardPeriod', 'procurementMethod', 'eligibilityCriteria', 'eligibilityCriteria_en', 'eligibilityCriteria_ru', 'awardCriteria', 'submissionMethod', 'cancellations', 'numberOfBidders', 'contracts'))
+edit_role = (edit_role + blacklist('enquiryPeriod', 'tenderPeriod', 'value', 'auction_value', 'minimalStep', 'auction_minimalStep', 'guarantee', 'auction_guarantee', 'eligibilityCriteria', 'eligibilityCriteria_en', 'eligibilityCriteria_ru', 'awardCriteriaDetails', 'awardCriteriaDetails_en', 'awardCriteriaDetails_ru', 'procurementMethodRationale', 'procurementMethodRationale_en', 'procurementMethodRationale_ru', 'submissionMethodDetails', 'submissionMethodDetails_en', 'submissionMethodDetails_ru', 'items', 'procuringEntity', 'minNumberOfQualifiedBids'))
+Administrator_role = (whitelist('awards') + Administrator_role)
 
 
 @implementer(IAuction)
@@ -354,7 +354,6 @@ class Auction(BaseAuction):
     lots = ListType(ModelType(Lot), default=list(), validators=[validate_lots_uniq, validate_not_available])
     items = ListType(ModelType(Item), required=True, min_size=1, validators=[validate_items_uniq])
     minNumberOfQualifiedBids = IntType(choices=[1, 2])
-    suspended = BooleanType()
 
     def __acl__(self):
         return [
@@ -393,8 +392,6 @@ class Auction(BaseAuction):
 
     @serializable(serialize_when_none=False)
     def next_check(self):
-        if self.suspended:
-            return None
         now = get_now()
         checks = []
         if self.status == 'active.tendering' and self.tenderPeriod and self.tenderPeriod.endDate:

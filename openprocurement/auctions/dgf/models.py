@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime, timedelta, time
-from schematics.types import StringType, URLType, IntType, DateType
+from schematics.types import StringType, URLType, IntType
 from schematics.types.compound import ModelType
 from schematics.exceptions import ValidationError
 from schematics.transforms import blacklist, whitelist
@@ -10,7 +10,7 @@ from string import hexdigits
 from zope.interface import implementer
 from pyramid.security import Allow
 from openprocurement.api.models import (
-    BooleanType, ListType, Feature, Period, get_now, TZ, ComplaintModelType,
+    BooleanType, ListType, Feature, Period, get_now, TZ,
     validate_features_uniq, validate_lots_uniq, Identifier as BaseIdentifier,
     Classification, validate_items_uniq, ORA_CODES, Address, Location,
     schematics_embedded_role, SANDBOX_MODE, CPV_CODES
@@ -26,7 +26,8 @@ from openprocurement.auctions.flash.models import (
     ProcuringEntity as BaseProcuringEntity, Question as BaseQuestion,
     get_auction, Administrator_role
 )
-import sys
+from .constants import AWARD_PAYMENT_TIME, CONTRACT_SIGNING_TIME, VERIFY_AUCTION_PROTOCOL_TIME
+
 
 def read_json(name):
     import os.path
@@ -42,7 +43,7 @@ ORA_CODES = ORA_CODES[:]
 ORA_CODES[0:0] = ["UA-IPN", "UA-FIN"]
 
 DOCUMENT_TYPE_OFFLINE = ['x_dgfAssetFamiliarization']
-DOCUMENT_TYPE_URL_ONLY = ['virtualDataRoom', 'x_dgfPlatformLegalDetails']
+DOCUMENT_TYPE_URL_ONLY = ['virtualDataRoom']
 
 CLASSIFICATION_PRECISELY_FROM = datetime(2017, 7, 19, tzinfo=TZ)
 
@@ -50,12 +51,7 @@ CAVPS_CODES = read_json('cav_ps.json')
 CPVS_CODES = read_json('cpvs.json')
 
 DGF_ID_REQUIRED_FROM = datetime(2017, 1, 1, tzinfo=TZ)
-DGF_PLATFORM_LEGAL_DETAILS_FROM = datetime(2016, 12, 23, tzinfo=TZ)
 DGF_DECISION_REQUIRED_FROM = datetime(2017, 1, 1, tzinfo=TZ)
-
-VERIFY_AUCTION_PROTOCOL_TIME = timedelta(days=3)
-AWARD_PAYMENT_TIME = timedelta(days=20)
-CONTRACT_SIGNING_TIME = timedelta(days=20)
 
 
 class CPVCAVClassification(Classification):
@@ -504,7 +500,6 @@ class Bid(Bid):
         roles = {
             'create': whitelist('value', 'tenderers', 'parameters', 'lotValues', 'status', 'qualified', 'eligible'),
         }
-    status = StringType(choices=['active', 'draft', 'invalid'], default='active')
     documents = ListType(ModelType(Document), default=list())
     tenderers = ListType(ModelType(FinantialOrganization), required=True, min_size=1, max_size=1)
     eligible = BooleanType(required=True, choices=[True])

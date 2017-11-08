@@ -69,15 +69,7 @@ def from0to1(registry):
 
         now = get_now().isoformat()
         awards = auction["awards"]
-        unique_awards = len(set([a['bid_id'] for a in awards]))
-
-        if unique_awards > 2:
-            switch_auction_to_unsuccessful(auction)
-        else:
-            award = [a for a in awards if a['status'] in ['active', 'pending']][0]
-            for bid in auction['bids']:
-                if bid['id'] == award['bid_id'] and bid['status'] == 'invalid':
-                    switch_auction_to_unsuccessful(auction)
+        award = [a for a in awards if a['status'] in ['active', 'pending']][0]
 
         if auction['status'] != 'unsuccessful':
             award = [a for a in awards if a['status'] in ['active', 'pending']][0]
@@ -103,9 +95,8 @@ def from0to1(registry):
             elif award['status'] == 'active':
                 award['verificationPeriod']['endDate'] = award['paymentPeriod']['endDate'] = now
 
-            if unique_awards == 1:
-                bid = chef(auction['bids'], auction.get('features'), [], True)[1]
-
+            bids = chef(auction['bids'], auction.get('features'), [], True)[1:]
+            for bid in bids:
                 award = {
                     'id': uuid4().hex,
                     'bid_id': bid['id'],

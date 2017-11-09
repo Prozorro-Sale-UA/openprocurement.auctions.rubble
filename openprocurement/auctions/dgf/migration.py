@@ -70,49 +70,44 @@ def from0to1(registry):
         now = get_now().isoformat()
         awards = auction["awards"]
         award = [a for a in awards if a['status'] in ['active', 'pending']][0]
+        award_create_date = award['complaintPeriod']['startDate']
+        award.update({
+            'verificationPeriod': {
+                'startDate': award_create_date,
+                'endDate': award_create_date
+            },
+            'paymentPeriod': {
+                'startDate': award_create_date,
+            },
+            'signingPeriod': {
+                'startDate': award_create_date,
+            }
+        })
 
-        if auction['status'] != 'unsuccessful':
-            award = [a for a in awards if a['status'] in ['active', 'pending']][0]
+        if award['status'] == 'pending':
+            award['status'] = 'pending.payment'
 
-            award_create_date = award['complaintPeriod']['startDate']
+        elif award['status'] == 'active':
+            award['verificationPeriod']['endDate'] = award['paymentPeriod']['endDate'] = now
 
-            award.update({
-                'verificationPeriod': {
-                    'startDate': award_create_date,
-                    'endDate': award_create_date
-                },
-                'paymentPeriod': {
-                    'startDate': award_create_date,
-                },
-                'signingPeriod': {
-                    'startDate': award_create_date,
+        bids = chef(auction['bids'], auction.get('features'), [], True)
+        for bid in bids:
+            award = {
+                'id': uuid4().hex,
+                'bid_id': bid['id'],
+                'status': 'pending.waiting',
+                'date': awards[0]['date'],
+                'value': bid['value'],
+                'suppliers': bid['tenderers'],
+                'complaintPeriod': {
+                    'startDate': awards[0]['date']
                 }
-            })
+            }
+            if bid['status'] == 'invalid':
+                award['status'] = 'unsuccessful'
+                award['complaintPeriod']['endDate'] = now
 
-            if award['status'] == 'pending':
-                award['status'] = 'pending.payment'
-
-            elif award['status'] == 'active':
-                award['verificationPeriod']['endDate'] = award['paymentPeriod']['endDate'] = now
-
-            bids = chef(auction['bids'], auction.get('features'), [], True)[1:]
-            for bid in bids:
-                award = {
-                    'id': uuid4().hex,
-                    'bid_id': bid['id'],
-                    'status': 'pending.waiting',
-                    'date': awards[0]['date'],
-                    'value': bid['value'],
-                    'suppliers': bid['tenderers'],
-                    'complaintPeriod': {
-                        'startDate': awards[0]['date']
-                    }
-                }
-                if bid['status'] == 'invalid':
-                    award['status'] = 'unsuccessful'
-                    award['complaintPeriod']['endDate'] = now
-
-                awards.append(award)
+            awards.append(award)
 
         model = registry.auction_procurementMethodTypes.get(auction['procurementMethodType'])
         if model:

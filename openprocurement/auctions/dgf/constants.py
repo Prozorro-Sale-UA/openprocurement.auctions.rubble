@@ -4,4 +4,4 @@ from openprocurement.api.models import (TZ)
 
 
 MINIMAL_EXPOSITION_PERIOD = timedelta(days=7)
-MINIMAL_EXPOSITION_REQUIRED_FROM = datetime(2017, 8, 10, tzinfo=TZ)
+MINIMAL_EXPOSITION_REQUIRED_FROM = datetime(2017, 11, 17, tzinfo=TZ)

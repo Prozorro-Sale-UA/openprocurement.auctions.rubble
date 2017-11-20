@@ -53,7 +53,7 @@ def check_bids(request):
             auction.status = 'unsuccessful'
         elif auction.numberOfBids == 1:
             auction.auctionPeriod.startDate = None
-            add_next_award(request)
+            create_awards(request)
 
 
 def check_auction_status(request):

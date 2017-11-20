@@ -36,6 +36,7 @@ class CreateAuctionAwardTest(BaseAuctionWebTest):
     #initial_data = auction_data
     initial_status = 'active.qualification'
     initial_bids = test_bids
+    docservice = True
 
     def test_create_auction_award_invalid(self):
         request_path = '/auctions/{}/awards'.format(self.auction_id)
@@ -173,69 +174,12 @@ class CreateAuctionAwardTest(BaseAuctionWebTest):
         self.assertEqual(response.content_type, 'application/json')
         self.assertEqual(response.json['data'][-1], award)
 
-        bid_token = self.initial_bids_tokens[self.initial_bids[0]['id']]
-        response = self.app.post('/auctions/{}/awards/{}/documents?acc_token={}'.format(
-            self.auction_id, award['id'], bid_token), upload_files=[('file', 'auction_protocol.pdf', 'content')])
-        self.assertEqual(response.status, '201 Created')
-        self.assertEqual(response.content_type, 'application/json')
-        doc_id = response.json["data"]['id']
-        self.assertIn(doc_id, response.headers['Location'])
-        self.assertEqual('auction_protocol.pdf', response.json["data"]["title"])
-        key = response.json["data"]["url"].split('?')[-1]
+        self.upload_auction_protocol(award)
 
-        response = self.app.patch_json('/auctions/{}/awards/{}/documents/{}?acc_token={}'.format(self.auction_id, award['id'], doc_id, bid_token), {"data": {
-            "description": "auction protocol",
-            "documentType": 'auctionProtocol'
-        }})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(doc_id, response.json["data"]["id"])
-        self.assertIn("documentType", response.json["data"])
-        self.assertEqual(response.json["data"]["documentType"], 'auctionProtocol')
-
-        response = self.app.get('/auctions/{}/awards/{}/documents/{}'.format(self.auction_id, award['id'], doc_id))
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(doc_id, response.json["data"]["id"])
-        self.assertEqual('auctionProtocol', response.json["data"]["documentType"])
-        self.assertEqual('auction_protocol.pdf', response.json["data"]["title"])
-        self.assertEqual('bid_owner', response.json["data"]["author"])
-
-        response = self.app.post('/auctions/{}/awards/{}/documents?acc_token={}'.format(
-            self.auction_id, award['id'], self.auction_token), upload_files=[('file', 'auction_protocol.pdf', 'content')])
-        self.assertEqual(response.status, '201 Created')
-        self.assertEqual(response.content_type, 'application/json')
-        doc_id = response.json["data"]['id']
-        self.assertIn(doc_id, response.headers['Location'])
-        self.assertEqual('auction_protocol.pdf', response.json["data"]["title"])
-        key = response.json["data"]["url"].split('?')[-1]
-
-        response = self.app.patch_json('/auctions/{}/awards/{}/documents/{}?acc_token={}'.format(self.auction_id, award['id'], doc_id, self.auction_token), {"data": {
-            "description": "auction protocol",
-            "documentType": 'auctionProtocol'
-        }})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(doc_id, response.json["data"]["id"])
-        self.assertIn("documentType", response.json["data"])
-        self.assertEqual(response.json["data"]["documentType"], 'auctionProtocol')
-
-        response = self.app.get('/auctions/{}/awards/{}/documents/{}'.format(self.auction_id, award['id'], doc_id))
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(doc_id, response.json["data"]["id"])
-        self.assertEqual('auctionProtocol', response.json["data"]["documentType"])
-        self.assertEqual('auction_protocol.pdf', response.json["data"]["title"])
-        self.assertEqual('auction_owner', response.json["data"]["author"])
-
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, award['id']), {"data": {"status": "pending.payment"}})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
+        response = self.patch_award(award['id'], "pending.payment")
         self.assertEqual(response.json['data']['status'], u'pending.payment')
 
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, award['id']), {"data": {"status": "active"}})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
+        response = self.patch_award(award['id'], "active")
         self.assertEqual(response.json['data']['status'], u'active')
 
         response = self.app.get('/auctions/{}'.format(self.auction_id))
@@ -248,87 +192,11 @@ class AuctionAwardProcessTest(BaseAuctionWebTest):
     #initial_data = auction_data
     initial_status = 'active.auction'
     initial_bids = test_bids
-
-    def upload_auction_protocol(self, award):
-        award_id = award['id']
-        bid_token = self.initial_bids_tokens[award['bid_id']]
-        response = self.app.post('/auctions/{}/awards/{}/documents?acc_token={}'.format(
-            self.auction_id, award_id, bid_token), upload_files=[('file', 'auction_protocol.pdf', 'content')])
-        self.assertEqual(response.status, '201 Created')
-        self.assertEqual(response.content_type, 'application/json')
-        doc_id = response.json["data"]['id']
-        self.assertIn(doc_id, response.headers['Location'])
-        self.assertEqual('auction_protocol.pdf', response.json["data"]["title"])
-        key = response.json["data"]["url"].split('?')[-1]
-
-        response = self.app.patch_json('/auctions/{}/awards/{}/documents/{}?acc_token={}'.format(self.auction_id, award_id, doc_id, bid_token), {"data": {
-            "description": "auction protocol",
-            "documentType": 'auctionProtocol'
-        }})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(doc_id, response.json["data"]["id"])
-        self.assertIn("documentType", response.json["data"])
-        self.assertEqual(response.json["data"]["documentType"], 'auctionProtocol')
-
-        response = self.app.post('/auctions/{}/awards/{}/documents?acc_token={}'.format(
-            self.auction_id, award_id, self.auction_token), upload_files=[('file', 'auction_protocol.pdf', 'content')])
-        self.assertEqual(response.status, '201 Created')
-        self.assertEqual(response.content_type, 'application/json')
-        doc_id = response.json["data"]['id']
-        self.assertIn(doc_id, response.headers['Location'])
-        self.assertEqual('auction_protocol.pdf', response.json["data"]["title"])
-        key = response.json["data"]["url"].split('?')[-1]
-
-        response = self.app.patch_json(
-            '/auctions/{}/awards/{}/documents/{}?acc_token={}'.format(self.auction_id, award_id, doc_id, self.auction_token),
-            {"data": {
-                "description": "auction protocol",
-                "documentType": 'auctionProtocol'
-            }})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(doc_id, response.json["data"]["id"])
-        self.assertIn("documentType", response.json["data"])
-        self.assertEqual(response.json["data"]["documentType"], 'auctionProtocol')
-
-        response = self.app.get('/auctions/{}/awards/{}/documents'.format(self.auction_id,award_id, doc_id))
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual('auctionProtocol', response.json["data"][0]["documentType"])
-        self.assertEqual('auction_protocol.pdf', response.json["data"][0]["title"])
-        self.assertEqual('bid_owner', response.json["data"][0]["author"])
-        self.assertEqual('auctionProtocol', response.json["data"][1]["documentType"])
-        self.assertEqual('auction_owner', response.json["data"][1]["author"])
+    docservice = True
 
     def setUp(self):
         super(AuctionAwardProcessTest, self).setUp()
-
-        authorization = self.app.authorization
-        self.app.authorization = ('Basic', ('auction', ''))
-        now = get_now()
-        auction_result = {
-            'bids': [
-                {
-                    "id": b['id'],
-                    "date": (now - timedelta(seconds=i)).isoformat(),
-                    "value": b['value']
-                }
-                for i, b in enumerate(self.initial_bids)
-            ]
-        }
-        response = self.app.post_json('/auctions/{}/auction'.format(self.auction_id), {'data': auction_result})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
-        auction = response.json['data']
-        self.assertEqual('active.qualification', auction["status"])
-        self.first_award = auction['awards'][0]
-        self.second_award = auction['awards'][1]
-        self.third_award = auction['awards'][2]
-        self.first_award_id = self.first_award['id']
-        self.second_award_id = self.second_award['id']
-        self.third_award_id = self.third_award['id']
-        self.app.authorization = authorization
+        self.post_auction_results()
 
     def test_invalid_patch_auction_award(self):
         response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.first_award_id), {"data": {"status": "pending.payment"}}, status=403)
@@ -336,170 +204,67 @@ class AuctionAwardProcessTest(BaseAuctionWebTest):
         self.assertEqual(response.content_type, 'application/json')
         self.assertEqual(response.json['errors'][0]["description"], "Can't switch award status to (pending.payment) before auction owner load auction protocol")
 
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.first_award_id), {"data": {"status": "pending.waiting"}}, status=403)
-        self.assertEqual(response.status, '403 Forbidden')
-        self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(response.json['errors'][0]["description"], "Can't switch award (pending.verification) status to (pending.waiting) status")
+        for i in ["pending.waiting", "active", "cancelled"]:
+            response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.first_award_id), {"data": {"status": i}}, status=403)
+            self.assertEqual(response.status, '403 Forbidden')
+            self.assertEqual(response.content_type, 'application/json')
+            self.assertEqual(response.json['errors'][0]["description"], "Can't switch award (pending.verification) status to ({}) status".format(i))
 
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.first_award_id), {"data": {"status": "active"}}, status=403)
-        self.assertEqual(response.status, '403 Forbidden')
-        self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(response.json['errors'][0]["description"], "Can't switch award (pending.verification) status to (active) status")
-
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.first_award_id), {"data": {"status": "cancelled"}}, status=403)
-        self.assertEqual(response.status, '403 Forbidden')
-        self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(response.json['errors'][0]["description"], "Can't switch award (pending.verification) status to (cancelled) status")
-
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.second_award_id), {"data": {"status": "unsuccessful"}}, status=403)
-        self.assertEqual(response.status, '403 Forbidden')
-        self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(response.json['errors'][0]["description"], "Can't switch award (pending.waiting) status to (unsuccessful) status")
-
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.second_award_id), {"data": {"status": "pending.verification"}}, status=403)
-        self.assertEqual(response.status, '403 Forbidden')
-        self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(response.json['errors'][0]["description"], "Can't switch award (pending.waiting) status to (pending.verification) status")
-
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.second_award_id), {"data": {"status": "pending.payment"}}, status=403)
-        self.assertEqual(response.status, '403 Forbidden')
-        self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(response.json['errors'][0]["description"], "Can't switch award (pending.waiting) status to (pending.payment) status")
-
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.second_award_id), {"data": {"status": "active"}}, status=403)
-        self.assertEqual(response.status, '403 Forbidden')
-        self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(response.json['errors'][0]["description"], "Can't switch award (pending.waiting) status to (active) status")
-
+        for i in ["unsuccessful", "pending.verification", "pending.payment", "active"]:
+            response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.second_award_id), {"data": {"status": i}}, status=403)
+            self.assertEqual(response.status, '403 Forbidden')
+            self.assertEqual(response.content_type, 'application/json')
+            self.assertEqual(response.json['errors'][0]["description"], "Can't switch award (pending.waiting) status to ({}) status".format(i))
 
         self.upload_auction_protocol(self.first_award)
 
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.first_award_id), {"data": {"status": "pending.waiting"}}, status=403)
-        self.assertEqual(response.status, '403 Forbidden')
-        self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(response.json['errors'][0]["description"], "Can't switch award (pending.verification) status to (pending.waiting) status")
+        for i in ["pending.waiting", "active", "cancelled"]:
+            response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.first_award_id), {"data": {"status": i}}, status=403)
+            self.assertEqual(response.status, '403 Forbidden')
+            self.assertEqual(response.content_type, 'application/json')
+            self.assertEqual(response.json['errors'][0]["description"], "Can't switch award (pending.verification) status to ({}) status".format(i))
 
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.first_award_id), {"data": {"status": "active"}}, status=403)
-        self.assertEqual(response.status, '403 Forbidden')
-        self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(response.json['errors'][0]["description"], "Can't switch award (pending.verification) status to (active) status")
-
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.first_award_id), {"data": {"status": "cancelled"}}, status=403)
-        self.assertEqual(response.status, '403 Forbidden')
-        self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(response.json['errors'][0]["description"], "Can't switch award (pending.verification) status to (cancelled) status")
-
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.second_award_id), {"data": {"status": "unsuccessful"}}, status=403)
-        self.assertEqual(response.status, '403 Forbidden')
-        self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(response.json['errors'][0]["description"], "Can't switch award (pending.waiting) status to (unsuccessful) status")
-
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.second_award_id), {"data": {"status": "pending.verification"}}, status=403)
-        self.assertEqual(response.status, '403 Forbidden')
-        self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(response.json['errors'][0]["description"], "Can't switch award (pending.waiting) status to (pending.verification) status")
-
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.second_award_id), {"data": {"status": "pending.payment"}}, status=403)
-        self.assertEqual(response.status, '403 Forbidden')
-        self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(response.json['errors'][0]["description"], "Can't switch award (pending.waiting) status to (pending.payment) status")
-
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.second_award_id), {"data": {"status": "active"}}, status=403)
-        self.assertEqual(response.status, '403 Forbidden')
-        self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(response.json['errors'][0]["description"], "Can't switch award (pending.waiting) status to (active) status")
-
+        for i in ["unsuccessful", "pending.verification", "pending.payment", "active"]:
+            response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.second_award_id), {"data": {"status": i}}, status=403)
+            self.assertEqual(response.status, '403 Forbidden')
+            self.assertEqual(response.content_type, 'application/json')
+            self.assertEqual(response.json['errors'][0]["description"], "Can't switch award (pending.waiting) status to ({}) status".format(i))
 
         response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.first_award_id), {"data": {"status": "pending.payment"}})
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
         self.assertEqual(response.json['data']['status'], "pending.payment")
 
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.first_award_id), {"data": {"status": "cancelled"}}, status=403)
-        self.assertEqual(response.status, '403 Forbidden')
-        self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(response.json['errors'][0]["description"], "Can't switch award (pending.payment) status to (cancelled) status")
-
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.first_award_id), {"data": {"status": "pending.waiting"}}, status=403)
-        self.assertEqual(response.status, '403 Forbidden')
-        self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(response.json['errors'][0]["description"], "Can't switch award (pending.payment) status to (pending.waiting) status")
-
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.first_award_id), {"data": {"status": "pending.verification"}}, status=403)
-        self.assertEqual(response.status, '403 Forbidden')
-        self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(response.json['errors'][0]["description"], "Can't switch award (pending.payment) status to (pending.verification) status")
-
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.second_award_id), {"data": {"status": "unsuccessful"}}, status=403)
-        self.assertEqual(response.status, '403 Forbidden')
-        self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(response.json['errors'][0]["description"], "Can't switch award (pending.waiting) status to (unsuccessful) status")
-
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.second_award_id), {"data": {"status": "pending.verification"}}, status=403)
-        self.assertEqual(response.status, '403 Forbidden')
-        self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(response.json['errors'][0]["description"], "Can't switch award (pending.waiting) status to (pending.verification) status")
-
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.second_award_id), {"data": {"status": "pending.payment"}}, status=403)
-        self.assertEqual(response.status, '403 Forbidden')
-        self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(response.json['errors'][0]["description"], "Can't switch award (pending.waiting) status to (pending.payment) status")
-
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.second_award_id), {"data": {"status": "active"}}, status=403)
-        self.assertEqual(response.status, '403 Forbidden')
-        self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(response.json['errors'][0]["description"], "Can't switch award (pending.waiting) status to (active) status")
+        for i in ["cancelled", "pending.waiting", "pending.verification"]:
+            response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.first_award_id), {"data": {"status": i}}, status=403)
+            self.assertEqual(response.status, '403 Forbidden')
+            self.assertEqual(response.content_type, 'application/json')
+            self.assertEqual(response.json['errors'][0]["description"], "Can't switch award (pending.payment) status to ({}) status".format(i))
 
 
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.first_award_id), {"data": {"status": "active"}})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
+        for i in ["unsuccessful", "pending.verification", "pending.payment", "active"]:
+            response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.second_award_id), {"data": {"status": i}}, status=403)
+            self.assertEqual(response.status, '403 Forbidden')
+            self.assertEqual(response.content_type, 'application/json')
+            self.assertEqual(response.json['errors'][0]["description"], "Can't switch award (pending.waiting) status to ({}) status".format(i))
+
+        response = self.patch_award(self.first_award_id, "active")
         self.assertEqual(response.json['data']['status'], "active")
 
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.first_award_id), {"data": {"status": "cancelled"}}, status=403)
-        self.assertEqual(response.status, '403 Forbidden')
-        self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(response.json['errors'][0]["description"], "Can't switch award (active) status to (cancelled) status")
+        for i in ["cancelled", "pending.waiting", "pending.verification", "pending.payment"]:
+            response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.first_award_id), {"data": {"status": i}}, status=403)
+            self.assertEqual(response.status, '403 Forbidden')
+            self.assertEqual(response.content_type, 'application/json')
+            self.assertEqual(response.json['errors'][0]["description"], "Can't switch award (active) status to ({}) status".format(i))
 
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.first_award_id), {"data": {"status": "pending.waiting"}}, status=403)
-        self.assertEqual(response.status, '403 Forbidden')
-        self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(response.json['errors'][0]["description"], "Can't switch award (active) status to (pending.waiting) status")
-
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.first_award_id), {"data": {"status": "pending.verification"}}, status=403)
-        self.assertEqual(response.status, '403 Forbidden')
-        self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(response.json['errors'][0]["description"], "Can't switch award (active) status to (pending.verification) status")
-
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.first_award_id), {"data": {"status": "pending.payment"}}, status=403)
-        self.assertEqual(response.status, '403 Forbidden')
-        self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(response.json['errors'][0]["description"], "Can't switch award (active) status to (pending.payment) status")
-
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.second_award_id), {"data": {"status": "unsuccessful"}}, status=403)
-        self.assertEqual(response.status, '403 Forbidden')
-        self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(response.json['errors'][0]["description"], "Can't switch award (pending.waiting) status to (unsuccessful) status")
-
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.second_award_id), {"data": {"status": "pending.verification"}}, status=403)
-        self.assertEqual(response.status, '403 Forbidden')
-        self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(response.json['errors'][0]["description"], "Can't switch award (pending.waiting) status to (pending.verification) status")
-
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.second_award_id), {"data": {"status": "pending.payment"}}, status=403)
-        self.assertEqual(response.status, '403 Forbidden')
-        self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(response.json['errors'][0]["description"], "Can't switch award (pending.waiting) status to (pending.payment) status")
-
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.second_award_id), {"data": {"status": "active"}}, status=403)
-        self.assertEqual(response.status, '403 Forbidden')
-        self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(response.json['errors'][0]["description"], "Can't switch award (pending.waiting) status to (active) status")
+        for i in ["unsuccessful", "pending.verification", "pending.payment", "active"]:
+            response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.second_award_id), {"data": {"status": i}}, status=403)
+            self.assertEqual(response.status, '403 Forbidden')
+            self.assertEqual(response.content_type, 'application/json')
+            self.assertEqual(response.json['errors'][0]["description"], "Can't switch award (pending.waiting) status to ({}) status".format(i))
 
 
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.first_award_id), {"data": {"status": "unsuccessful"}})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
+        response = self.patch_award(self.first_award_id, "unsuccessful")
         self.assertEqual(response.json['data']['status'], "unsuccessful")
         self.assertIn('Location', response.headers)
         self.assertIn(self.second_award_id, response.headers['Location'])
@@ -511,13 +276,8 @@ class AuctionAwardProcessTest(BaseAuctionWebTest):
 
         self.upload_auction_protocol(self.second_award)
 
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.second_award_id), {"data": {"status": "pending.payment"}})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
-
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.second_award_id), {"data": {"status": "active"}})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
+        for i in ["pending.payment", "active"]:
+            self.patch_award(self.second_award_id, i)
 
         self.set_status('complete')
 
@@ -556,9 +316,7 @@ class AuctionAwardProcessTest(BaseAuctionWebTest):
 
         self.upload_auction_protocol(self.first_award)
 
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.first_award_id), {"data": {"status": "unsuccessful"}})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
+        response = self.patch_award(self.first_award_id, "unsuccessful")
         self.assertIn('Location', response.headers)
         new_award_location = response.headers['Location']
         self.assertIn(self.second_award_id, new_award_location)
@@ -583,13 +341,9 @@ class AuctionAwardProcessTest(BaseAuctionWebTest):
 
         self.upload_auction_protocol(self.second_award)
 
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.second_award_id), {"data": {"status": "pending.payment"}})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
+        self.patch_award(self.second_award_id, "pending.payment")
 
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.second_award_id), {"data": {"status": "active"}})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
+        self.patch_award(self.second_award_id, "active")
 
         self.set_status('complete')
 
@@ -647,13 +401,9 @@ class AuctionAwardProcessTest(BaseAuctionWebTest):
 
         self.upload_auction_protocol(self.first_award)
 
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.first_award_id), {"data": {"status": "pending.payment"}})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
+        self.patch_award(self.first_award_id, "pending.payment")
 
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.first_award_id), {"data": {"status": "active"}})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
+        self.patch_award(self.first_award_id, "active")
 
         self.set_status('complete')
 
@@ -665,21 +415,15 @@ class AuctionAwardProcessTest(BaseAuctionWebTest):
     def test_complate_auction_with_second_award1(self):
         self.upload_auction_protocol(self.first_award)
 
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.first_award_id), {"data": {"status": "unsuccessful"}})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
+        response = self.patch_award(self.first_award_id, "unsuccessful")
         self.assertIn('Location', response.headers)
         self.assertIn(self.second_award_id, response.headers['Location'])
 
         self.upload_auction_protocol(self.second_award)
 
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.second_award_id), {"data": {"status": "pending.payment"}})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
+        self.patch_award(self.second_award_id, "pending.payment")
 
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.second_award_id), {"data": {"status": "active"}})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
+        self.patch_award(self.second_award_id, "active")
 
         self.set_status('complete')
 
@@ -691,25 +435,17 @@ class AuctionAwardProcessTest(BaseAuctionWebTest):
     def test_complate_auction_with_second_award2(self):
         self.upload_auction_protocol(self.first_award)
 
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.first_award_id), {"data": {"status": "pending.payment"}})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
+        self.patch_award(self.first_award_id, "pending.payment")
 
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.first_award_id), {"data": {"status": "unsuccessful"}})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
+        response = self.patch_award(self.first_award_id, "unsuccessful")
         self.assertIn('Location', response.headers)
         self.assertIn(self.second_award_id, response.headers['Location'])
 
         self.upload_auction_protocol(self.second_award)
 
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.second_award_id), {"data": {"status": "pending.payment"}})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
+        self.patch_award(self.second_award_id, "pending.payment")
 
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.second_award_id), {"data": {"status": "active"}})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
+        self.patch_award(self.second_award_id, "active")
 
         self.set_status('complete')
 
@@ -721,29 +457,19 @@ class AuctionAwardProcessTest(BaseAuctionWebTest):
     def test_complate_auction_with_second_award3(self):
         self.upload_auction_protocol(self.first_award)
 
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.first_award_id), {"data": {"status": "pending.payment"}})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
+        self.patch_award(self.first_award_id, "pending.payment")
 
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.first_award_id), {"data": {"status": "active"}})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
+        self.patch_award(self.first_award_id, "active")
 
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.first_award_id), {"data": {"status": "unsuccessful"}})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
+        response = self.patch_award(self.first_award_id, "unsuccessful")
         self.assertIn('Location', response.headers)
         self.assertIn(self.second_award_id, response.headers['Location'])
 
         self.upload_auction_protocol(self.second_award)
 
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.second_award_id), {"data": {"status": "pending.payment"}})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
+        self.patch_award(self.second_award_id, "pending.payment")
 
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.second_award_id), {"data": {"status": "active"}})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
+        self.patch_award(self.second_award_id, "active")
 
         self.set_status('complete')
 
@@ -756,17 +482,11 @@ class AuctionAwardProcessTest(BaseAuctionWebTest):
         request_path = '/auctions/{}/awards'.format(self.auction_id)
         self.upload_auction_protocol(self.first_award)
 
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.first_award_id), {"data": {"status": "pending.payment"}})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
+        self.patch_award(self.first_award_id, "pending.payment")
 
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.first_award_id), {"data": {"status": "active"}})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
+        self.patch_award(self.first_award_id, "active")
 
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.first_award_id), {"data": {"status": "unsuccessful"}})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
+        response = self.patch_award(self.first_award_id, "unsuccessful")
         self.assertIn('Location', response.headers)
         new_award_location = response.headers['Location']
 
@@ -779,13 +499,9 @@ class AuctionAwardProcessTest(BaseAuctionWebTest):
 
         self.upload_auction_protocol(self.second_award)
 
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.second_award_id), {"data": {"status": "pending.payment"}})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
+        self.patch_award(self.second_award_id, "pending.payment")
 
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.second_award_id), {"data": {"status": "active"}})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
+        self.patch_award(self.second_award_id, "active")
 
         self.set_status('complete')
 
@@ -805,19 +521,13 @@ class AuctionAwardProcessTest(BaseAuctionWebTest):
         ])
 
         bid_token = self.initial_bids_tokens[self.first_award['bid_id']]
-        response = self.app.patch_json('/auctions/{}/awards/{}?acc_token={}'.format(self.auction_id, self.second_award_id, bid_token), {"data": {"status": "cancelled"}})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
+        self.patch_award(self.second_award_id, "cancelled", bid_token=bid_token)
 
         self.upload_auction_protocol(self.first_award)
 
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.first_award_id), {"data": {"status": "unsuccessful"}})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
+        self.patch_award(self.first_award_id, "unsuccessful")
 
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.third_award_id), {"data": {"status": "unsuccessful"}})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
+        self.patch_award(self.third_award_id, "unsuccessful")
 
         response = self.app.get('/auctions/{}'.format(self.auction_id))
         self.assertEqual(response.status, '200 OK')
@@ -826,23 +536,15 @@ class AuctionAwardProcessTest(BaseAuctionWebTest):
 
     def test_unsuccessful_auction2(self):
         bid_token = self.initial_bids_tokens[self.first_award['bid_id']]
-        response = self.app.patch_json('/auctions/{}/awards/{}?acc_token={}'.format(self.auction_id, self.second_award_id, bid_token), {"data": {"status": "cancelled"}})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
+        self.patch_award(self.second_award_id, "cancelled", bid_token=bid_token)
 
         self.upload_auction_protocol(self.first_award)
 
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.first_award_id), {"data": {"status": "pending.payment"}})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
+        self.patch_award(self.first_award_id, "pending.payment")
 
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.first_award_id), {"data": {"status": "unsuccessful"}})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
+        self.patch_award(self.first_award_id, "unsuccessful")
 
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.third_award_id), {"data": {"status": "unsuccessful"}})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
+        self.patch_award(self.third_award_id, "unsuccessful")
 
         response = self.app.get('/auctions/{}'.format(self.auction_id))
         self.assertEqual(response.status, '200 OK')
@@ -851,27 +553,17 @@ class AuctionAwardProcessTest(BaseAuctionWebTest):
 
     def test_unsuccessful_auction3(self):
         bid_token = self.initial_bids_tokens[self.first_award['bid_id']]
-        response = self.app.patch_json('/auctions/{}/awards/{}?acc_token={}'.format(self.auction_id, self.second_award_id, bid_token), {"data": {"status": "cancelled"}})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
+        self.patch_award(self.second_award_id, "cancelled", bid_token=bid_token)
 
         self.upload_auction_protocol(self.first_award)
 
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.first_award_id), {"data": {"status": "pending.payment"}})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
+        self.patch_award(self.first_award_id, "pending.payment")
 
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.first_award_id), {"data": {"status": "active"}})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
+        self.patch_award(self.first_award_id, "active")
 
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.first_award_id), {"data": {"status": "unsuccessful"}})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
+        self.patch_award(self.first_award_id, "unsuccessful")
 
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.third_award_id), {"data": {"status": "unsuccessful"}})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
+        self.patch_award(self.third_award_id, "unsuccessful")
 
         response = self.app.get('/auctions/{}'.format(self.auction_id))
         self.assertEqual(response.status, '200 OK')
@@ -881,26 +573,16 @@ class AuctionAwardProcessTest(BaseAuctionWebTest):
     def test_unsuccessful_auction4(self):
         self.upload_auction_protocol(self.first_award)
 
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.first_award_id), {"data": {"status": "pending.payment"}})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
+        self.patch_award(self.first_award_id, "pending.payment")
 
         bid_token = self.initial_bids_tokens[self.first_award['bid_id']]
-        response = self.app.patch_json('/auctions/{}/awards/{}?acc_token={}'.format(self.auction_id, self.second_award_id, bid_token), {"data": {"status": "cancelled"}})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
+        self.patch_award(self.second_award_id, "cancelled", bid_token=bid_token)
 
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.first_award_id), {"data": {"status": "active"}})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
+        self.patch_award(self.first_award_id, "active")
 
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.first_award_id), {"data": {"status": "unsuccessful"}})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
+        self.patch_award(self.first_award_id, "unsuccessful")
 
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.third_award_id), {"data": {"status": "unsuccessful"}})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
+        self.patch_award(self.third_award_id, "unsuccessful")
 
         response = self.app.get('/auctions/{}'.format(self.auction_id))
         self.assertEqual(response.status, '200 OK')
@@ -910,26 +592,16 @@ class AuctionAwardProcessTest(BaseAuctionWebTest):
     def test_unsuccessful_auction5(self):
         self.upload_auction_protocol(self.first_award)
 
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.first_award_id), {"data": {"status": "pending.payment"}})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
+        self.patch_award(self.first_award_id, "pending.payment")
 
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.first_award_id), {"data": {"status": "active"}})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
+        self.patch_award(self.first_award_id, "active")
 
         bid_token = self.initial_bids_tokens[self.first_award['bid_id']]
-        response = self.app.patch_json('/auctions/{}/awards/{}?acc_token={}'.format(self.auction_id, self.second_award_id, bid_token), {"data": {"status": "cancelled"}})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
+        self.patch_award(self.second_award_id, "cancelled", bid_token=bid_token)
 
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.first_award_id), {"data": {"status": "unsuccessful"}})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
+        self.patch_award(self.first_award_id, "unsuccessful")
 
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.third_award_id), {"data": {"status": "unsuccessful"}})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
+        self.patch_award(self.third_award_id, "unsuccessful")
 
         response = self.app.get('/auctions/{}'.format(self.auction_id))
         self.assertEqual(response.status, '200 OK')
@@ -973,6 +645,21 @@ class AuctionAwardProcessTest(BaseAuctionWebTest):
                 u'url', u'name': u'auction_id'}
         ])
 
+    def test_patch_auction_award_Administrator_change(self):
+        response = self.app.post_json('/auctions/{}/awards'.format(
+            self.auction_id), {'data': {'suppliers': [self.initial_organization], 'bid_id': self.initial_bids[0]['id']}})
+        self.assertEqual(response.status, '201 Created')
+        self.assertEqual(response.content_type, 'application/json')
+        award = response.json['data']
+        verificationPeriod = award['verificationPeriod'][u'startDate']
+        authorization = self.app.authorization
+        self.app.authorization = ('Basic', ('administrator', ''))
+        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, award['id']), {"data": {"verificationPeriod": {"endDate": award['verificationPeriod'][u'startDate']}}})
+
+        self.assertEqual(response.status, '200 OK')
+        self.assertEqual(response.content_type, 'application/json')
+        self.assertIn("endDate", response.json['data']['complaintPeriod'])
+        self.assertEqual(response.json['data']['verificationPeriod']["endDate"], verificationPeriod)
 
 @unittest.skip("option not available")
 class AuctionLotAwardResourceTest(BaseAuctionWebTest):
@@ -2526,30 +2213,7 @@ class AuctionAwardDocumentResourceTest(BaseAuctionWebTest):
 
     def setUp(self):
         super(AuctionAwardDocumentResourceTest, self).setUp()
-        authorization = self.app.authorization
-        self.app.authorization = ('Basic', ('auction', ''))
-        now = get_now()
-        auction_result = {
-            'bids': [
-                {
-                    "id": b['id'],
-                    "date": (now - timedelta(seconds=i)).isoformat(),
-                    "value": b['value']
-                }
-                for i, b in enumerate(self.initial_bids)
-            ]
-        }
-
-        response = self.app.post_json('/auctions/{}/auction'.format(self.auction_id), {'data': auction_result})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
-        auction = response.json['data']
-        self.assertEqual('active.qualification', auction["status"])
-        self.first_award = auction['awards'][0]
-        self.second_award = auction['awards'][1]
-        self.first_award_id = self.first_award['id']
-        self.second_award_id = self.second_award['id']
-        self.app.authorization = authorization
+        self.post_auction_results()
 
     def test_not_found(self):
         response = self.app.post('/auctions/some_id/awards/some_id/documents', status=404, upload_files=[

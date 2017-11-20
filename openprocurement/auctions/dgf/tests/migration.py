@@ -1363,7 +1363,6 @@ def suite():
     suite.addTest(unittest.makeSuite(MigrateTestFrom1To2InvalidBid))
     suite.addTest(unittest.makeSuite(MigrateTestFrom1To2WithTwoBids))
     suite.addTest(unittest.makeSuite(MigrateTestFrom1To2WithThreeBids))
-    suite.addTest(unittest.makeSuite(MigrateTestFrom1To2SuspendedAuction))
     return suite
 
 

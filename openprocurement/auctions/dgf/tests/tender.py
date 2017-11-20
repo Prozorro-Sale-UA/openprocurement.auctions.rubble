@@ -1476,7 +1476,7 @@ class AuctionProcessTest(BaseAuctionWebTest):
         response = self.app.get('/auctions/{}'.format(auction_id))
         self.assertEqual(response.json['data']['status'], 'complete')
 
-    def _test_one_invalid_bid_auction(self):
+    def test_one_invalid_bid_auction(self):
         self.app.authorization = ('Basic', ('broker', ''))
         # empty auctions listing
         response = self.app.get('/auctions')
@@ -1507,20 +1507,11 @@ class AuctionProcessTest(BaseAuctionWebTest):
         self.app.authorization = ('Basic', ('broker', ''))
         response = self.app.get('/auctions/{}/awards?acc_token={}'.format(auction_id, owner_token))
         # get pending award
-        award_id = [i['id'] for i in response.json['data'] if i['status'] == 'pending'][0]
+        award_id = [i['id'] for i in response.json['data'] if i['status'] == 'pending.verification'][0]
         # set award as unsuccessful
         response = self.app.patch_json('/auctions/{}/awards/{}?acc_token={}'.format(auction_id, award_id, owner_token),
                                        {"data": {"status": "unsuccessful"}})
-        # time travel
-        auction = self.db.get(auction_id)
-        for i in auction.get('awards', []):
-            i['complaintPeriod']['endDate'] = i['complaintPeriod']['startDate']
-        self.db.save(auction)
-        # set auction status after stand slill period
-        self.app.authorization = ('Basic', ('chronograph', ''))
-        response = self.app.patch_json('/auctions/{}'.format(auction_id), {"data": {"id": auction_id}})
-        # check status
-        self.app.authorization = ('Basic', ('broker', ''))
+
         response = self.app.get('/auctions/{}'.format(auction_id))
         self.assertEqual(response.json['data']['status'], 'unsuccessful')
 

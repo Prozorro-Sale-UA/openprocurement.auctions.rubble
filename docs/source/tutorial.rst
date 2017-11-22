@@ -58,6 +58,12 @@ will be returned:
 .. include:: tutorial/tenderperiod-validation-error.http
    :code:
 
+Organizer can set *enquiryPeriod.endDate*. The difference between the given date and *tenderPeriod.endDate* should not be less than 5 working days.
+
+If the duration between *enquiryPeriod.endDate* provided by Organizer and *tenderPeriod.endDate* is less than 5 days `422 Unprocessable Entity` response will be returned with the error message '*enquiryPeriod.endDate* should come at least 5 working days earlier than tenderPeriod.endDate.'
+
+If Organizer does not set *enquiryPeriod.endDate* it will be calculated automatically as *tenderPeriod.endDate* minus 5 working days.
+
 Let's access the URL of the created object (the `Location` header of the response):
 
 .. include:: tutorial/blank-auction-view.http

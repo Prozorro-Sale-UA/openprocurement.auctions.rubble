@@ -8,6 +8,7 @@ from iso8601 import parse_date
 
 from openprocurement.api.utils import ROUTE_PREFIX
 from openprocurement.api.models import get_now, SANDBOX_MODE, TZ
+from openprocurement.auctions.dgf.constants import MINIMAL_PERIOD_FROM_ENQUIRY_END, ENQUIRY_END_EDITING_AND_VALIDATION_REQUIRED_FROM
 from openprocurement.auctions.dgf.models import DGFOtherAssets, DGFFinancialAssets, DGF_ID_REQUIRED_FROM, CLASSIFICATION_PRECISELY_FROM
 from openprocurement.auctions.dgf.tests.base import test_auction_data, test_financial_auction_data, test_organization, test_financial_organization, BaseWebTest, BaseAuctionWebTest, DEFAULT_ACCELERATION
 
@@ -44,7 +45,7 @@ class AuctionTest(BaseWebTest):
             'procurementMethodRationale', 'procurementMethodRationale_en', 'procurementMethodRationale_ru',
             'procurementMethodType', 'procuringEntity', 'minNumberOfQualifiedBids',
             'submissionMethodDetails', 'submissionMethodDetails_en', 'submissionMethodDetails_ru',
-            'title', 'title_en', 'title_ru', 'value', 'auctionPeriod',
+            'title', 'title_en', 'title_ru', 'value', 'auctionPeriod', 'enquiryPeriod'
         ])
         if SANDBOX_MODE:
             fields.add('procurementMethodDetails')
@@ -552,8 +553,21 @@ class AuctionResourceTest(BaseWebTest):
         self.assertEqual(response.content_type, 'application/json')
         self.assertEqual(response.json['status'], 'error')
         self.assertEqual(response.json['errors'], [
+            {u'description': [u'EnquiryPeriod.endDate should come at least 5 working days earlier than tenderPeriod.endDate'], u'location': u'body', u'name': u'enquiryPeriod'},
             {u'description': [u'tenderPeriod should be greater than 6 days'], u'location': u'body', u'name': u'tenderPeriod'}
         ])
+
+        if SANDBOX_MODE:
+            auction_data['auctionPeriod'] = {'startDate': (now + timedelta(days=10) / DEFAULT_ACCELERATION).isoformat()}
+            auction_data['enquiryPeriod'] = {'endDate': (now + timedelta(days=9) / DEFAULT_ACCELERATION).isoformat()}
+        else:
+            auction_data['auctionPeriod'] = {'startDate': (now + timedelta(days=10)).isoformat()}
+            auction_data['enquiryPeriod'] = {'endDate': (now + timedelta(days=9)).isoformat()}
+        response = self.app.post_json(request_path, {'data': auction_data}, status=422)
+        self.assertEqual(response.status, '422 Unprocessable Entity')
+        self.assertEqual(response.content_type, 'application/json')
+        self.assertEqual(response.json['status'], 'error')
+        self.assertEqual(response.json['errors'], [{u'description': [u'EnquiryPeriod.endDate should come at least 5 working days earlier than tenderPeriod.endDate'], u'location': u'body', u'name': u'enquiryPeriod'}])
 
         data = self.initial_data['minimalStep']
         self.initial_data['minimalStep'] = {'amount': '1000.0'}
@@ -654,6 +668,37 @@ class AuctionResourceTest(BaseWebTest):
         else:
             self.assertEqual(parse_date(auction['tenderPeriod']['endDate']).date(), parse_date(data['auctionPeriod']['startDate'], TZ).date() - timedelta(days=1))
             self.assertEqual(parse_date(auction['tenderPeriod']['endDate']).time(), time(20, 0))
+
+    @unittest.skipIf(get_now() < ENQUIRY_END_EDITING_AND_VALIDATION_REQUIRED_FROM, "enquiryPeriod.endDate validation required only from: {}".format(ENQUIRY_END_EDITING_AND_VALIDATION_REQUIRED_FROM))
+    def test_create_auction_enquiryPeriod_generated(self):
+        response = self.app.post_json('/auctions', {'data': self.initial_data})
+        self.assertEqual(response.status, '201 Created')
+        self.assertEqual(response.content_type, 'application/json')
+        auction = response.json['data']
+        self.assertIn('tenderPeriod', auction)
+        self.assertIn('enquiryPeriod', auction)
+        self.assertIn('auctionPeriod', auction)
+        self.assertNotIn('startDate', auction['auctionPeriod'])
+        self.assertEqual(parse_date(self.initial_data['auctionPeriod']['startDate']).date(), parse_date(auction['auctionPeriod']['shouldStartAfter'], TZ).date())
+        timedelta_during_periods_ends = parse_date(auction['tenderPeriod']['endDate']) - parse_date(auction['enquiryPeriod']['endDate'])
+        if not SANDBOX_MODE:
+            self.assertEqual(timedelta_during_periods_ends, MINIMAL_PERIOD_FROM_ENQUIRY_END)
+        else:    
+            self.assertEqual(timedelta_during_periods_ends, (MINIMAL_PERIOD_FROM_ENQUIRY_END / DEFAULT_ACCELERATION))
+
+    @unittest.skipIf(get_now() < ENQUIRY_END_EDITING_AND_VALIDATION_REQUIRED_FROM, "enquiryPeriod.endDate validation required only from: {}".format(ENQUIRY_END_EDITING_AND_VALIDATION_REQUIRED_FROM))
+    def test_create_auction_enquiryPeriod_set(self):
+        now = get_now()
+        auction_data = deepcopy(self.initial_data)
+        auction_data['enquiryPeriod'] = {'endDate' : (get_now() + timedelta(days=2)).isoformat()}
+        auction_data['auctionPeriod'] = {'startDate' : (get_now() + timedelta(days=10)).isoformat()}
+        response = self.app.post_json('/auctions', {'data': auction_data})
+        self.assertEqual(response.status, '201 Created')
+        auction = response.json['data']
+        self.assertIn('enquiryPeriod', auction)
+        timedelta_during_set_periods_ends = parse_date(auction['tenderPeriod']['endDate']) - parse_date(auction_data['enquiryPeriod']['endDate'])
+        self.assertGreaterEqual(timedelta_during_set_periods_ends, MINIMAL_PERIOD_FROM_ENQUIRY_END)
+        self.assertEqual(timedelta_during_set_periods_ends, parse_date(auction['tenderPeriod']['endDate']) - parse_date(auction['enquiryPeriod']['endDate']))
 
     def test_create_auction_generated(self):
         data = self.initial_data.copy()

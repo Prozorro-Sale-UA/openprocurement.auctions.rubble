@@ -116,6 +116,12 @@ msgstr "`tenderPeriod` має складати щонайменше 7 кален
 msgid "Organizer can edit procedure only during *enquiryPeriod*. "
 msgstr "Організатор може редагувати аукціон тільки впродовж *enquiryPeriod*. "
 
+msgid "Optionally Organizer can set *enquiryPeriod.endDate*."
+msgstr "Також додатково Організатор має можливість встановити *enquiryPeriod.endDate*."
+
+msgid "If *enquiryPeriod.endDate* is not provided it will be calculated automatically."
+msgstr "Якщо *enquiryPeriod.endDate* не передано, ця дата встановлюється автоматично."
+
 msgid "Procedure can be switched from *draft* status to *active.tendering*."
 msgstr "Процедура переходить зі статусу *draft* до *active.tendering*."
 
@@ -167,10 +173,9 @@ msgstr ""
 "*Auction.value*."
 
 msgid ""
-"The only date Organizer has to provide is *Tender.auctionPeriod.startDate*, "
-"the rest will be calculated automatically."
+"The only date Organizer has to provide is *Tender.auctionPeriod.startDate*, the rest will be calculated automatically."
 msgstr ""
-"Єдина дата, яку потрібно надати, це дата початку аукціону "
+"Організатор може передати тільки дату початку аукціону "
 "*Tender.auctionPeriod.startDate*. Всі решта дати будуть обраховані на її "
 "основі."
 

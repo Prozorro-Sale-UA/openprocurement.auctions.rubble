@@ -233,7 +233,7 @@ class BaseAuctionWebTest(FlashBaseAuctionWebTest):
         self.set_status('active.tendering', {
             "enquiryPeriod": {
                 "startDate": (now - timedelta(days=14)).isoformat(),
-                "endDate": (now - (timedelta(minutes=1) if SANDBOX_MODE else timedelta(days=1))).isoformat()
+                "endDate": (now - (timedelta(minutes=6) if SANDBOX_MODE else timedelta(days=6))).isoformat()
             },
             "tenderPeriod": {
                 "startDate": (now - timedelta(days=14)).isoformat(),
@@ -250,7 +250,7 @@ class BaseAuctionWebTest(FlashBaseAuctionWebTest):
             data.update({
                 "enquiryPeriod": {
                     "startDate": (now).isoformat(),
-                    "endDate": (now + timedelta(days=7)).isoformat()
+                    "endDate": (now + timedelta(days=1)).isoformat()
                 },
                 "tenderPeriod": {
                     "startDate": (now).isoformat(),
@@ -261,7 +261,7 @@ class BaseAuctionWebTest(FlashBaseAuctionWebTest):
             data.update({
                 "enquiryPeriod": {
                     "startDate": (now - timedelta(days=7)).isoformat(),
-                    "endDate": (now).isoformat()
+                    "endDate": (now - timedelta(days=6)).isoformat()
                 },
                 "tenderPeriod": {
                     "startDate": (now - timedelta(days=7)).isoformat(),
@@ -286,7 +286,7 @@ class BaseAuctionWebTest(FlashBaseAuctionWebTest):
             data.update({
                 "enquiryPeriod": {
                     "startDate": (now - timedelta(days=8)).isoformat(),
-                    "endDate": (now - timedelta(days=1)).isoformat()
+                    "endDate": (now - timedelta(days=6)).isoformat()
                 },
                 "tenderPeriod": {
                     "startDate": (now - timedelta(days=8)).isoformat(),
@@ -316,7 +316,7 @@ class BaseAuctionWebTest(FlashBaseAuctionWebTest):
             data.update({
                 "enquiryPeriod": {
                     "startDate": (now - timedelta(days=8)).isoformat(),
-                    "endDate": (now - timedelta(days=1)).isoformat()
+                    "endDate": (now - timedelta(days=6)).isoformat()
                 },
                 "tenderPeriod": {
                     "startDate": (now - timedelta(days=8)).isoformat(),
@@ -347,7 +347,7 @@ class BaseAuctionWebTest(FlashBaseAuctionWebTest):
             data.update({
                 "enquiryPeriod": {
                     "startDate": (now - timedelta(days=18)).isoformat(),
-                    "endDate": (now - timedelta(days=11)).isoformat()
+                    "endDate": (now - timedelta(days=17)).isoformat()
                 },
                 "tenderPeriod": {
                     "startDate": (now - timedelta(days=18)).isoformat(),

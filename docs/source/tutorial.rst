@@ -105,6 +105,13 @@ Checking the listing again reflects the new modification date:
 .. include:: tutorial/auction-listing-after-patch.http
    :code:
 
+Organizer can edit procedure only during *enquiryPeriod*.
+
+When this period ends 403 error will be returned on editing attempt:
+
+.. include:: tutorial/out-of-enquiryperiod-editing-denied.http
+   :code:
+
 
 .. index:: Document
 

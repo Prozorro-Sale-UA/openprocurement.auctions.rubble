@@ -113,6 +113,9 @@ msgstr ""
 msgid "`tenderPeriod` must be at least 7 calendar days."
 msgstr "`tenderPeriod` має складати щонайменше 7 календарних днів."
 
+msgid "Organizer can edit procedure only during *enquiryPeriod*. "
+msgstr "Організатор може редагувати аукціон тільки впродовж *enquiryPeriod*. "
+
 msgid "Procedure can be switched from *draft* status to *active.tendering*."
 msgstr "Процедура переходить зі статусу *draft* до *active.tendering*."
 

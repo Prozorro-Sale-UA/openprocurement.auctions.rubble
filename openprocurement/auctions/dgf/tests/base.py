@@ -3,7 +3,7 @@ import os
 from datetime import datetime, timedelta
 from copy import deepcopy
 
-from openprocurement.api.models import SANDBOX_MODE
+from openprocurement.api.models import SANDBOX_MODE, get_now
 from openprocurement.api.utils import apply_data_patch
 from openprocurement.auctions.flash.tests.base import (
     BaseWebTest as FlashBaseWebTest,
@@ -227,6 +227,22 @@ class BaseAuctionWebTest(FlashBaseAuctionWebTest):
     relative_to = os.path.dirname(__file__)
     initial_data = test_auction_data
     initial_organization = test_organization
+
+    def go_to_enquiryPeriod_end(self):
+        now = get_now()
+        self.set_status('active.tendering', {
+            "enquiryPeriod": {
+                "startDate": (now - timedelta(days=14)).isoformat(),
+                "endDate": (now - (timedelta(minutes=1) if SANDBOX_MODE else timedelta(days=1))).isoformat()
+            },
+            "tenderPeriod": {
+                "startDate": (now - timedelta(days=14)).isoformat(),
+                "endDate": (now + (timedelta(minutes=1) if SANDBOX_MODE else timedelta(days=1))).isoformat()
+            },
+            "auctionPeriod": {
+                "startDate": (now + timedelta(days=1)).isoformat()
+            }
+        })
 
     def set_status(self, status, extra=None):
         data = {'status': status}

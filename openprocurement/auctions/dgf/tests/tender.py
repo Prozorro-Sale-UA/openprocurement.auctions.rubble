@@ -1423,6 +1423,38 @@ class AuctionResourceTest(BaseWebTest):
         response = self.app.patch_json('/auctions/{}'.format(auction['id']),{'data': {'value': {'amount': auction['value']['amount'] - 80}}}, status=422)
         self.assertEqual(response.json['errors'], [{'location': 'body', 'name': 'minimalStep', 'description': [u'value should be less than value of auction']}])
 
+
+class AuctionFieldsEditingTest(BaseAuctionWebTest):
+    initial_data = test_auction_data
+    initial_organization = test_organization
+
+    def test_patch_auction_denied(self):
+
+        # patch auction during enquiryPeriod
+
+        response = self.app.patch_json('/auctions/{}'.format(self.auction_id), {'data': {'value': {'amount': 80}}}, status=200)
+        self.assertEqual(response.status, '200 OK')
+        self.assertEqual(response.content_type, 'application/json')
+        self.assertEqual(response.json['data']['value']['amount'], 80)
+        response = self.app.patch_json('/auctions/{}'.format(self.auction_id), {'data': {'minimalStep': {'amount': 20}}}, status=200)
+        self.assertEqual(response.status, '200 OK')
+        self.assertEqual(response.content_type, 'application/json')
+        self.assertEqual(response.json['data']['minimalStep']['amount'], 20)
+
+        self.go_to_enquiryPeriod_end()
+
+        # patch auction after the enquiryPeriod.endDate
+
+        response = self.app.patch_json('/auctions/{}'.format(self.auction_id), {'data': {'value': {'amount': 80}}}, status=403)
+        self.assertEqual(response.status, '403 Forbidden')
+        self.assertEqual(response.content_type, 'application/json')
+        self.assertIn(u'Auction can be edited only during the enquiry period', response.json['errors'][0][u'description'])
+        response = self.app.patch_json('/auctions/{}'.format(self.auction_id), {'data': {'minimalStep': {'amount': 20}}}, status=403)
+        self.assertEqual(response.status, '403 Forbidden')
+        self.assertEqual(response.content_type, 'application/json')
+        self.assertIn(u'Auction can be edited only during the enquiry period', response.json['errors'][0][u'description'])
+
+
 class AuctionProcessTest(BaseAuctionWebTest):
     #setUp = BaseWebTest.setUp
     def setUp(self):
@@ -1719,6 +1751,11 @@ class FinancialAuctionTest(AuctionTest):
     auction = DGFFinancialAssets
 
 
+class FinancialAuctionFieldsEditingTest(AuctionFieldsEditingTest):
+    initial_data = test_financial_auction_data
+    initial_organization = test_financial_organization
+
+
 class FinancialAuctionResourceTest(AuctionResourceTest):
     initial_data = test_financial_auction_data
     initial_organization = test_financial_organization
@@ -1757,9 +1794,11 @@ def suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(AuctionProcessTest))
     suite.addTest(unittest.makeSuite(AuctionResourceTest))
+    suite.addTest(unittest.makeSuite(AuctionFieldsEditingTest))
     suite.addTest(unittest.makeSuite(AuctionTest))
     suite.addTest(unittest.makeSuite(FinancialAuctionProcessTest))
     suite.addTest(unittest.makeSuite(FinancialAuctionResourceTest))
+    suite.addTest(unittest.makeSuite(FinancialAuctionFieldsEditingTest))
     suite.addTest(unittest.makeSuite(FinancialAuctionTest))
     return suite
 

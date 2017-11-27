@@ -27,12 +27,14 @@ from openprocurement.auctions.flash.models import (
     ProcuringEntity as BaseProcuringEntity, Question as BaseQuestion,
     get_auction, Administrator_role
 )
+
 from .constants import (
     AWARD_PAYMENT_TIME, CONTRACT_SIGNING_TIME,
     VERIFY_AUCTION_PROTOCOL_TIME, DOCUMENT_TYPE_OFFLINE,
     DOCUMENT_TYPE_URL_ONLY, CLASSIFICATION_PRECISELY_FROM,
     DGF_ID_REQUIRED_FROM, CAVPS_CODES,
-    CPVS_CODES, ORA_CODES
+    CPVS_CODES, ORA_CODES, MINIMAL_EXPOSITION_PERIOD,
+    MINIMAL_EXPOSITION_REQUIRED_FROM
 )
 
 

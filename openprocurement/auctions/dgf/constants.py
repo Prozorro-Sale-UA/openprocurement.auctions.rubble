@@ -11,14 +11,23 @@ def read_json(name):
         data = lang_file.read()
     return loads(data)
 
+#requiremnt periods
 VERIFY_AUCTION_PROTOCOL_TIME = timedelta(days=3)
+MINIMAL_EXPOSITION_PERIOD = timedelta(days=7)
 AWARD_PAYMENT_TIME = timedelta(days=20)
 CONTRACT_SIGNING_TIME = timedelta(days=20)
+
+#document types
 DOCUMENT_TYPE_OFFLINE = ['x_dgfAssetFamiliarization']
 DOCUMENT_TYPE_URL_ONLY = ['virtualDataRoom']
+
+#time constants
 CLASSIFICATION_PRECISELY_FROM = datetime(2017, 7, 19, tzinfo=TZ)
 DGF_ID_REQUIRED_FROM = datetime(2017, 1, 1, tzinfo=TZ)
 DGF_DECISION_REQUIRED_FROM = datetime(2017, 1, 1, tzinfo=TZ)
+MINIMAL_EXPOSITION_REQUIRED_FROM = datetime(2017, 11, 17, tzinfo=TZ)
+
+#codes
 CAVPS_CODES = read_json('cav_ps.json')
 CPVS_CODES = read_json('cpvs.json')
 ORA_CODES[0:0] = ["UA-IPN", "UA-FIN"]

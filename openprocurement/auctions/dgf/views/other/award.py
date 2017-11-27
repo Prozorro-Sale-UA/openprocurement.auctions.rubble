@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-from openprocurement.api.models import STAND_STILL_TIME, get_now
+from openprocurement.api.models import get_now
 from openprocurement.api.utils import (
     json_view,
     context_unpack,
     APIResource,
-    calculate_business_date,
 )
 from openprocurement.auctions.core.utils import (
     apply_patch,
@@ -16,7 +15,6 @@ from openprocurement.auctions.core.validation import (
     validate_patch_award_data,
 )
 from openprocurement.auctions.dgf.utils import switch_to_next_award, check_auction_protocol
-from openprocurement.auctions.dgf.models import VERIFY_AUCTION_PROTOCOL_TIME, AWARD_PAYMENT_TIME, CONTRACT_SIGNING_TIME
 
 
 @opresource(name='dgfOtherAssets:Auction Awards',
@@ -173,17 +171,12 @@ class AuctionAwardResource(APIResource):
             self.request.errors.status = 403
             return
         now = get_now()
-        award.verificationPeriod = {'startDate': now}
-        award.verificationPeriod.endDate = calculate_business_date(now, VERIFY_AUCTION_PROTOCOL_TIME, auction, True)
-        award.paymentPeriod = {'startDate': now}
-        award.paymentPeriod.endDate = calculate_business_date(now, AWARD_PAYMENT_TIME, auction, True)
-        award.signingPeriod = {'startDate': now}
-        award.signingPeriod.endDate = calculate_business_date(now, CONTRACT_SIGNING_TIME, auction, True)
+        award.verificationPeriod = award.paymentPeriod = award.signingPeriod = {'startDate': now}
         award.complaintPeriod = award.signingPeriod
         auction.awards.append(award)
         if save_auction(self.request):
             self.LOGGER.info('Created auction award {}'.format(award.id),
-                        extra=context_unpack(self.request, {'MESSAGE_ID': 'auction_award_create'}, {'award_id': award.id}))
+                             extra=context_unpack(self.request, {'MESSAGE_ID': 'auction_award_create'}, {'award_id': award.id}))
             self.request.response.status = 201
             route = self.request.matched_route.name.replace("collection_", "")
             self.request.response.headers['Location'] = self.request.current_route_url(_route_name=route, award_id=award.id, _query={})
@@ -306,12 +299,12 @@ class AuctionAwardResource(APIResource):
             return
         award = self.request.context
         award_status = award.status
-        now = get_now()
         if award_status in ['unsuccessful', 'cancelled']:
             self.request.errors.add('body', 'data', 'Can\'t update award in current ({}) status'.format(award_status))
             self.request.errors.status = 403
             return
         apply_patch(self.request, save=False, src=self.request.context.serialize())
+        now = get_now()
         if award_status == 'pending.waiting' and award.status == 'cancelled':
             if self.request.authenticated_role == 'bid_owner':
                 award.complaintPeriod.endDate = now
@@ -332,14 +325,14 @@ class AuctionAwardResource(APIResource):
                 'awardID': award.id,
                 'suppliers': award.suppliers,
                 'value': award.value,
-                'date': get_now(),
+                'date': now,
                 'items': [i for i in auction.items if i.relatedLot == award.lotID],
                 'contractID': '{}-{}{}'.format(auction.auctionID, self.server_id, len(auction.contracts) + 1)}))
             auction.status = 'active.awarded'
             auction.awardPeriod.endDate = now
         elif award_status != 'pending.waiting' and award.status == 'unsuccessful':
             if award_status == 'pending.verification':
-                award.verificationPeriod.endDate = now
+                award.verificationPeriod.endDate = award.complaintPeriod.endDate = award.paymentPeriod.endDate = award.signingPeriod.endDate = now
             elif award_status == 'pending.payment':
                 award.paymentPeriod.endDate = now
             elif award_status == 'active':

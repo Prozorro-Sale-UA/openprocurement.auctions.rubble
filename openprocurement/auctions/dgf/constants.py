@@ -1,6 +1,24 @@
 from datetime import datetime, timedelta
+from openprocurement.api.models import TZ, ORA_CODES
 
+
+def read_json(name):
+    import os.path
+    from json import loads
+    curr_dir = os.path.dirname(os.path.realpath(__file__))
+    file_path = os.path.join(curr_dir, name)
+    with open(file_path) as lang_file:
+        data = lang_file.read()
+    return loads(data)
 
 VERIFY_AUCTION_PROTOCOL_TIME = timedelta(days=3)
 AWARD_PAYMENT_TIME = timedelta(days=20)
 CONTRACT_SIGNING_TIME = timedelta(days=20)
+DOCUMENT_TYPE_OFFLINE = ['x_dgfAssetFamiliarization']
+DOCUMENT_TYPE_URL_ONLY = ['virtualDataRoom']
+CLASSIFICATION_PRECISELY_FROM = datetime(2017, 7, 19, tzinfo=TZ)
+DGF_ID_REQUIRED_FROM = datetime(2017, 1, 1, tzinfo=TZ)
+DGF_DECISION_REQUIRED_FROM = datetime(2017, 1, 1, tzinfo=TZ)
+CAVPS_CODES = read_json('cav_ps.json')
+CPVS_CODES = read_json('cpvs.json')
+ORA_CODES[0:0] = ["UA-IPN", "UA-FIN"]

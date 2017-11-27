@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
-from iso8601 import parse_date
 from openprocurement.api.models import get_now, TZ
-from openprocurement.api.utils import calculate_business_date
 from openprocurement.api.traversal import Root
 from barbecue import chef
 from uuid import uuid4
@@ -36,17 +34,6 @@ def migrate_data(registry, destination=None):
         if migration_func:
             migration_func(registry)
         set_db_schema_version(registry.db, step + 1)
-
-
-def switch_auction_to_unsuccessful(auction):
-    actual_award = [a for a in auction["awards"] if a['status'] in ['active', 'pending']][0]
-    if auction['status'] == 'active.awarded':
-        for i in auction['contracts']:
-            if i['awardID'] == actual_award['id']:
-                i['status'] = 'cancelled'
-    actual_award['status'] = 'unsuccessful'
-    auction['awardPeriod']['endDate'] = actual_award['complaintPeriod']['endDate'] = get_now().isoformat()
-    auction['status'] = 'unsuccessful'
 
 
 def from0to1(registry):
@@ -88,25 +75,24 @@ def from0to1(registry):
             award['status'] = 'pending.payment'
 
         elif award['status'] == 'active':
-            award['verificationPeriod']['endDate'] = award['paymentPeriod']['endDate'] = now
+            award['paymentPeriod']['endDate'] = now
 
-        bids = chef(auction['bids'], auction.get('features'), [], True)
-        for bid in bids:
+        awarded_bids = set([a['bid_id'] for a in awards])
+        sorted_bids = chef(auction['bids'], auction.get('features'), [], True)
+        filtered_bids = [bid for bid in sorted_bids if bid['id'] not in awarded_bids]
+
+        for bid in filtered_bids:
             award = {
                 'id': uuid4().hex,
                 'bid_id': bid['id'],
                 'status': 'pending.waiting',
-                'date': awards[0]['date'],
+                'date': award_create_date,
                 'value': bid['value'],
                 'suppliers': bid['tenderers'],
                 'complaintPeriod': {
-                    'startDate': awards[0]['date']
+                    'startDate': award_create_date
                 }
             }
-            if bid['status'] == 'invalid':
-                award['status'] = 'unsuccessful'
-                award['complaintPeriod']['endDate'] = now
-
             awards.append(award)
 
         model = registry.auction_procurementMethodTypes.get(auction['procurementMethodType'])

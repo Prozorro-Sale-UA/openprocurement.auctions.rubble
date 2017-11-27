@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 import unittest
-from datetime import timedelta
 from copy import deepcopy
 
-from openprocurement.api.models import get_now
+
 from openprocurement.auctions.dgf.tests.base import (
-    BaseAuctionWebTest, test_auction_data, test_lots, test_organization,
+    BaseAuctionWebTest, test_lots, test_organization,
     test_bids as base_bids,
     test_financial_auction_data,
     test_financial_organization,
@@ -160,7 +159,6 @@ class CreateAuctionAwardTest(BaseAuctionWebTest):
 
     def test_create_auction_award(self):
         request_path = '/auctions/{}/awards'.format(self.auction_id)
-        now = get_now()
         response = self.app.post_json(request_path, {'data': {'suppliers': [self.initial_organization], 'bid_id': self.initial_bids[0]['id']}})
         self.assertEqual(response.status, '201 Created')
         self.assertEqual(response.content_type, 'application/json')
@@ -205,64 +203,36 @@ class AuctionAwardProcessTest(BaseAuctionWebTest):
         self.assertEqual(response.json['errors'][0]["description"], "Can't switch award status to (pending.payment) before auction owner load auction protocol")
 
         for i in ["pending.waiting", "active", "cancelled"]:
-            response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.first_award_id), {"data": {"status": i}}, status=403)
-            self.assertEqual(response.status, '403 Forbidden')
-            self.assertEqual(response.content_type, 'application/json')
-            self.assertEqual(response.json['errors'][0]["description"], "Can't switch award (pending.verification) status to ({}) status".format(i))
+            self.forbidden_patch_award(self.first_award_id, "pending.verification", i)
 
         for i in ["unsuccessful", "pending.verification", "pending.payment", "active"]:
-            response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.second_award_id), {"data": {"status": i}}, status=403)
-            self.assertEqual(response.status, '403 Forbidden')
-            self.assertEqual(response.content_type, 'application/json')
-            self.assertEqual(response.json['errors'][0]["description"], "Can't switch award (pending.waiting) status to ({}) status".format(i))
+            self.forbidden_patch_award(self.second_award_id, "pending.waiting", i)
 
         self.upload_auction_protocol(self.first_award)
 
         for i in ["pending.waiting", "active", "cancelled"]:
-            response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.first_award_id), {"data": {"status": i}}, status=403)
-            self.assertEqual(response.status, '403 Forbidden')
-            self.assertEqual(response.content_type, 'application/json')
-            self.assertEqual(response.json['errors'][0]["description"], "Can't switch award (pending.verification) status to ({}) status".format(i))
+            self.forbidden_patch_award(self.first_award_id, "pending.verification", i)
 
         for i in ["unsuccessful", "pending.verification", "pending.payment", "active"]:
-            response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.second_award_id), {"data": {"status": i}}, status=403)
-            self.assertEqual(response.status, '403 Forbidden')
-            self.assertEqual(response.content_type, 'application/json')
-            self.assertEqual(response.json['errors'][0]["description"], "Can't switch award (pending.waiting) status to ({}) status".format(i))
+            self.forbidden_patch_award(self.second_award_id, "pending.waiting", i)
 
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.first_award_id), {"data": {"status": "pending.payment"}})
-        self.assertEqual(response.status, '200 OK')
-        self.assertEqual(response.content_type, 'application/json')
+        response = self.patch_award(self.first_award_id, "pending.payment")
         self.assertEqual(response.json['data']['status'], "pending.payment")
 
         for i in ["cancelled", "pending.waiting", "pending.verification"]:
-            response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.first_award_id), {"data": {"status": i}}, status=403)
-            self.assertEqual(response.status, '403 Forbidden')
-            self.assertEqual(response.content_type, 'application/json')
-            self.assertEqual(response.json['errors'][0]["description"], "Can't switch award (pending.payment) status to ({}) status".format(i))
-
+            self.forbidden_patch_award(self.first_award_id, "pending.payment", i)
 
         for i in ["unsuccessful", "pending.verification", "pending.payment", "active"]:
-            response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.second_award_id), {"data": {"status": i}}, status=403)
-            self.assertEqual(response.status, '403 Forbidden')
-            self.assertEqual(response.content_type, 'application/json')
-            self.assertEqual(response.json['errors'][0]["description"], "Can't switch award (pending.waiting) status to ({}) status".format(i))
+            self.forbidden_patch_award(self.second_award_id, "pending.waiting", i)
 
         response = self.patch_award(self.first_award_id, "active")
         self.assertEqual(response.json['data']['status'], "active")
 
         for i in ["cancelled", "pending.waiting", "pending.verification", "pending.payment"]:
-            response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.first_award_id), {"data": {"status": i}}, status=403)
-            self.assertEqual(response.status, '403 Forbidden')
-            self.assertEqual(response.content_type, 'application/json')
-            self.assertEqual(response.json['errors'][0]["description"], "Can't switch award (active) status to ({}) status".format(i))
+            self.forbidden_patch_award(self.first_award_id, "active", i)
 
         for i in ["unsuccessful", "pending.verification", "pending.payment", "active"]:
-            response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.second_award_id), {"data": {"status": i}}, status=403)
-            self.assertEqual(response.status, '403 Forbidden')
-            self.assertEqual(response.content_type, 'application/json')
-            self.assertEqual(response.json['errors'][0]["description"], "Can't switch award (pending.waiting) status to ({}) status".format(i))
-
+            self.forbidden_patch_award(self.second_award_id, "pending.waiting", i)
 
         response = self.patch_award(self.first_award_id, "unsuccessful")
         self.assertEqual(response.json['data']['status'], "unsuccessful")
@@ -2719,7 +2689,6 @@ def suite():
     suite.addTest(unittest.makeSuite(AuctionAwardComplaintDocumentResourceTest))
     suite.addTest(unittest.makeSuite(AuctionAwardComplaintResourceTest))
     suite.addTest(unittest.makeSuite(AuctionAwardDocumentResourceTest))
-    suite.addTest(unittest.makeSuite(AuctionAwardResourceTest))
     suite.addTest(unittest.makeSuite(AuctionLotAwardResourceTest))
     suite.addTest(unittest.makeSuite(FinancialAuction2LotAwardComplaintDocumentResourceTest))
     suite.addTest(unittest.makeSuite(FinancialAuction2LotAwardComplaintResourceTest))
@@ -2728,7 +2697,6 @@ def suite():
     suite.addTest(unittest.makeSuite(FinancialAuctionAwardComplaintDocumentResourceTest))
     suite.addTest(unittest.makeSuite(FinancialAuctionAwardComplaintResourceTest))
     suite.addTest(unittest.makeSuite(FinancialAuctionAwardDocumentResourceTest))
-    suite.addTest(unittest.makeSuite(FinancialAuctionAwardResourceTest))
     suite.addTest(unittest.makeSuite(FinancialAuctionLotAwardResourceTest))
     return suite
 

@@ -52,7 +52,7 @@ class MigrateTestFrom1To2InvalidBids(BaseAuctionWebTest):
         self.db.save(auction)
         migrate_data(self.app.app.registry, 1)
         auction = self.app.get('/auctions/{}'.format(self.auction_id)).json['data']
-        self.assertEqual(len(auction['awards']), 3)
+        self.assertEqual(len(auction['awards']), 2)
         self.assertEqual(auction['awards'][0]['status'], 'pending.payment')
         self.assertEqual(auction['bids'][0]['status'], 'active')
         self.assertEqual(auction['bids'][1]['status'], 'active')
@@ -106,13 +106,12 @@ class MigrateTestFrom1To2InvalidBids(BaseAuctionWebTest):
         self.db.save(auction)
         migrate_data(self.app.app.registry, 1)
         auction = self.app.get('/auctions/{}'.format(self.auction_id)).json['data']
-        self.assertEqual(len(auction['awards']), 3)
+        self.assertEqual(len(auction['awards']), 2)
         self.assertEqual(auction['bids'][0]['status'], 'active')
         self.assertEqual(auction['bids'][1]['status'], 'active')
         self.assertEqual(auction['awards'][0]['status'], 'active')
         self.assertEqual(auction['contracts'][0]['status'], 'pending')
         self.assertEqual(auction['status'], 'active.awarded')
-
 
     def test_migrate_unsuccessful_pending(self):
         auction = self.db.get(self.auction_id)
@@ -138,7 +137,7 @@ class MigrateTestFrom1To2InvalidBids(BaseAuctionWebTest):
 
         migrate_data(self.app.app.registry, 1)
         auction = self.app.get('/auctions/{}'.format(self.auction_id)).json['data']
-        self.assertEqual(len(auction['awards']), 4)
+        self.assertEqual(len(auction['awards']), 2)
         self.assertEqual(auction['bids'][0]['status'], 'active')
         self.assertEqual(auction['bids'][1]['status'], 'active')
         self.assertEqual(auction['awards'][0]['status'], 'unsuccessful')
@@ -201,7 +200,7 @@ class MigrateTestFrom1To2InvalidBids(BaseAuctionWebTest):
         migrate_data(self.app.app.registry, 1)
 
         auction = self.app.get('/auctions/{}'.format(self.auction_id)).json['data']
-        self.assertEqual(len(auction['awards']), 4)
+        self.assertEqual(len(auction['awards']), 2)
         self.assertEqual(auction['bids'][0]['status'], 'active')
         self.assertEqual(auction['bids'][1]['status'], 'active')
         self.assertEqual(auction['awards'][0]['status'], 'unsuccessful')
@@ -238,7 +237,7 @@ class MigrateTestFrom1To2InvalidBid(BaseAuctionWebTest):
         self.db.save(auction)
         migrate_data(self.app.app.registry, 1)
         auction = self.app.get('/auctions/{}'.format(self.auction_id)).json['data']
-        self.assertEqual(len(auction['awards']), 3)
+        self.assertEqual(len(auction['awards']), 2)
         self.assertEqual(auction['awards'][0]['status'], 'pending.payment')
         self.assertIn('verificationPeriod', auction['awards'][0])
         self.assertIn('paymentPeriod', auction['awards'][0])
@@ -252,7 +251,7 @@ class MigrateTestFrom1To2InvalidBid(BaseAuctionWebTest):
         response = self.app.get('/auctions/{}/awards'.format(self.auction_id))
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(len(response.json['data']), 3)
+        self.assertEqual(len(response.json['data']), 2)
         self.assertEqual(response.json['data'][0]['status'], u'pending.payment')
         self.assertEqual(response.json['data'][1]['status'], u'pending.waiting')
         pending_award = response.json['data'][0]
@@ -320,7 +319,7 @@ class MigrateTestFrom1To2InvalidBid(BaseAuctionWebTest):
         self.db.save(auction)
         migrate_data(self.app.app.registry, 1)
         auction = self.app.get('/auctions/{}'.format(self.auction_id)).json['data']
-        self.assertEqual(len(auction['awards']), 3)
+        self.assertEqual(len(auction['awards']), 2)
         self.assertEqual(auction['awards'][0]['status'], 'active')
         self.assertIn('verificationPeriod', auction['awards'][0])
         self.assertIn('paymentPeriod', auction['awards'][0])
@@ -335,7 +334,7 @@ class MigrateTestFrom1To2InvalidBid(BaseAuctionWebTest):
         response = self.app.get('/auctions/{}/awards'.format(self.auction_id))
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(len(response.json['data']), 3)
+        self.assertEqual(len(response.json['data']), 2)
         self.assertEqual(response.json['data'][0]['status'], u'active')
         self.assertEqual(response.json['data'][1]['status'], u'pending.waiting')
         active_award = response.json['data'][0]
@@ -354,7 +353,6 @@ class MigrateTestFrom1To2InvalidBid(BaseAuctionWebTest):
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
         self.assertEqual(response.json['data'][1]['status'], u'pending.verification')
-
 
     def test_migrate_unsuccessful_pending(self):
         auction = self.db.get(self.auction_id)
@@ -380,7 +378,7 @@ class MigrateTestFrom1To2InvalidBid(BaseAuctionWebTest):
 
         migrate_data(self.app.app.registry, 1)
         auction = self.app.get('/auctions/{}'.format(self.auction_id)).json['data']
-        self.assertEqual(len(auction['awards']), 4)
+        self.assertEqual(len(auction['awards']), 2)
         self.assertEqual(auction['bids'][0]['status'], 'active')
         self.assertEqual(auction['bids'][1]['status'], 'active')
         self.assertEqual(auction['awards'][0]['status'], 'unsuccessful')
@@ -443,7 +441,7 @@ class MigrateTestFrom1To2InvalidBid(BaseAuctionWebTest):
         migrate_data(self.app.app.registry, 1)
 
         auction = self.app.get('/auctions/{}'.format(self.auction_id)).json['data']
-        self.assertEqual(len(auction['awards']), 4)
+        self.assertEqual(len(auction['awards']), 2)
         self.assertEqual(auction['bids'][0]['status'], 'active')
         self.assertEqual(auction['bids'][1]['status'], 'active')
         self.assertEqual(auction['awards'][0]['status'], 'unsuccessful')
@@ -477,7 +475,7 @@ class MigrateTestFrom1To2WithTwoBids(BaseAuctionWebTest):
         self.db.save(auction)
         migrate_data(self.app.app.registry, 1)
         auction = self.app.get('/auctions/{}'.format(self.auction_id)).json['data']
-        self.assertEqual(len(auction['awards']), 3)
+        self.assertEqual(len(auction['awards']), 2)
         self.assertEqual(auction['awards'][0]['status'], 'pending.payment')
         self.assertIn('verificationPeriod', auction['awards'][0])
         self.assertIn('paymentPeriod', auction['awards'][0])
@@ -491,7 +489,7 @@ class MigrateTestFrom1To2WithTwoBids(BaseAuctionWebTest):
         response = self.app.get('/auctions/{}/awards'.format(self.auction_id))
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(len(response.json['data']), 3)
+        self.assertEqual(len(response.json['data']), 2)
         self.assertEqual(response.json['data'][0]['status'], u'pending.payment')
         self.assertEqual(response.json['data'][1]['status'], u'pending.waiting')
         pending_award = response.json['data'][0]
@@ -510,7 +508,7 @@ class MigrateTestFrom1To2WithTwoBids(BaseAuctionWebTest):
         response = self.app.get('/auctions/{}'.format(self.auction_id))
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(response.json['data']['status'], u'active.qualification')
+        self.assertEqual(response.json['data']['status'], u'unsuccessful')
 
     def test_migrate_pending_to_complete(self):
         auction = self.db.get(self.auction_id)
@@ -528,7 +526,7 @@ class MigrateTestFrom1To2WithTwoBids(BaseAuctionWebTest):
         self.db.save(auction)
         migrate_data(self.app.app.registry, 1)
         auction = self.app.get('/auctions/{}'.format(self.auction_id)).json['data']
-        self.assertEqual(len(auction['awards']), 3)
+        self.assertEqual(len(auction['awards']), 2)
         self.assertEqual(auction['awards'][0]['status'], 'pending.payment')
         self.assertIn('verificationPeriod', auction['awards'][0])
         self.assertIn('paymentPeriod', auction['awards'][0])
@@ -542,7 +540,7 @@ class MigrateTestFrom1To2WithTwoBids(BaseAuctionWebTest):
         response = self.app.get('/auctions/{}/awards'.format(self.auction_id))
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(len(response.json['data']), 3)
+        self.assertEqual(len(response.json['data']), 2)
         self.assertEqual(response.json['data'][0]['status'], u'pending.payment')
         self.assertEqual(response.json['data'][1]['status'], u'pending.waiting')
         pending_award = response.json['data'][0]
@@ -642,7 +640,7 @@ class MigrateTestFrom1To2WithTwoBids(BaseAuctionWebTest):
 
         migrate_data(self.app.app.registry, 1)
         auction = self.app.get('/auctions/{}'.format(self.auction_id)).json['data']
-        self.assertEqual(len(auction['awards']), 3)
+        self.assertEqual(len(auction['awards']), 2)
         self.assertEqual(auction['awards'][0]['status'], 'active')
         self.assertIn('verificationPeriod', auction['awards'][0])
         self.assertIn('paymentPeriod', auction['awards'][0])
@@ -657,7 +655,7 @@ class MigrateTestFrom1To2WithTwoBids(BaseAuctionWebTest):
         response = self.app.get('/auctions/{}/awards'.format(self.auction_id))
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(len(response.json['data']), 3)
+        self.assertEqual(len(response.json['data']), 2)
         self.assertEqual(response.json['data'][0]['status'], u'active')
         self.assertEqual(response.json['data'][1]['status'], u'pending.waiting')
         active_award = response.json['data'][0]
@@ -676,7 +674,7 @@ class MigrateTestFrom1To2WithTwoBids(BaseAuctionWebTest):
         response = self.app.get('/auctions/{}'.format(self.auction_id))
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(response.json['data']['status'], u'active.qualification')
+        self.assertEqual(response.json['data']['status'], u'unsuccessful')
 
     def test_migrate_active_to_complete(self):
         auction = self.db.get(self.auction_id)
@@ -729,7 +727,7 @@ class MigrateTestFrom1To2WithTwoBids(BaseAuctionWebTest):
 
         response = self.app.get('/auctions/{}'.format(self.auction_id))
         auction = response.json['data']
-        self.assertEqual(len(auction['awards']), 3)
+        self.assertEqual(len(auction['awards']), 2)
         self.assertEqual(auction['awards'][0]['status'], 'active')
         self.assertIn('verificationPeriod', auction['awards'][0])
         self.assertIn('paymentPeriod', auction['awards'][0])
@@ -742,7 +740,7 @@ class MigrateTestFrom1To2WithTwoBids(BaseAuctionWebTest):
         response = self.app.get('/auctions/{}/awards'.format(self.auction_id))
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(len(response.json['data']), 3)
+        self.assertEqual(len(response.json['data']), 2)
         self.assertEqual(response.json['data'][0]['status'], u'active')
         self.assertEqual(response.json['data'][1]['status'], u'pending.waiting')
 
@@ -781,7 +779,7 @@ class MigrateTestFrom1To2WithTwoBids(BaseAuctionWebTest):
         response = self.app.get('/auctions/{}'.format(self.auction_id))
         auction = response.json['data']
         self.assertEqual(auction['status'], u'active.qualification')
-        self.assertEqual(len(auction['awards']), 4)
+        self.assertEqual(len(auction['awards']), 3)
         self.assertEqual(auction['awards'][0]['status'], 'cancelled')
         self.assertEqual(auction['awards'][1]['status'], 'pending.payment')
         self.assertIn('verificationPeriod', auction['awards'][1])
@@ -796,7 +794,7 @@ class MigrateTestFrom1To2WithTwoBids(BaseAuctionWebTest):
         response = self.app.get('/auctions/{}/awards'.format(self.auction_id))
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(len(response.json['data']), 4)
+        self.assertEqual(len(response.json['data']), 3)
         self.assertEqual(response.json['data'][0]['status'], u'cancelled')
         self.assertEqual(response.json['data'][1]['status'], u'pending.payment')
         self.assertEqual(response.json['data'][2]['status'], u'pending.waiting')
@@ -874,7 +872,7 @@ class MigrateTestFrom1To2WithTwoBids(BaseAuctionWebTest):
         response = self.app.get('/auctions/{}'.format(self.auction_id))
         auction = response.json['data']
         self.assertEqual(auction['status'], u'active.qualification')
-        self.assertEqual(len(auction['awards']), 4)
+        self.assertEqual(len(auction['awards']), 2)
         self.assertEqual(auction['awards'][0]['status'], 'unsuccessful')
         self.assertEqual(auction['awards'][1]['status'], 'pending.payment')
         self.assertIn('verificationPeriod', auction['awards'][1])
@@ -884,7 +882,7 @@ class MigrateTestFrom1To2WithTwoBids(BaseAuctionWebTest):
         response = self.app.get('/auctions/{}/awards'.format(self.auction_id))
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(len(response.json['data']), 4)
+        self.assertEqual(len(response.json['data']), 2)
         self.assertEqual(response.json['data'][0]['status'], u'unsuccessful')
         self.assertEqual(response.json['data'][1]['status'], u'pending.payment')
         pending_award = response.json['data'][1]
@@ -968,7 +966,7 @@ class MigrateTestFrom1To2WithTwoBids(BaseAuctionWebTest):
         response = self.app.get('/auctions/{}'.format(self.auction_id))
         auction = response.json['data']
         self.assertEqual(auction['status'], u'active.awarded')
-        self.assertEqual(len(auction['awards']), 4)
+        self.assertEqual(len(auction['awards']), 2)
         self.assertEqual(auction['awards'][0]['status'], 'unsuccessful')
         self.assertEqual(auction['awards'][1]['status'], 'active')
         self.assertIn('verificationPeriod', auction['awards'][1])
@@ -978,7 +976,7 @@ class MigrateTestFrom1To2WithTwoBids(BaseAuctionWebTest):
         response = self.app.get('/auctions/{}/awards'.format(self.auction_id))
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(len(response.json['data']), 4)
+        self.assertEqual(len(response.json['data']), 2)
         self.assertEqual(response.json['data'][0]['status'], u'unsuccessful')
         self.assertEqual(response.json['data'][1]['status'], u'active')
 
@@ -1029,7 +1027,7 @@ class MigrateTestFrom1To2WithTwoBids(BaseAuctionWebTest):
         response = self.app.get('/auctions/{}'.format(self.auction_id))
         auction = response.json['data']
         self.assertEqual(auction['status'], u'active.qualification')
-        self.assertEqual(len(auction['awards']), 5)
+        self.assertEqual(len(auction['awards']), 3)
         self.assertEqual(auction['awards'][0]['status'], 'cancelled')
         self.assertEqual(auction['awards'][1]['status'], 'unsuccessful')
         self.assertEqual(auction['awards'][2]['status'], 'pending.payment')
@@ -1039,7 +1037,7 @@ class MigrateTestFrom1To2WithTwoBids(BaseAuctionWebTest):
         response = self.app.get('/auctions/{}/awards'.format(self.auction_id))
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(len(response.json['data']), 5)
+        self.assertEqual(len(response.json['data']), 3)
         self.assertEqual(response.json['data'][0]['status'], u'cancelled')
         self.assertEqual(response.json['data'][1]['status'], u'unsuccessful')
         self.assertEqual(response.json['data'][2]['status'], u'pending.payment')
@@ -1095,11 +1093,10 @@ class MigrateTestFrom1To2WithTwoBids(BaseAuctionWebTest):
         self.db.save(auction)
         migrate_data(self.app.app.registry, 1)
 
-
         response = self.app.get('/auctions/{}'.format(self.auction_id))
         auction = response.json['data']
         self.assertEqual(auction['status'], u'active.qualification')
-        self.assertEqual(len(auction['awards']), 6)
+        self.assertEqual(len(auction['awards']), 4)
         self.assertEqual(auction['awards'][0]['status'], 'cancelled')
         self.assertEqual(auction['awards'][1]['status'], 'unsuccessful')
         self.assertEqual(auction['awards'][2]['status'], 'cancelled')
@@ -1125,13 +1122,13 @@ class MigrateTestFrom1To2WithTwoBids(BaseAuctionWebTest):
         response = self.app.get('/auctions/{}'.format(self.auction_id))
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(len(response.json['data']['awards']), 6)
-        self.assertEqual(response.json['data']['status'], u'active.qualification')
+        self.assertEqual(len(response.json['data']['awards']), 4)
+        self.assertEqual(response.json['data']['status'], u'unsuccessful')
 
         response = self.app.get('/auctions/{}/awards'.format(self.auction_id))
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(len(response.json['data']), 6)
+        self.assertEqual(len(response.json['data']), 4)
         self.assertEqual(response.json['data'][0]['status'], u'cancelled')
         self.assertEqual(response.json['data'][1]['status'], u'unsuccessful')
         self.assertEqual(response.json['data'][2]['status'], u'cancelled')
@@ -1200,7 +1197,7 @@ class MigrateTestFrom1To2WithTwoBids(BaseAuctionWebTest):
         response = self.app.get('/auctions/{}'.format(self.auction_id))
         auction = response.json['data']
         self.assertEqual(auction['status'], u'active.awarded')
-        self.assertEqual(len(auction['awards']), 6)
+        self.assertEqual(len(auction['awards']), 4)
         self.assertEqual(auction['awards'][0]['status'], 'cancelled')
         self.assertEqual(auction['awards'][1]['status'], 'unsuccessful')
         self.assertEqual(auction['awards'][2]['status'], 'cancelled')
@@ -1217,17 +1214,55 @@ class MigrateTestFrom1To2WithTwoBids(BaseAuctionWebTest):
         response = self.app.get('/auctions/{}'.format(self.auction_id))
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(len(response.json['data']['awards']), 6)
-        self.assertEqual(response.json['data']['status'], u'active.qualification')
+        self.assertEqual(len(response.json['data']['awards']), 4)
+        self.assertEqual(response.json['data']['status'], u'unsuccessful')
 
         response = self.app.get('/auctions/{}/awards'.format(self.auction_id))
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(len(response.json['data']), 6)
+        self.assertEqual(len(response.json['data']), 4)
         self.assertEqual(response.json['data'][0]['status'], u'cancelled')
         self.assertEqual(response.json['data'][1]['status'], u'unsuccessful')
         self.assertEqual(response.json['data'][2]['status'], u'cancelled')
         self.assertEqual(response.json['data'][3]['status'], u'unsuccessful')
+
+    def test_migrate_awards_number(self):
+        auction = self.db.get(self.auction_id)
+        award_1 = {
+            'id': uuid4().hex,
+            "date": get_now().isoformat(),
+            "bid_id": auction['bids'][0]['id'],
+            "status": "active",
+            "complaintPeriod": {
+                "startDate": get_now().isoformat(),
+            }
+        }
+        award_2 = {
+            'id': uuid4().hex,
+            "date": get_now().isoformat(),
+            "bid_id": auction['bids'][0]['id'],
+            "status": "pending",
+            "complaintPeriod": {
+                "startDate": get_now().isoformat(),
+            }
+        }
+        award_3 = {
+            'id': uuid4().hex,
+            "date": get_now().isoformat(),
+            "bid_id": auction['bids'][1]['id'],
+            "status": "pending",
+            "complaintPeriod": {
+                "startDate": get_now().isoformat(),
+            }
+        }
+        auction['awards'] = [award_1, award_2, award_3]
+        auction.update(auction)
+        awards_num = len(auction['awards'])
+        self.db.save(auction)
+        migrate_data(self.app.app.registry, 1)
+        auction = self.app.get('/auctions/{}'.format(self.auction_id)).json['data']
+        migrated_awards_num = len(auction['awards'])
+        self.assertEqual(awards_num, migrated_awards_num)
 
 
 class MigrateTestFrom1To2WithThreeBids(BaseAuctionWebTest):
@@ -1275,7 +1310,7 @@ class MigrateTestFrom1To2WithThreeBids(BaseAuctionWebTest):
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
         self.assertEqual(auction['status'], u'active.qualification')
-        self.assertEqual(len(auction['awards']), 6)
+        self.assertEqual(len(auction['awards']), 3)
         self.assertEqual(auction['awards'][0]['status'], 'unsuccessful')
         self.assertEqual(auction['awards'][1]['status'], 'unsuccessful')
         self.assertEqual(auction['awards'][2]['status'], 'pending.payment')
@@ -1348,11 +1383,10 @@ class MigrateTestFrom1To2WithThreeBids(BaseAuctionWebTest):
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
         self.assertEqual(auction['status'], u'active.awarded')
-        self.assertEqual(len(auction['awards']), 6)
+        self.assertEqual(len(auction['awards']), 3)
         self.assertEqual(auction['awards'][0]['status'], 'unsuccessful')
         self.assertEqual(auction['awards'][1]['status'], 'unsuccessful')
         self.assertEqual(auction['awards'][2]['status'], 'active')
-        self.assertEqual(auction['awards'][3]['status'], 'pending.waiting')
         self.assertEqual(auction['contracts'][0]['status'], 'pending')
 
 

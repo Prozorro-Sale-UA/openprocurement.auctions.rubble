@@ -437,6 +437,12 @@ class BaseAuctionWebTest(FlashBaseAuctionWebTest):
         self.assertEqual(response.content_type, 'application/json')
         return response
 
+    def forbidden_patch_award(self, award_id, before_status, status):
+        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, award_id), {"data": {"status": status}}, status=403)
+        self.assertEqual(response.status, '403 Forbidden')
+        self.assertEqual(response.content_type, 'application/json')
+        self.assertEqual(response.json['errors'][0]["description"], "Can't switch award ({}) status to ({}) status".format(before_status, status))
+
 
 class BaseFinancialAuctionWebTest(BaseAuctionWebTest):
     relative_to = os.path.dirname(__file__)

@@ -8,14 +8,11 @@ from openprocurement.api.utils import (
     DOCUMENT_BLACKLISTED_FIELDS, context_unpack, calculate_business_date
 )
 from openprocurement.auctions.core.utils import (
-    cleanup_bids_for_cancelled_lots, check_complaint_status,
-    check_auction_status, remove_draft_bids, add_next_award
+    check_complaint_status,
+    check_auction_status, remove_draft_bids
 )
 
-from openprocurement.auctions.dgf.models import (
-    DOCUMENT_TYPE_URL_ONLY, DOCUMENT_TYPE_OFFLINE,
-    VERIFY_AUCTION_PROTOCOL_TIME, AWARD_PAYMENT_TIME, CONTRACT_SIGNING_TIME
-)
+from .constants import DOCUMENT_TYPE_URL_ONLY, DOCUMENT_TYPE_OFFLINE
 
 PKG = get_distribution(__package__)
 LOGGER = getLogger(PKG.project_name)
@@ -91,13 +88,8 @@ def create_awards(request):
             'suppliers': bid['tenderers'],
             'complaintPeriod': {'startDate': now}
         })
-        if bid['status'] == 'invalid':
-            award.status = 'unsuccessful'
-            award.complaintPeriod.endDate = now
         if award.status == 'pending.verification':
-            award.verificationPeriod = {'startDate': now}
-            award.paymentPeriod = {'startDate': now}
-            award.signingPeriod = {'startDate': now}
+            award.verificationPeriod = award.paymentPeriod = award.signingPeriod = {'startDate': now}
             request.response.headers['Location'] = request.route_url('{}:Auction Awards'.format(auction.procurementMethodType), auction_id=auction.id, award_id=award['id'])
         auction.awards.append(award)
 
@@ -109,13 +101,7 @@ def switch_to_next_award(request):
     if waiting_awards:
         award = waiting_awards[0]
         award.status = 'pending.verification'
-        award.verificationPeriod = {'startDate': now}
-        award.verificationPeriod.endDate = calculate_business_date(now, VERIFY_AUCTION_PROTOCOL_TIME, auction, True)
-        award.paymentPeriod = {'startDate': now}
-        award.paymentPeriod.endDate = calculate_business_date(now, AWARD_PAYMENT_TIME, auction, True)
-        award.signingPeriod = {'startDate': now}
-        award.signingPeriod.endDate = calculate_business_date(now, CONTRACT_SIGNING_TIME, auction, True)
-        award.complaintPeriod.endDate = award.signingPeriod.endDate = calculate_business_date(now, CONTRACT_SIGNING_TIME, auction, True)
+        award.verificationPeriod = award.paymentPeriod = award.signingPeriod = {'startDate': now}
         request.response.headers['Location'] = request.route_url('{}:Auction Awards'.format(auction.procurementMethodType), auction_id=auction.id, award_id=award['id'])
 
     elif all([award.status in ['cancelled', 'unsuccessful'] for award in auction.awards]):
@@ -183,3 +169,9 @@ def check_status(request):
             if standStillEnd <= now:
                 check_auction_status(request)
                 return
+
+
+def calculate_enddate(auction, period, duration):
+    period.endDate = calculate_business_date(period.startDate, duration, auction, True)
+    round_to_18_hour_delta = period.endDate.replace(hour=18, minute=0, second=0) - period.endDate
+    period.endDate = calculate_business_date(period.endDate, round_to_18_hour_delta, auction, False)

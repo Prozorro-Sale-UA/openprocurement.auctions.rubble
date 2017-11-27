@@ -12,10 +12,11 @@ from pyramid.security import Allow
 from openprocurement.api.models import (
     BooleanType, ListType, Feature, Period, get_now, TZ,
     validate_features_uniq, validate_lots_uniq, Identifier as BaseIdentifier,
-    Classification, validate_items_uniq, ORA_CODES, Address, Location,
+    Classification, validate_items_uniq, Address, Location,
     schematics_embedded_role, SANDBOX_MODE, CPV_CODES
 )
 from openprocurement.api.utils import calculate_business_date
+from .utils import calculate_enddate
 from openprocurement.auctions.core.models import IAuction
 from openprocurement.auctions.flash.models import (
     Auction as BaseAuction, Document as BaseDocument, Bid as BaseBid,
@@ -26,32 +27,13 @@ from openprocurement.auctions.flash.models import (
     ProcuringEntity as BaseProcuringEntity, Question as BaseQuestion,
     get_auction, Administrator_role
 )
-from .constants import AWARD_PAYMENT_TIME, CONTRACT_SIGNING_TIME, VERIFY_AUCTION_PROTOCOL_TIME
-
-
-def read_json(name):
-    import os.path
-    from json import loads
-    curr_dir = os.path.dirname(os.path.realpath(__file__))
-    file_path = os.path.join(curr_dir, name)
-    with open(file_path) as lang_file:
-        data = lang_file.read()
-    return loads(data)
-
-
-ORA_CODES = ORA_CODES[:]
-ORA_CODES[0:0] = ["UA-IPN", "UA-FIN"]
-
-DOCUMENT_TYPE_OFFLINE = ['x_dgfAssetFamiliarization']
-DOCUMENT_TYPE_URL_ONLY = ['virtualDataRoom']
-
-CLASSIFICATION_PRECISELY_FROM = datetime(2017, 7, 19, tzinfo=TZ)
-
-CAVPS_CODES = read_json('cav_ps.json')
-CPVS_CODES = read_json('cpvs.json')
-
-DGF_ID_REQUIRED_FROM = datetime(2017, 1, 1, tzinfo=TZ)
-DGF_DECISION_REQUIRED_FROM = datetime(2017, 1, 1, tzinfo=TZ)
+from .constants import (
+    AWARD_PAYMENT_TIME, CONTRACT_SIGNING_TIME,
+    VERIFY_AUCTION_PROTOCOL_TIME, DOCUMENT_TYPE_OFFLINE,
+    DOCUMENT_TYPE_URL_ONLY, CLASSIFICATION_PRECISELY_FROM,
+    DGF_ID_REQUIRED_FROM, CAVPS_CODES,
+    CPVS_CODES, ORA_CODES
+)
 
 
 class CPVCAVClassification(Classification):
@@ -249,9 +231,7 @@ class Award(BaseAward):
             return
         if not period.endDate:
             auction = get_auction(self)
-            period.endDate = calculate_business_date(period.startDate, VERIFY_AUCTION_PROTOCOL_TIME, auction, True)
-            round_to_18_hour_delta = period.endDate.replace(hour=18, minute=0, second=0) - period.endDate
-            period.endDate = calculate_business_date(period.endDate, round_to_18_hour_delta, auction, False)
+            calculate_enddate(auction, period, VERIFY_AUCTION_PROTOCOL_TIME)
         return period.to_primitive()
 
     @serializable(serialized_name="paymentPeriod", serialize_when_none=False)
@@ -261,9 +241,7 @@ class Award(BaseAward):
             return
         if not period.endDate:
             auction = get_auction(self)
-            period.endDate = calculate_business_date(period.startDate, AWARD_PAYMENT_TIME, auction, True)
-            round_to_18_hour_delta = period.endDate.replace(hour=18, minute=0, second=0) - period.endDate
-            period.endDate = calculate_business_date(period.endDate, round_to_18_hour_delta, auction, False)
+            calculate_enddate(auction, period, AWARD_PAYMENT_TIME)
         return period.to_primitive()
 
     @serializable(serialized_name="signingPeriod", serialize_when_none=False)
@@ -273,9 +251,7 @@ class Award(BaseAward):
             return
         if not period.endDate:
             auction = get_auction(self)
-            period.endDate = calculate_business_date(period.startDate, CONTRACT_SIGNING_TIME, auction, True)
-            round_to_18_hour_delta = period.endDate.replace(hour=18, minute=0, second=0) - period.endDate
-            period.endDate = calculate_business_date(period.endDate, round_to_18_hour_delta, auction, False)
+            calculate_enddate(auction, period, CONTRACT_SIGNING_TIME)
         return period.to_primitive()
 
 

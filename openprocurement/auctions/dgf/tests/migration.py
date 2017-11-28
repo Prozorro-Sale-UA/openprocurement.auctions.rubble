@@ -23,198 +23,12 @@ class MigrateTest(BaseWebTest):
         self.assertEqual(get_db_schema_version(self.db), SCHEMA_VERSION)
 
 
-class MigrateTestFrom1To2InvalidBids(BaseAuctionWebTest):
+class MigrateTestFrom1To2Bids(BaseAuctionWebTest):
     initial_status = 'active.qualification'
     initial_bids = test_bids
 
     def setUp(self):
-        super(MigrateTestFrom1To2InvalidBids, self).setUp()
-        migrate_data(self.app.app.registry)
-        set_db_schema_version(self.db, 0)
-        auction = self.db.get(self.auction_id)
-        for bid in auction['bids']:
-            bid['value']['amount'] = auction['value']['amount']
-        self.db.save(auction)
-
-    def test_migrate_one_pending(self):
-        auction = self.db.get(self.auction_id)
-        award = {
-            'id': uuid4().hex,
-            "date": get_now().isoformat(),
-            "bid_id": auction['bids'][1]['id'],
-            "status": "pending",
-            "complaintPeriod": {
-                "startDate": get_now().isoformat(),
-            }
-        }
-        auction['awards'] = [award]
-        auction.update(auction)
-        self.db.save(auction)
-        migrate_data(self.app.app.registry, 1)
-        auction = self.app.get('/auctions/{}'.format(self.auction_id)).json['data']
-        self.assertEqual(len(auction['awards']), 2)
-        self.assertEqual(auction['awards'][0]['status'], 'pending.payment')
-        self.assertEqual(auction['bids'][0]['status'], 'active')
-        self.assertEqual(auction['bids'][1]['status'], 'active')
-        self.assertEqual(auction['status'], 'active.qualification')
-
-    def test_migrate_one_active(self):
-        auction = self.db.get(self.auction_id)
-        now = get_now()
-        award = {
-            'id': uuid4().hex,
-            "date": now.isoformat(),
-            "bid_id": auction['bids'][1]['id'],
-            'suppliers': auction['bids'][1]['tenderers'],
-            'value': auction['bids'][1]['value'],
-            "status": "active",
-            "complaintPeriod": {
-                "startDate": now.isoformat(),
-                "endDate": now.isoformat()
-            }
-        }
-        auction['awards'] = [award]
-        auction.update({
-            "enquiryPeriod": {
-                "startDate": (now - timedelta(days=8)).isoformat(),
-                "endDate": (now - timedelta(days=1)).isoformat()
-            },
-            "tenderPeriod": {
-                "startDate": (now - timedelta(days=8)).isoformat(),
-                "endDate": (now - timedelta(days=1)).isoformat()
-            },
-            "auctionPeriod": {
-                "startDate": (now - timedelta(days=1)).isoformat(),
-                "endDate": (now).isoformat()
-            },
-            "awardPeriod": {
-                "startDate": (now).isoformat(),
-                "endDate": (now).isoformat()
-            }
-        })
-        contract_id = uuid4().hex
-        auction['contracts'] = [{
-            'awardID': award['id'],
-            'id': contract_id,
-            'suppliers': award['suppliers'],
-            'value': award['value'],
-            'date': now.isoformat(),
-            'items': auction['items'],
-            'contractID': '{}-11'.format(auction['auctionID'])}]
-        auction['status'] = 'active.awarded'
-        auction.update(auction)
-        self.db.save(auction)
-        migrate_data(self.app.app.registry, 1)
-        auction = self.app.get('/auctions/{}'.format(self.auction_id)).json['data']
-        self.assertEqual(len(auction['awards']), 2)
-        self.assertEqual(auction['bids'][0]['status'], 'active')
-        self.assertEqual(auction['bids'][1]['status'], 'active')
-        self.assertEqual(auction['awards'][0]['status'], 'active')
-        self.assertEqual(auction['contracts'][0]['status'], 'pending')
-        self.assertEqual(auction['status'], 'active.awarded')
-
-    def test_migrate_unsuccessful_pending(self):
-        auction = self.db.get(self.auction_id)
-
-        pending_award = {
-            'id': uuid4().hex,
-            "date": get_now().isoformat(),
-            "bid_id": auction['bids'][0]['id'],
-            "status": "pending",
-            "complaintPeriod": {
-                "startDate": get_now().isoformat(),
-            }
-        }
-        unsuccessful_award = deepcopy(pending_award)
-        unsuccessful_award['id'] = uuid4().hex
-        unsuccessful_award['status'] = 'unsuccessful'
-        unsuccessful_award['complaintPeriod']['endDate'] = get_now().isoformat()
-        pending_award['bid_id'] = auction['bids'][1]['id']
-        auction['awards'] = [unsuccessful_award, pending_award]
-        auction.update(auction)
-
-        self.db.save(auction)
-
-        migrate_data(self.app.app.registry, 1)
-        auction = self.app.get('/auctions/{}'.format(self.auction_id)).json['data']
-        self.assertEqual(len(auction['awards']), 2)
-        self.assertEqual(auction['bids'][0]['status'], 'active')
-        self.assertEqual(auction['bids'][1]['status'], 'active')
-        self.assertEqual(auction['awards'][0]['status'], 'unsuccessful')
-        self.assertEqual(auction['awards'][1]['status'], 'pending.payment')
-        self.assertEqual(auction['status'], 'active.qualification')
-
-    def test_migrate_unsuccessful_active(self):
-        auction = self.db.get(self.auction_id)
-
-        now = get_now()
-
-        active_award = {
-            'id': uuid4().hex,
-            "date": now.isoformat(),
-            "bid_id": auction['bids'][0]['id'],
-            'suppliers': auction['bids'][0]['tenderers'],
-            'value': auction['bids'][0]['value'],
-            "status": "active",
-            "complaintPeriod": {
-                "startDate": now.isoformat(),
-                "endDate": now.isoformat()
-            }
-        }
-        unsuccessful_award = deepcopy(active_award)
-        unsuccessful_award['id'] = uuid4().hex
-        unsuccessful_award['status'] = 'unsuccessful'
-        active_award['bid_id'] = auction['bids'][1]['id']
-
-        auction['awards'] = [unsuccessful_award, active_award]
-
-        auction.update({
-            "enquiryPeriod": {
-                "startDate": (now - timedelta(days=8)).isoformat(),
-                "endDate": (now - timedelta(days=1)).isoformat()
-            },
-            "tenderPeriod": {
-                "startDate": (now - timedelta(days=8)).isoformat(),
-                "endDate": (now - timedelta(days=1)).isoformat()
-            },
-            "auctionPeriod": {
-                "startDate": (now - timedelta(days=1)).isoformat(),
-                "endDate": (now).isoformat()
-            },
-            "awardPeriod": {
-                "startDate": (now).isoformat(),
-                "endDate": (now).isoformat()
-            }
-        })
-        auction['contracts'] = [{
-            'awardID': active_award['id'],
-            'suppliers': active_award['suppliers'],
-            'value': active_award['value'],
-            'date': now.isoformat(),
-            'items': auction['items'],
-            'contractID': '{}-11'.format(auction['auctionID'])}]
-        auction['status'] = 'active.awarded'
-
-        auction.update(auction)
-        self.db.save(auction)
-        migrate_data(self.app.app.registry, 1)
-
-        auction = self.app.get('/auctions/{}'.format(self.auction_id)).json['data']
-        self.assertEqual(len(auction['awards']), 2)
-        self.assertEqual(auction['bids'][0]['status'], 'active')
-        self.assertEqual(auction['bids'][1]['status'], 'active')
-        self.assertEqual(auction['awards'][0]['status'], 'unsuccessful')
-        self.assertEqual(auction['awards'][1]['status'], 'active')
-        self.assertEqual(auction['contracts'][0]['status'], 'pending')
-        self.assertEqual(auction['status'], 'active.awarded')
-
-
-class MigrateTestFrom1To2InvalidBid(BaseAuctionWebTest):
-    initial_status = 'active.qualification'
-    initial_bids = test_bids
-
-    def setUp(self):
-        super(MigrateTestFrom1To2InvalidBid, self).setUp()
+        super(MigrateTestFrom1To2Bids, self).setUp()
         migrate_data(self.app.app.registry)
         set_db_schema_version(self.db, 0)
         auction = self.db.get(self.auction_id)
@@ -242,6 +56,9 @@ class MigrateTestFrom1To2InvalidBid(BaseAuctionWebTest):
         self.assertIn('verificationPeriod', auction['awards'][0])
         self.assertIn('paymentPeriod', auction['awards'][0])
         self.assertEqual(auction['awards'][1]['status'], 'pending.waiting')
+        self.assertEqual(auction['bids'][0]['status'], 'active')
+        self.assertEqual(auction['bids'][1]['status'], 'active')
+        self.assertEqual(auction['status'], 'active.qualification')
 
         response = self.app.get('/auctions/{}'.format(self.auction_id))
         self.assertEqual(response.status, '200 OK')
@@ -321,10 +138,14 @@ class MigrateTestFrom1To2InvalidBid(BaseAuctionWebTest):
         auction = self.app.get('/auctions/{}'.format(self.auction_id)).json['data']
         self.assertEqual(len(auction['awards']), 2)
         self.assertEqual(auction['awards'][0]['status'], 'active')
+        self.assertEqual(auction['awards'][1]['status'], 'pending.waiting')
         self.assertIn('verificationPeriod', auction['awards'][0])
         self.assertIn('paymentPeriod', auction['awards'][0])
         self.assertIn('signingPeriod', auction['awards'][0])
-        self.assertEqual(auction['awards'][1]['status'], 'pending.waiting')
+        self.assertEqual(auction['bids'][0]['status'], 'active')
+        self.assertEqual(auction['bids'][1]['status'], 'active')
+        self.assertEqual(auction['contracts'][0]['status'], 'pending')
+        self.assertEqual(auction['status'], 'active.awarded')
 
         response = self.app.get('/auctions/{}'.format(self.auction_id))
         self.assertEqual(response.status, '200 OK')
@@ -1393,8 +1214,7 @@ class MigrateTestFrom1To2WithThreeBids(BaseAuctionWebTest):
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(MigrateTest))
-    suite.addTest(unittest.makeSuite(MigrateTestFrom1To2InvalidBids))
-    suite.addTest(unittest.makeSuite(MigrateTestFrom1To2InvalidBid))
+    suite.addTest(unittest.makeSuite(MigrateTestFrom1To2Bids))
     suite.addTest(unittest.makeSuite(MigrateTestFrom1To2WithTwoBids))
     suite.addTest(unittest.makeSuite(MigrateTestFrom1To2WithThreeBids))
     return suite

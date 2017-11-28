@@ -249,7 +249,7 @@ class AuctionResourceTest(BaseAuctionWebTest):
         data['submissionMethodDetails'] = 'quick'
         data['mode'] = 'test'
         data["auctionPeriod"] = {
-            "startDate": (now + timedelta(minutes=5)).isoformat()
+            "startDate": (now + timedelta(days=12)).isoformat()
         }
         with open('docs/source/tutorial/auction-post-acceleration.http', 'w') as self.app.file_obj:
             response = self.app.post_json(
@@ -315,6 +315,14 @@ class AuctionResourceTest(BaseAuctionWebTest):
 
         auction = response.json['data']
         owner_token = response.json['access']['token']
+
+        data = test_auction_data.copy()
+        data["auctionPeriod"] = {
+            "startDate": (now + timedelta(days=6)).isoformat()
+        }
+        with open('docs/source/tutorial/tenderperiod-validation-error.http', 'w') as self.app.file_obj:
+            response = self.app.post_json('/auctions?opt_pretty=1', {"data": data}, status=422)
+            self.assertEqual(response.status, '422 Unprocessable Entity')
 
         with open('docs/source/tutorial/blank-auction-view.http', 'w') as self.app.file_obj:
             response = self.app.get('/auctions/{}'.format(auction['id']))

@@ -274,6 +274,28 @@ msgstr ""
 "модифікувався. Зверніть увагу на `procurementMethodType`, а також на те, що "
 "аукціон створюється зі статусом `active.tendering`."
 
+msgid ""
+"Keep in mind that `tenderPeriod` must be at least 7 calendar days."
+msgstr ""
+"Пам'ятайте, що `tenderPeriod` має складати щонайменше 7 календарних "
+"днів."
+
+msgid ""
+"When `auctionPeriod.startDate` has an incorrect date, 422 Unprocessable Entity "
+"error is raised and \"tenderPeriod should be greater than 6 days\" message is "
+"returned in JSON response."
+msgstr ""
+"Якщо у `auctionPeriod.startDate` передано некоректну дату, генерується помилка `422` "
+"`Unprocessable Entity` та у JSON відповіді повертається повідомлення "
+"\"tenderPeriod should be greater than 6 days\"."
+
+msgid ""
+"Let's set `auctionPeriod.startDate` to `now + timedelta(days=6)` and ValidationError "
+"will be returned:"
+msgstr ""
+"Встановимо `auctionPeriod.startDate` у значення `now + timedelta(days=6)` - у відповідь "
+"ми отримаємо помилку `ValidationError`."
+
 msgid "And one can retrieve the question list:"
 msgstr "Можна отримати список запитань:"
 

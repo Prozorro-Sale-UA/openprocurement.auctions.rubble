@@ -290,7 +290,6 @@ There are two more scenarios that can happen after the competitive auction:
 Confirming qualification
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-
 The organizer **must** upload and confirm the auction protocol `auctionProtocol` and add it to the award within **4 business days after the start of the qualification procedure**. The candidate still has a possibility to upload the protocol, but it is neither mandatory, nor sufficient to move to the next status. If the auction protocol has not been uploaded before the end of `verificationPeriod`, the `award` is automatically transferred to the `unsuccessful` status.
 
 

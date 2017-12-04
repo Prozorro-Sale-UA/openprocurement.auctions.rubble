@@ -127,54 +127,10 @@ test_auction_maximum_data = test_auction_data.copy()
 test_auction_maximum_data.update({
     "title_en": u"Cases with state awards",
     "title_ru": u"футляры к государственным наградам",
-    "procuringEntity": {
-        "name": u"Державне управління справами",
-        "identifier": {
-            "scheme": u"UA-EDR",
-            "id": u"00037256",
-            "uri": u"http://www.dus.gov.ua/"
-        },
-        "address": {
-            "countryName": u"Україна",
-            "postalCode": u"01220",
-            "region": u"м. Київ",
-            "locality": u"м. Київ",
-            "streetAddress": u"вул. Банкова, 11, корпус 1"
-        },
-        "contactPoint": {
-            "name": u"Державне управління справами",
-            "telephone": u"0440000000"
-        },
-        'kind': 'general'
-    },
     "value": {
         "amount": 500,
         "currency": u"UAH"
     },
-    "minimalStep": {
-        "amount": 35,
-        "currency": u"UAH"
-    },
-    "items": [
-        {
-            "id": test_max_uid,
-            "description": u"Земля для військовослужбовців",
-            "classification": {
-                "scheme": u"CPV",
-                "id": u"66113000-5",
-                "description": u"Земельні ділянки"
-            },
-            "unit": {
-                "name": u"item",
-                "code": u"44617100-9"
-            },
-            "quantity": 5
-        }
-    ],
-    "auctionPeriod": {
-        "startDate": (now + timedelta(days=14)).isoformat()
-    },
-    "procurementMethodType": "dgfOtherAssets",
     "mode": u"test"
 })
 

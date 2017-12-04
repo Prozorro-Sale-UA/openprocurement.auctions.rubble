@@ -272,44 +272,83 @@ See the `Bid.participationUrl` in the response. Similar, but different, URL can 
 
 Qualification
 -------------
+After the competitive auction `awards` are created:
+ * for the first candidate (a participant that has submitted the highest valid bid at the auction) - initially has a `pending.verification` status and awaits auction protocol to be uploaded by the organizer;
+ * for the second candidate (a participant that has submitted the second highest valid bid at the auction).
+
+There are two more scenarios that can happen after the competitive auction:
+ * If the two highest bidders have invalid bids (lower than auction starting price + minimal step), the awards will not be created at all, and the qualification procedure will automatically receive the "unsuccessful" status. 
+ * If the second highest bidder has a bid that is less than the starting price + minimal step, two awards are created, with one of them receiving a pending.verification status and undergoing the qualification procedure, and the other (with an invalid bid) automatically becoming "unsuccessful".
+
+
+.. include:: tutorial/get-awards.http
+  :code:
+
+
+.. _Confirming_qualification:
 
 Confirming qualification
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-Candidate (participant that has submitted the highest bid at the auction) must sign the auction protocol `auctionProtocol` and add it to the award within **3 business days after becoming candidate**.
+The organizer **must** upload and confirm the auction protocol `auctionProtocol` and add it to the award within **4 business days after the start of the qualification procedure**. The candidate still has a possibility to upload the protocol, but it is neither mandatory, nor sufficient to move to the next status. If the auction protocol has not been uploaded before the end of `verificationPeriod`, the `award` is automatically transferred to the `unsuccessful` status.
+
 
 .. include:: tutorial/bidder-auction-protocol.http
-   :code:
+  :code:
 
-Within **10 business days after becoming candidate** this candidate must provide payment and organizer must confirm this payment:
+.. include:: tutorial/owner-auction-protocol.http
+  :code:
+
+
+
+It is the organizer's duty to upload and confirm the protocol, although the award will not switch the status to "pending.payment" automatically.
+
+
+.. include:: tutorial/verify-protocol.http
+ :code:
+
+
+Within **20 business days after becoming a candidate** he/she must provide payment and organizer has the same time to confirm the payment.:
+
 
 .. include:: tutorial/confirm-qualification.http
-   :code:
+  :code:
 
-Disqualification of candidate
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. _Candidate_disqualification:
 
-If the candidate didn't sign the auction protocol in 3 business days after becoming candidate, or didn't provide payment in 10 business days since becoming candidate, or didn't conclude contract based on the electronic auction results within 15 business days since becoming candidate, then organizer disqualifies the first candidate and awards participant with the next largest bid.
+Disqualification of a candidate
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. include:: qualification/award-active-cancel.http
-   :code:
+In case of manual disqualification, the organizer has to upload file with cancellation reason:
 
-Organizer has to upload file with cancellation reason:
 
-.. include:: qualification/award-active-cancel-upload.http
-   :code:
+.. include:: qualification/award-active-unsuccessful-upload.http
+  :code:
+
 
 And disqualify candidate:
 
-.. include:: qualification/award-active-cancel-disqualify.http
-   :code:
 
-Within 15 business days since becoming candidate a new candidate must confirm qualification with steps described above (:ref:`Qualification`).
+.. include:: qualification/award-active-disqualify.http
+  :code:
+
+
+Within 20 business days since becoming candidate a new candidate must confirm qualification with steps described above (:ref:`Qualification`).
+
+.. _Waiting_refusal:
+
+Refusal of waiting by another participant
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The second candidate (participant that has submitted the second highest valid bid at the auction) can refuse to wait for the disqualification of the first candidate:
+
+
+.. include:: qualification/award-waiting-cancel.http
+  :code:
 
 Signing contract
 ----------------
 
-The candidate has **15 business days after becoming candidate** to conclude a contract with the bank based on the results of electronic auction.
+The candidate has **20 business days after becoming a candidate** to conclude a contract with the bank based on the results of electronic auction.
 
 Uploading contract documentation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -351,7 +390,7 @@ You can register contract:
 Cancelling auction
 ------------------
 
-Organizer can cancel auction anytime (except when auction has terminal status e.g. `usuccesfull`, `canceled`, `complete`).
+Organizer can cancel auction anytime (except when auction has terminal status e.g. `unsuccesfull`, `canceled`, `complete`).
 
 The following steps should be applied:
 

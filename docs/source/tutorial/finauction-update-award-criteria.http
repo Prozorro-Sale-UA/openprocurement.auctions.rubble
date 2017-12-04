@@ -1,4 +1,4 @@
-PUT /api/2.3/auctions/a66af4ecf50e4a9ba3c0a287b0c13de1/documents/a4a5eb45f2c1457d8b1daa1256842b38?acc_token=55adce4ad40548ec879f68439cae2a70 HTTP/1.0
+PUT /api/2.3/auctions/73e1598288054eb98e8153ee9e69bb28/documents/55dc8e33c47948eab4e7b327bede3959?acc_token=6c03609dd6844e42bc1318fddf20c937 HTTP/1.0
 Authorization: Basic YnJva2VyOg==
 Content-Length: 340
 Content-Type: application/json
@@ -6,7 +6,7 @@ Host: api-sandbox.ea.openprocurement.org
 
 {
   "data": {
-    "url": "http://public.docs-sandbox.ea.openprocurement.org/get/6f5c759f19264080bf7601a9499f0244?KeyID=8e787cc1&Signature=FcppEwGtSMHHZ7%2FLf7FDnMNzrDaLOE3AoeG4P8FPZ3GMC6KgTcoGhlR%2BZZZKv3Gk4IeITQuu%2FTVZEvEqyTw0BQ%3D%3D", 
+    "url": "http://public.docs-sandbox.ea.openprocurement.org/get/3efb323d6d6a42c9817ec011d6c8898f?KeyID=c822be4a&Signature=ihcWFQ7J6n6ycnrnh0RJKYBGr3PXLL4%2Fu39OMCUhkdXcrv9CY%2FXcFty3b%2BqTiMV6ODEMR7zAyub4CwZXgyoYBA%3D%3D", 
     "title": "AwardCriteria-2.pdf", 
     "hash": "md5:00000000000000000000000000000000", 
     "format": "application/pdf"
@@ -21,12 +21,12 @@ Content-Type: application/json; charset=UTF-8
   "data": {
     "hash": "md5:00000000000000000000000000000000", 
     "format": "application/pdf", 
-    "url": "http://public.docs-sandbox.ea.openprocurement.org/get/6f5c759f19264080bf7601a9499f0244?KeyID=8e787cc1&Signature=9V%2FRnSXWH6L5JWR2nXFyEIS2QfcGVCJnZvvH%252B1hMiLVi6ZdUmAQrXELTocMSgGy1PcCa9uK7N5KBqXQtvo37Cg%253D%253D", 
+    "url": "http://public.docs-sandbox.ea.openprocurement.org/get/3efb323d6d6a42c9817ec011d6c8898f?KeyID=c822be4a&Signature=oMIup%252BjcxK%2FooCGXGpptyKCu1slmnk3T1I8XhOKPQXsKAD3R3zPyoDvYbF%252B47ZdbzNJ8m9v3TNQdsbseMlv7CA%253D%253D", 
     "title": "AwardCriteria-2.pdf", 
     "documentOf": "tender", 
-    "datePublished": "2017-03-29T15:47:32.670097+03:00", 
-    "dateModified": "2017-03-29T15:47:32.732183+03:00", 
-    "id": "a4a5eb45f2c1457d8b1daa1256842b38"
+    "datePublished": "2017-11-30T16:56:24.174808+02:00", 
+    "dateModified": "2017-11-30T16:56:24.243244+02:00", 
+    "id": "55dc8e33c47948eab4e7b327bede3959"
   }
 }
 

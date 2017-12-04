@@ -21,7 +21,7 @@ Host: api-sandbox.ea.openprocurement.org
     }, 
     "dgfID": "219560", 
     "auctionPeriod": {
-      "startDate": "2017-04-12"
+      "startDate": "2017-12-14"
     }, 
     "items": [
       {
@@ -70,18 +70,18 @@ Host: api-sandbox.ea.openprocurement.org
 
 201 Created
 Content-Type: application/json; charset=UTF-8
-Location: http://api-sandbox.ea.openprocurement.org/api/2.3/auctions/72737375d94941d0be9101e03ad1f2ea
+Location: http://api-sandbox.ea.openprocurement.org/api/2.3/auctions/58ad76271332425694531cbfe1aa6723
 
 {
   "access": {
-    "token": "0a361047084244efa11702da631adc67"
+    "token": "a3781f686544479b9060df012b8db196"
   }, 
   "data": {
     "procurementMethod": "open", 
-    "auctionID": "UA-PS-2017-03-29-000001", 
+    "auctionID": "UA-PS-2017-11-30-000001", 
     "tenderPeriod": {
-      "startDate": "2017-03-29T15:47:28.230957+03:00", 
-      "endDate": "2017-04-11T23:59:50+03:00"
+      "startDate": "2017-11-30T16:56:19.163266+02:00", 
+      "endDate": "2017-12-13T23:59:50+02:00"
     }, 
     "title": "футляри до державних нагород", 
     "minimalStep": {
@@ -98,7 +98,7 @@ Location: http://api-sandbox.ea.openprocurement.org/api/2.3/auctions/72737375d94
       "valueAddedTaxIncluded": true
     }, 
     "submissionMethod": "electronicAuction", 
-    "date": "2017-03-29T15:47:28.230957+03:00", 
+    "date": "2017-11-30T16:56:19.163266+02:00", 
     "status": "draft", 
     "procuringEntity": {
       "contactPoint": {
@@ -121,11 +121,11 @@ Location: http://api-sandbox.ea.openprocurement.org/api/2.3/auctions/72737375d94
     }, 
     "dgfID": "219560", 
     "enquiryPeriod": {
-      "startDate": "2017-03-29T15:47:28.230957+03:00", 
-      "endDate": "2017-04-11T23:59:50+03:00"
+      "startDate": "2017-11-30T16:56:19.163266+02:00", 
+      "endDate": "2017-12-13T23:59:50+02:00"
     }, 
     "owner": "broker", 
-    "dateModified": "2017-03-29T15:47:28.233931+03:00", 
+    "dateModified": "2017-11-30T16:56:19.166771+02:00", 
     "items": [
       {
         "description": "Земля для військовослужбовців", 
@@ -141,7 +141,7 @@ Location: http://api-sandbox.ea.openprocurement.org/api/2.3/auctions/72737375d94
           "region": "м. Київ", 
           "locality": "м. Київ"
         }, 
-        "id": "06b4a0e8017347de80a227fec7fdc098", 
+        "id": "c2fb6cf42caf4621b4bcac1deff95286", 
         "unit": {
           "code": "44617100-9", 
           "name": "item"
@@ -149,7 +149,7 @@ Location: http://api-sandbox.ea.openprocurement.org/api/2.3/auctions/72737375d94
         "quantity": 5
       }
     ], 
-    "id": "72737375d94941d0be9101e03ad1f2ea", 
+    "id": "58ad76271332425694531cbfe1aa6723", 
     "awardCriteria": "highestCost"
   }
 }

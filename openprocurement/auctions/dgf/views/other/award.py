@@ -319,7 +319,7 @@ class AuctionAwardResource(APIResource):
                 self.request.errors.add('body', 'data', 'Can\'t switch award status to (pending.payment) before auction owner load auction protocol')
                 self.request.errors.status = 403
                 return
-        elif award_status == 'pending.payment' and award.status == 'active' and award.paymentPeriod.endDate > now:
+        elif award_status == 'pending.payment' and award.status == 'active':
             award.complaintPeriod.endDate = award.paymentPeriod.endDate = now
             auction.contracts.append(type(auction).contracts.model_class({
                 'awardID': award.id,

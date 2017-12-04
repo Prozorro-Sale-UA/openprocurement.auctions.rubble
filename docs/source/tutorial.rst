@@ -46,6 +46,18 @@ body of response reveals the information about the created auction: its internal
 modified. Pay attention to the `procurementMethodType`. Note that auction is
 created with `active.tendering` status.
 
+Keep in mind that `tenderPeriod` must be at least 7 calendar days.
+
+When `auctionPeriod.startDate` has an incorrect date, 422 Unprocessable Entity 
+error is raised and "tenderPeriod should be greater than 6 days" message is 
+returned in JSON response.
+
+Let's set `auctionPeriod.startDate` to `now + timedelta(days=6)` and ValidationError
+will be returned:
+
+.. include:: tutorial/tenderperiod-validation-error.http
+   :code:
+
 Let's access the URL of the created object (the `Location` header of the response):
 
 .. include:: tutorial/blank-auction-view.http
@@ -277,7 +289,6 @@ There are two more scenarios that can happen after the competitive auction:
 
 Confirming qualification
 ~~~~~~~~~~~~~~~~~~~~~~~~
-
 
 The organizer **must** upload and confirm the auction protocol `auctionProtocol` and add it to the award within **4 business days after the start of the qualification procedure**. The candidate still has a possibility to upload the protocol, but it is neither mandatory, nor sufficient to move to the next status. If the auction protocol has not been uploaded before the end of `verificationPeriod`, the `award` is automatically transferred to the `unsuccessful` status.
 

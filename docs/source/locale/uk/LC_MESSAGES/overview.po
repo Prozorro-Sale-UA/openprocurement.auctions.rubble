@@ -110,6 +110,9 @@ msgstr ""
 "статусу *active.enquiries*), оскільки він накладається на період прийому "
 "пропозицій *active.tendering*."
 
+msgid "`tenderPeriod` must be at least 7 calendar days."
+msgstr "`tenderPeriod` має складати щонайменше 7 календарних днів."
+
 msgid "Procedure can be switched from *draft* status to *active.tendering*."
 msgstr "Процедура переходить зі статусу *draft* до *active.tendering*."
 

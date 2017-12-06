@@ -1,4 +1,4 @@
-PATCH /api/2.3/auctions/72737375d94941d0be9101e03ad1f2ea?acc_token=0a361047084244efa11702da631adc67 HTTP/1.0
+PATCH /api/2.3/auctions/58ad76271332425694531cbfe1aa6723?acc_token=a3781f686544479b9060df012b8db196 HTTP/1.0
 Authorization: Basic YnJva2VyOg==
 Content-Length: 40
 Content-Type: application/json
@@ -17,13 +17,13 @@ Content-Type: application/json; charset=UTF-8
 {
   "data": {
     "procurementMethod": "open", 
-    "auctionID": "UA-PS-2017-03-29-000001", 
+    "auctionID": "UA-PS-2017-11-30-000001", 
     "enquiryPeriod": {
-      "startDate": "2017-03-29T15:47:28.230957+03:00", 
-      "endDate": "2017-04-11T23:59:50+03:00"
+      "startDate": "2017-11-30T16:56:19.163266+02:00", 
+      "endDate": "2017-12-13T23:59:50+02:00"
     }, 
     "submissionMethod": "electronicAuction", 
-    "next_check": "2017-04-11T23:59:50+03:00", 
+    "next_check": "2017-12-13T23:59:50+02:00", 
     "procuringEntity": {
       "contactPoint": {
         "name": "Державне управління справами", 
@@ -44,22 +44,22 @@ Content-Type: application/json; charset=UTF-8
       }
     }, 
     "owner": "broker", 
-    "id": "72737375d94941d0be9101e03ad1f2ea", 
+    "id": "58ad76271332425694531cbfe1aa6723", 
     "title": "футляри до державних нагород", 
     "tenderAttempts": 1, 
     "procurementMethodDetails": "quick, accelerator=1440", 
-    "dateModified": "2017-03-29T15:47:28.275761+03:00", 
+    "dateModified": "2017-11-30T16:56:19.212525+02:00", 
     "status": "active.tendering", 
     "tenderPeriod": {
-      "startDate": "2017-03-29T15:47:28.230957+03:00", 
-      "endDate": "2017-04-11T23:59:50+03:00"
+      "startDate": "2017-11-30T16:56:19.163266+02:00", 
+      "endDate": "2017-12-13T23:59:50+02:00"
     }, 
     "auctionPeriod": {
-      "shouldStartAfter": "2017-04-12T00:00:00+03:00"
+      "shouldStartAfter": "2017-12-14T00:00:00+02:00"
     }, 
     "procurementMethodType": "dgfOtherAssets", 
     "dgfID": "219560", 
-    "date": "2017-03-29T15:47:28.275761+03:00", 
+    "date": "2017-11-30T16:56:19.212525+02:00", 
     "minimalStep": {
       "currency": "UAH", 
       "amount": 35.0, 
@@ -80,7 +80,7 @@ Content-Type: application/json; charset=UTF-8
           "region": "м. Київ", 
           "locality": "м. Київ"
         }, 
-        "id": "06b4a0e8017347de80a227fec7fdc098", 
+        "id": "c2fb6cf42caf4621b4bcac1deff95286", 
         "unit": {
           "code": "44617100-9", 
           "name": "item"

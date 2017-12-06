@@ -1,4 +1,4 @@
-POST /api/2.3/auctions/a66af4ecf50e4a9ba3c0a287b0c13de1/documents?acc_token=55adce4ad40548ec879f68439cae2a70 HTTP/1.0
+POST /api/2.3/auctions/73e1598288054eb98e8153ee9e69bb28/documents?acc_token=6c03609dd6844e42bc1318fddf20c937 HTTP/1.0
 Authorization: Basic YnJva2VyOg==
 Content-Length: 127
 Content-Type: application/json
@@ -15,17 +15,17 @@ Host: api-sandbox.ea.openprocurement.org
 
 201 Created
 Content-Type: application/json; charset=UTF-8
-Location: http://api-sandbox.ea.openprocurement.org/api/2.3/auctions/a66af4ecf50e4a9ba3c0a287b0c13de1/documents/ec9229c09053434a8035d1cc92b4d3eb
+Location: http://api-sandbox.ea.openprocurement.org/api/2.3/auctions/73e1598288054eb98e8153ee9e69bb28/documents/4e24994ddc1c4c72b24b992f8826acf4
 
 {
   "data": {
     "title": "VDR for auction lot", 
     "url": "http://virtial-data-room.com/id_of_room", 
     "documentOf": "tender", 
-    "datePublished": "2017-03-29T15:47:32.790398+03:00", 
+    "datePublished": "2017-11-30T16:56:24.313920+02:00", 
     "documentType": "virtualDataRoom", 
-    "dateModified": "2017-03-29T15:47:32.790425+03:00", 
-    "id": "ec9229c09053434a8035d1cc92b4d3eb"
+    "dateModified": "2017-11-30T16:56:24.313948+02:00", 
+    "id": "4e24994ddc1c4c72b24b992f8826acf4"
   }
 }
 

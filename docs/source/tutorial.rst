@@ -273,12 +273,8 @@ See the `Bid.participationUrl` in the response. Similar, but different, URL can 
 Qualification
 -------------
 After the competitive auction `awards` are created:
- * for the first candidate (a participant that has submitted the highest valid bid at the auction) - initially has a `pending.verification` status and awaits auction protocol to be uploaded by the organizer;
- * for the second candidate (a participant that has submitted the second highest valid bid at the auction).
-
-There are two more scenarios that can happen after the competitive auction:
- * If the two highest bidders have invalid bids (lower than auction starting price + minimal step), the awards will not be created at all, and the qualification procedure will automatically receive the "unsuccessful" status. 
- * If the second highest bidder has a bid that is less than the starting price + minimal step, two awards are created, with one of them receiving a pending.verification status and undergoing the qualification procedure, and the other (with an invalid bid) automatically becoming "unsuccessful".
+ * for the first candidate (a participant that has submitted the highest bid at the auction) - initially has a `pending.verification` status and awaits auction protocol to be uploaded by the organizer;
+ * for the rest of the candidates.
 
 
 .. include:: tutorial/get-awards.http
@@ -287,10 +283,11 @@ There are two more scenarios that can happen after the competitive auction:
 
 .. _Confirming_qualification:
 
+
 Confirming qualification
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-The organizer **must** upload and confirm the auction protocol `auctionProtocol` and add it to the award within **4 business days after the start of the qualification procedure**. The candidate still has a possibility to upload the protocol, but it is neither mandatory, nor sufficient to move to the next status. If the auction protocol has not been uploaded before the end of `verificationPeriod`, the `award` is automatically transferred to the `unsuccessful` status.
+The organizer **must** upload and confirm the auction protocol `auctionProtocol` and add it to the award within **6 business days after the start of the qualification procedure**. The candidate still has a possibility to upload the protocol, but it is neither mandatory, nor sufficient to move to the next status. In order to switch `award` to the next status, Organizer should come and change its status manually.
 
 
 .. include:: tutorial/bidder-auction-protocol.http
@@ -301,14 +298,14 @@ The organizer **must** upload and confirm the auction protocol `auctionProtocol`
 
 
 
-It is the organizer's duty to upload and confirm the protocol, although the award will not switch the status to "pending.payment" automatically.
+It is the Organizer's duty to upload and confirm the protocol, although the award will not be switched to the status 'pending.payment' automatically.
 
 
 .. include:: tutorial/verify-protocol.http
  :code:
 
 
-Within **20 business days after becoming a candidate** he/she must provide payment and organizer has the same time to confirm the payment.:
+Within **20 business days after becoming a candidate** he/she must provide payment and Organizer has the same time to confirm the payment. After the payment was received, Organizer can optionally switch the award's status to `active`.
 
 
 .. include:: tutorial/confirm-qualification.http
@@ -339,7 +336,7 @@ Within 20 business days since becoming candidate a new candidate must confirm qu
 
 Refusal of waiting by another participant
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The second candidate (participant that has submitted the second highest valid bid at the auction) can refuse to wait for the disqualification of the first candidate:
+The rest of the candidates can refuse to wait for the disqualification of the first candidate:
 
 
 .. include:: qualification/award-waiting-cancel.http
@@ -348,7 +345,7 @@ The second candidate (participant that has submitted the second highest valid bi
 Signing contract
 ----------------
 
-The candidate has **20 business days after becoming a candidate** to conclude a contract with the bank based on the results of electronic auction.
+The candidate has **20 business days after becoming a candidate** to conclude a contract with the bank based on the results of electronic auction. When the organizer confirms that the payment has been received, the `award` may be switched to the `active` status, while the procedure moves to the status `signingPeriod`. Within this stage the organizer should upload and activate the contract in the system.
 
 Uploading contract documentation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

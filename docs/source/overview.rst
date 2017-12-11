@@ -13,12 +13,13 @@ There are two procedures:
 Features
 --------
 
-* No need to specify enquiries period (there is no *active.enquiries* status), since it overlaps with *active.tendering* period.
+* The only date Organizer has to provide is *Tender.auctionPeriod.startDate*, the rest will be calculated automatically.
+* Optionally Organizer can set *enquiryPeriod.endDate*.
+* If *enquiryPeriod.endDate* is not provided it will be calculated automatically.
 * `tenderPeriod` must be at least 7 calendar days.
 * Organizer can edit procedure only during *enquiryPeriod*.
 * Procedure can be switched from *draft* status to *active.tendering*.
 * During *active.tendering* period participants can ask questions, submit proposals, and upload documents.
-* The only date Organizer has to provide is *Tender.auctionPeriod.startDate*, the rest will be calculated automatically.
 * Organizer can't edit procedure's significant properties (*Auction.value*, etc.).
 * There is obligatory participant qualification (*Bid.selfQualified*) via guarantee payment.
 * The only currency (*Value.currency*) for this procedure is hryvnia (UAH).

@@ -102,3 +102,8 @@ def check_status(request):
             if standStillEnd <= now:
                 check_auction_status(request)
                 return
+
+
+def get_auction_creation_date(data):
+    auction_creation_date = (data.get('revisions')[0].date if data.get('revisions') else get_now())
+    return auction_creation_date

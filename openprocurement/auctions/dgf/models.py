@@ -254,7 +254,7 @@ class Auction(BaseAuction):
     class Options:
         roles = {
             'create': create_role,
-            'edit_active.tendering': (blacklist('enquiryPeriod', 'tenderPeriod', 'auction_value', 'auction_minimalStep', 'auction_guarantee', 'eligibilityCriteria', 'eligibilityCriteria_en', 'eligibilityCriteria_ru', 'title', 'title_ru', 'title_en', 'dgfID', 'tenderAttempts', 'minNumberOfQualifiedBids') + edit_role),
+            'edit_active.tendering': (blacklist('enquiryPeriod', 'tenderPeriod', 'auction_value', 'auction_minimalStep', 'auction_guarantee', 'eligibilityCriteria', 'eligibilityCriteria_en', 'eligibilityCriteria_ru', 'minNumberOfQualifiedBids') + edit_role),
             'Administrator': (whitelist('value', 'minimalStep', 'guarantee') + Administrator_role),
         }
 
@@ -315,7 +315,7 @@ class Auction(BaseAuction):
         if get_auction_creation_date(data) < ENQUIRY_END_EDITING_AND_VALIDATION_REQUIRED_FROM:
             return
         if period.endDate > calculate_business_date(data['tenderPeriod']['endDate'], -MINIMAL_PERIOD_FROM_ENQUIRY_END, data):
-            raise ValidationError(u"EnquiryPeriod.endDate should come at least 5 working days earlier than tenderPeriod.endDate")
+            raise ValidationError(u"enquiryPeriod.endDate should come at least 5 working days earlier than tenderPeriod.endDate")
             
     def validate_value(self, data, value):
         if value.currency != u'UAH':

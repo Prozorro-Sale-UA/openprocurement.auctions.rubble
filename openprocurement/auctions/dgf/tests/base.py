@@ -81,6 +81,18 @@ test_auction_data = {
 }
 if SANDBOX_MODE:
     test_auction_data['procurementMethodDetails'] = 'quick, accelerator={}'.format(DEFAULT_ACCELERATION)
+test_auction_maximum_data = deepcopy(test_auction_data)
+test_auction_maximum_data.update({
+    "title_en" : u"Cases with state awards",
+    "title_ru" : u"футляры к государственным наградам",
+    "description" : u"футляри до державних нагород",
+    "description_en" : u"Cases with state awards",
+    "description_ru" : u"футляры к государственным наградам"
+})
+test_auction_maximum_data["items"][0].update({
+    "description_en" : u"Cases with state awards",
+    "description_ru" : u"футляры к государственным наградам"
+})
 test_features_auction_data = test_auction_data.copy()
 test_features_item = test_features_auction_data['items'][0].copy()
 test_features_item['id'] = "1"

@@ -28,6 +28,12 @@ msgstr "рядок, багатомовний"
 msgid "string, auto-generated, read-only"
 msgstr "рядок, генерується автоматично, лише для читання"
 
+msgid "string, multilingual, editable during enquiryPeriod"
+msgstr "рядок, багатомовний, доступний для редагування впродовж enquiryPeriod"
+
+msgid "string, editable during enquiryPeriod"
+msgstr "рядок, доступний для редагування впродовж enquiryPeriod"
+
 msgid "The auction identifier to refer auction to in \"paper\" documentation."
 msgstr "Ідентифікатор аукціону, щоб знайти його у \"паперовій\" документації"
 
@@ -37,11 +43,11 @@ msgstr ":ref:`ProcuringEntity`, обов'язково"
 msgid "Organization conducting the auction."
 msgstr "Організатор (організація, що проводить аукціон)."
 
-msgid ":ref:`value`, required"
-msgstr ":ref:`value`, обов'язково"
+msgid ":ref:`value`, required, editable during enquiryPeriod"
+msgstr ":ref:`value`, обов'язково, доступне для редагування впродовж enquiryPeriod"
 
-msgid ":ref:`Guarantee`"
-msgstr ":ref:`Guarantee`"
+msgid ":ref:`Guarantee`, editable during enquiryPeriod"
+msgstr ":ref:`Guarantee`, доступне для редагування впродовж enquiryPeriod"
 
 msgid "minNumberOfQualifiedBids"
 msgstr "minNumberOfQualifiedBids"
@@ -72,8 +78,8 @@ msgstr ""
 msgid "Bid guarantee"
 msgstr "Гарантійний внесок"
 
-msgid "list of :ref:`item` objects, required"
-msgstr "список об’єктів :ref:`item`, обов’язково"
+msgid "list of :ref:`item` objects, required, editable during enquiryPeriod"
+msgstr "список об’єктів :ref:`item`, обов’язково, доступне для редагування впродовж enquiryPeriod"
 
 msgid ""
 "|ocdsDescription| The goods and services to be purchased, broken into line "

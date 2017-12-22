@@ -3,12 +3,12 @@
 import json
 import os
 from datetime import timedelta, datetime
-from uuid import uuid4
 
 from openprocurement.api.models import get_now
 import openprocurement.auctions.dgf.tests.base as base_test
 from openprocurement.auctions.flash.tests.base import PrefixedRequestClass
 from openprocurement.auctions.dgf.tests.base import test_auction_data as base_test_auction_data, test_bids, test_financial_bids
+from openprocurement.auctions.dgf.tests.base import test_auction_maximum_data
 from openprocurement.auctions.dgf.tests.tender import BaseAuctionWebTest
 from webtest import TestApp
 
@@ -119,64 +119,6 @@ cancellation = {
     'data': {
         'reason': 'cancellation reason'
     }
-}
-
-test_max_uid = uuid4().hex
-
-test_auction_maximum_data = {
-    "title": u"футляри до державних нагород",
-    "title_en": u"Cases with state awards",
-    "title_ru": u"футляры к государственным наградам",
-    "dgfID": "ID",
-    "procuringEntity": {
-        "name": u"Державне управління справами",
-        "identifier": {
-            "scheme": u"UA-EDR",
-            "id": u"00037256",
-            "uri": u"http://www.dus.gov.ua/"
-        },
-        "address": {
-            "countryName": u"Україна",
-            "postalCode": u"01220",
-            "region": u"м. Київ",
-            "locality": u"м. Київ",
-            "streetAddress": u"вул. Банкова, 11, корпус 1"
-        },
-        "contactPoint": {
-            "name": u"Державне управління справами",
-            "telephone": u"0440000000"
-        },
-        'kind': 'general'
-    },
-    "value": {
-        "amount": 500,
-        "currency": u"UAH"
-    },
-    "minimalStep": {
-        "amount": 35,
-        "currency": u"UAH"
-    },
-    "items": [
-        {
-            "id": test_max_uid,
-            "description": u"Земля для військовослужбовців",
-            "classification": {
-                "scheme": u"CPV",
-                "id": u"66113000-5",
-                "description": u"Земельні ділянки"
-            },
-            "unit": {
-                "name": u"item",
-                "code": u"44617100-9"
-            },
-            "quantity": 5
-        }
-    ],
-    "auctionPeriod": {
-        "startDate": (now + timedelta(days=14)).isoformat()
-    },
-    "procurementMethodType": "dgfOtherAssets",
-    "mode": u"test"
 }
 
 

@@ -119,6 +119,9 @@ msgstr "Організатор може редагувати аукціон ті
 msgid "Optionally Organizer can set *enquiryPeriod.endDate*."
 msgstr "Також додатково Організатор має можливість встановити *enquiryPeriod.endDate*."
 
+msgid "As soon as the action is edited, the status of all of the submitted bids will be switched to `invalid`."
+msgstr "Кожного разу після редагування аукціону статус всіх ставок перемикається на `invalid`."
+
 msgid "If *enquiryPeriod.endDate* is not provided it will be calculated automatically."
 msgstr "Якщо *enquiryPeriod.endDate* не передано, ця дата встановлюється автоматично."
 

@@ -14,6 +14,7 @@ from openprocurement.auctions.core.validation import (
 )
 from openprocurement.auctions.dgf.utils import (
     check_status,
+    invalidate_bids_data
 )
 from openprocurement.auctions.dgf.validation import (
     validate_change_price_criteria_reduction,
@@ -190,7 +191,10 @@ class AuctionResource(APIResource):
             check_status(self.request)
             save_auction(self.request)
         else:
-            apply_patch(self.request, src=self.request.validated['auction_src'])
+            apply_patch(self.request, save=False, src=self.request.validated['auction_src'])
+            if auction.status == 'active.tendering':
+                invalidate_bids_data(self.request)
+            save_auction(self.request)
         self.LOGGER.info('Updated auction {}'.format(auction.id),
                     extra=context_unpack(self.request, {'MESSAGE_ID': 'auction_patch'}))
         return {'data': auction.serialize(auction.status)}

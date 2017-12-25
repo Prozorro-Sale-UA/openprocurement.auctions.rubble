@@ -111,6 +111,10 @@ Checking the listing again reflects the new modification date:
 .. include:: tutorial/auction-listing-after-patch.http
    :code:
 
+Keep in mind, that every time Organizer edits the auction all bids will be switched to `invalid` status.
+
+Bidders can reactivate their bids.
+
 Organizer can edit procedure only during *enquiryPeriod*.
 
 When this period ends 403 error will be returned on editing attempt:

@@ -50,6 +50,25 @@ CPVS_CODES = read_json('cpvs.json')
 DGF_ID_REQUIRED_FROM = datetime(2017, 1, 1, tzinfo=TZ)
 
 
+def bids_validation_wrapper(validation_func):
+    def validator(klass, data, value):
+        orig_data = data
+        while not isinstance(data['__parent__'], BaseAuction):
+            # in case this validation wrapper is used for subelement of bid (such as parameters)
+            # traverse back to the bid to get possibility to check status  # troo-to-to =)
+            data = data['__parent__']
+        if data['status'] in ('invalid', 'draft'):
+            # skip not valid bids
+            return
+        tender = data['__parent__']
+        request = tender.__parent__.request
+        if request.method == "PATCH" and isinstance(tender, BaseAuction) and request.authenticated_role == "tender_owner":
+            # disable bids validation on tender PATCH requests as tender bids will be invalidated
+            return
+        return validation_func(klass, orig_data, value)
+    return validator
+
+
 class CPVCAVClassification(Classification):
     scheme = StringType(required=True, default=u'CPV', choices=[u'CPV', u'CAV-PS'])
     id = StringType(required=True)
@@ -176,10 +195,14 @@ class Bid(BaseBid):
             'create': whitelist('value', 'tenderers', 'parameters', 'lotValues', 'status', 'qualified'),
         }
 
+    status = StringType(choices=['active', 'draft', 'invalid'], default='active')
     tenderers = ListType(ModelType(Organization), required=True, min_size=1, max_size=1)
     documents = ListType(ModelType(Document), default=list())
     qualified = BooleanType(required=True, choices=[True])
 
+    @bids_validation_wrapper
+    def validate_value(self, data, value):
+        BaseBid._validator_functions['value'](self, data, value)
 
 class Question(BaseQuestion):
     author = ModelType(Organization, required=True)

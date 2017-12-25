@@ -10,7 +10,7 @@ from openprocurement.api.utils import ROUTE_PREFIX
 from openprocurement.api.models import get_now, SANDBOX_MODE, TZ
 from openprocurement.auctions.dgf.constants import MINIMAL_PERIOD_FROM_ENQUIRY_END, ENQUIRY_END_EDITING_AND_VALIDATION_REQUIRED_FROM
 from openprocurement.auctions.dgf.models import DGFOtherAssets, DGFFinancialAssets, DGF_ID_REQUIRED_FROM, CLASSIFICATION_PRECISELY_FROM
-from openprocurement.auctions.dgf.tests.base import test_auction_maximum_data, test_auction_data, test_financial_auction_data, test_organization, test_financial_organization, BaseWebTest, BaseAuctionWebTest, DEFAULT_ACCELERATION
+from openprocurement.auctions.dgf.tests.base import test_auction_maximum_data, test_auction_data, test_financial_auction_data, test_organization, test_financial_organization, BaseWebTest, BaseAuctionWebTest, DEFAULT_ACCELERATION, test_bids, test_financial_bids
 
 
 class AuctionTest(BaseWebTest):
@@ -1474,6 +1474,7 @@ class AuctionFieldsEditingTest(BaseAuctionWebTest):
     initial_data = test_auction_data
     initial_maximum_data = test_auction_maximum_data
     initial_organization = test_organization
+    initial_bids = test_bids
 
     def test_patch_auction_denied(self):
 
@@ -1562,6 +1563,25 @@ class AuctionFieldsEditingTest(BaseAuctionWebTest):
         self.assertEqual(response.content_type, 'application/json')
         self.assertNotEqual(response.json['data']['dgfID'], auction['dgfID'])
         self.assertEqual(response.json['data']['dgfID'], auction['dgfID'] + u'EDITED')
+
+    def test_invalidate_bids_auction_unsuccessful(self):
+
+        # patch auction already created
+
+        response = self.app.patch_json('/auctions/{}'.format(self.auction_id), {'data': {'value': {'amount': 80}}})
+        self.assertEqual(response.status, '200 OK')
+        self.assertEqual(response.content_type, 'application/json')
+
+        # switch to active.auction
+        
+        response = self.set_status('active.auction', {'status': self.initial_status})
+        self.app.authorization = ('Basic', ('chronograph', ''))
+        response = self.app.patch_json('/auctions/{}'.format(self.auction_id), {'data': {'id': self.auction_id}})
+        self.assertEqual(response.status, '200 OK')
+        self.assertEqual(response.content_type, 'application/json')
+        self.assertEqual(response.json['data']["status"], "unsuccessful")
+        self.assertNotIn("awards", response.json['data'])
+        self.assertNotIn("bids", response.json['data'])
 
 
 class AuctionProcessTest(BaseAuctionWebTest):
@@ -1863,6 +1883,7 @@ class FinancialAuctionTest(AuctionTest):
 class FinancialAuctionFieldsEditingTest(AuctionFieldsEditingTest):
     initial_data = test_financial_auction_data
     initial_organization = test_financial_organization
+    initial_bids = test_financial_bids
 
 
 class FinancialAuctionResourceTest(AuctionResourceTest):

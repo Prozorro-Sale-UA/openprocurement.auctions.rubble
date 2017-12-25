@@ -92,6 +92,12 @@ msgstr ""
 "Додатково оновлена властивість `dateModified`, щоб відображати останню дату "
 "модифікації."
 
+msgid "Keep in mind, that every time Organizer edits the auction all bids will be switched to `invalid` status."
+msgstr "Пам'ятайте, що кожного разу, коли Організатор редагує аукціон, статус всіх ставок перемикається на `invalid`."
+
+msgid "Bidders can reactivate their bids."
+msgstr "Після цього учасники можуть наново активувати власні ставки."
+
 msgid "Checking the listing again reflects the new modification date:"
 msgstr "Ще одна перевірка списку відображає нову дату модифікації:"
 

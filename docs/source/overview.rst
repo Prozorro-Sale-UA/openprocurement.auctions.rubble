@@ -18,6 +18,7 @@ Features
 * If *enquiryPeriod.endDate* is not provided it will be calculated automatically.
 * `tenderPeriod` must be at least 7 calendar days.
 * Organizer can edit procedure only during *enquiryPeriod*.
+* As soon as the action is edited, the status of all of the submitted bids will be switched to `invalid`.
 * Procedure can be switched from *draft* status to *active.tendering*.
 * During *active.tendering* period participants can ask questions, submit proposals, and upload documents.
 * Organizer can't edit procedure's significant properties (*Auction.value*, etc.).

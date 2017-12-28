@@ -63,6 +63,7 @@ def check_status(request):
                     extra=context_unpack(request, {'MESSAGE_ID': 'switched_auction_active.auction'}))
         auction.status = 'active.auction'
         remove_draft_bids(request)
+        remove_invalid_bids(request)
         check_bids(request)
         return
     elif auction.lots and auction.status == 'active.tendering' and auction.tenderPeriod.endDate <= now:
@@ -70,6 +71,7 @@ def check_status(request):
                     extra=context_unpack(request, {'MESSAGE_ID': 'switched_auction_active.auction'}))
         auction.status = 'active.auction'
         remove_draft_bids(request)
+        remove_invalid_bids(request)
         check_bids(request)
         [setattr(i.auctionPeriod, 'startDate', None) for i in auction.lots if i.numberOfBids < 2 and i.auctionPeriod]
         return
@@ -107,3 +109,17 @@ def check_status(request):
 def get_auction_creation_date(data):
     auction_creation_date = (data.get('revisions')[0].date if data.get('revisions') else get_now())
     return auction_creation_date
+
+
+def remove_invalid_bids(request):
+    auction = request.validated['auction']
+    if [bid for bid in auction.bids if getattr(bid, "status", "active") == "invalid"]:
+        LOGGER.info('Remove invalid bids',
+                    extra=context_unpack(request, {'MESSAGE_ID': 'remove_invalid_bids'}))
+        auction.bids = [bid for bid in auction.bids if getattr(bid, "status", "active") != "invalid"]
+
+
+def invalidate_bids_data(request):
+    auction = request.validated['auction']
+    for bid in auction.bids:
+        setattr(bid, "status", "invalid")

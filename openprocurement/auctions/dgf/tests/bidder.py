@@ -2,7 +2,7 @@
 import unittest
 from copy import deepcopy
 
-from openprocurement.auctions.dgf.tests.base import BaseAuctionWebTest, test_auction_data, test_features_auction_data, test_financial_organization, test_financial_auction_data
+from openprocurement.auctions.dgf.tests.base import BaseAuctionWebTest, test_auction_data, test_features_auction_data, test_financial_organization, test_financial_auction_data, test_bids, test_financial_bids
 
 
 class AuctionBidderResourceTest(BaseAuctionWebTest):
@@ -192,7 +192,7 @@ class AuctionBidderResourceTest(BaseAuctionWebTest):
         self.assertEqual(response.status, '201 Created')
         self.assertEqual(response.content_type, 'application/json')
         bidder = response.json['data']
-        response = self.app.patch_json('/auctions/{}/bids/{}'.format(self.auction_id, bidder['id']), {"data": {"value": {"amount": 60}}}, status=422)
+        response = self.app.patch_json('/auctions/{}/bids/{}'.format(self.auction_id, bidder['id']), {"data": {"status": "active", "value": {"amount": 60}}}, status=422)
         self.assertEqual(response.status, '422 Unprocessable Entity')
         self.assertEqual(response.content_type, 'application/json')
         self.assertEqual(response.json['status'], 'error')
@@ -404,6 +404,39 @@ class AuctionBidderResourceTest(BaseAuctionWebTest):
         self.assertEqual(response.content_type, 'application/json')
         self.assertNotEqual(response.json['data']["value"]["amount"], 400)
         self.assertEqual(response.json['data']["tenderers"][0]["identifier"]["id"], "00000000")
+
+
+class AuctionBidderProcessTest(BaseAuctionWebTest):
+    initial_data = test_auction_data
+    initial_bids = test_bids
+
+    def test_reactivate_invalidated_bids(self):
+
+        bid1_id = self.initial_bids[0]['id']
+        bid2_id = self.initial_bids[1]['id']
+        bid1_token = self.initial_bids_tokens[self.initial_bids[0]['id']]
+        bid2_token = self.initial_bids_tokens[self.initial_bids[1]['id']]
+
+        # patch
+
+        response = self.app.patch_json('/auctions/{}'.format(self.auction_id), {'data': {'value': {'amount': 80}}})
+        self.assertEqual(response.status, '200 OK')
+        self.assertEqual(response.content_type, 'application/json')
+
+        response = self.app.get('/auctions/{}/bids/{}?acc_token={}'.format(self.auction_id, bid1_id, bid1_token))
+        self.assertEqual(response.json['data']["status"], "invalid")
+        response = self.app.get('/auctions/{}/bids/{}?acc_token={}'.format(self.auction_id, bid2_id, bid2_token))
+        self.assertEqual(response.json['data']["status"], "invalid")
+
+        # reactivate bids
+
+        response = self.app.patch_json('/auctions/{}/bids/{}?acc_token={}'.format(self.auction_id, bid1_id, bid1_token),
+                                       {'data': {"status": "active"}})
+        self.assertEqual(response.json['data']["status"], "active")
+
+        response = self.app.patch_json('/auctions/{}/bids/{}?acc_token={}'.format(self.auction_id, bid2_id, bid2_token),
+                                       {'data': {"status": "active"}})
+        self.assertEqual(response.json['data']["status"], "active")
 
 
 @unittest.skip("option not available")
@@ -1115,6 +1148,11 @@ class FinancialAuctionBidderResourceTest(AuctionBidderResourceTest):
         self.assertIn({u'description': [{u'additionalIdentifiers': [u'One of additional classifications should be UA-FIN.']}], u'location': u'body', u'name': u'tenderers'}, response.json['errors'])
 
 
+class FinancialAuctionBidderProcessTest(AuctionBidderProcessTest):
+    initial_data = test_financial_auction_data
+    initial_bids = test_financial_bids
+
+
 @unittest.skip("option not available")
 class FinancialAuctionBidderFeaturesResourceTest(AuctionBidderFeaturesResourceTest):
     initial_data = test_financial_auction_data
@@ -1136,10 +1174,12 @@ def suite():
     suite.addTest(unittest.makeSuite(AuctionBidderDocumentResourceTest))
     suite.addTest(unittest.makeSuite(AuctionBidderDocumentWithDSResourceTest))
     suite.addTest(unittest.makeSuite(AuctionBidderFeaturesResourceTest))
+    suite.addTest(unittest.makeSuite(AuctionBidderProcessTest))
     suite.addTest(unittest.makeSuite(AuctionBidderResourceTest))
     suite.addTest(unittest.makeSuite(FinancialAuctionDocumentBidderResourceTest))
     suite.addTest(unittest.makeSuite(FinancialAuctionBidderDocumentWithDSResourceTest))
     suite.addTest(unittest.makeSuite(FinancialAuctionBidderFeaturesResourceTest))
+    suite.addTest(unittest.makeSuite(FinancialAuctionBidderProcessTest))
     suite.addTest(unittest.makeSuite(FinancialAuctionBidderResourceTest))
     return suite
 

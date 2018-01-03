@@ -17,7 +17,7 @@ DOCUMENT_TYPE_URL_ONLY = ['virtualDataRoom']
 
 #requiremnt periods
 MINIMAL_EXPOSITION_PERIOD = timedelta(days=7)
-VERIFY_AUCTION_PROTOCOL_TIME = timedelta(days=3)
+VERIFY_AUCTION_PROTOCOL_TIME = timedelta(days=6)
 AWARD_PAYMENT_TIME = timedelta(days=20)
 CONTRACT_SIGNING_TIME = timedelta(days=20)
 

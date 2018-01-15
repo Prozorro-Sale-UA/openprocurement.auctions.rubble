@@ -62,7 +62,7 @@ def bids_validation_wrapper(validation_func):
             return
         tender = data['__parent__']
         request = tender.__parent__.request
-        if request.method == "PATCH" and isinstance(tender, BaseAuction) and request.authenticated_role == "tender_owner":
+        if request.method == "PATCH" and isinstance(tender, BaseAuction) and request.authenticated_role == "auction_owner":
             # disable bids validation on tender PATCH requests as tender bids will be invalidated
             return
         return validation_func(klass, orig_data, value)

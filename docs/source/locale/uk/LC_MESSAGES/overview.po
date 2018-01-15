@@ -169,6 +169,11 @@ msgstr ""
 "яке вміщуватиме повну інформацію про новий аукціон, включно з ID."
 
 msgid ""
+"Organizer can both increase and decrease `value.amount`, `guarantee.amount`, `minimalStep.amount`."
+msgstr ""
+"Організатор може як зменшувати, так і збільшувати `value.amount`, `guarantee.amount`, `minimalStep.amount`."
+
+msgid ""
 "Organizer can't edit procedure's significant properties (*Auction.value*, "
 "etc.)."
 msgstr ""

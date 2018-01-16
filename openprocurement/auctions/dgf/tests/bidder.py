@@ -419,7 +419,7 @@ class AuctionBidderProcessTest(BaseAuctionWebTest):
 
         # patch
 
-        response = self.app.patch_json('/auctions/{}'.format(self.auction_id), {'data': {'value': {'amount': 80}}})
+        response = self.app.patch_json('/auctions/{}?acc_token={}'.format(self.auction_id, self.auction_token), {'data': {'value': {'amount': 540}}})
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
 
@@ -427,6 +427,26 @@ class AuctionBidderProcessTest(BaseAuctionWebTest):
         self.assertEqual(response.json['data']["status"], "invalid")
         response = self.app.get('/auctions/{}/bids/{}?acc_token={}'.format(self.auction_id, bid2_id, bid2_token))
         self.assertEqual(response.json['data']["status"], "invalid")
+
+        # reactivate bids invalid bid value.amount
+
+        response = self.app.patch_json('/auctions/{}/bids/{}?acc_token={}'.format(self.auction_id, bid1_id, bid1_token),
+                                       {'data': {"status": "active"}}, status=422)
+        self.assertEqual(response.json['errors'], [
+            {u'description': [u'value of bid should be greater than value of auction'], u'location': u'body', u'name': u'value'}
+        ])
+        response = self.app.patch_json('/auctions/{}/bids/{}?acc_token={}'.format(self.auction_id, bid2_id, bid2_token),
+                                       {'data': {"status": "active"}}, status=422)
+        self.assertEqual(response.json['errors'], [
+            {u'description': [u'value of bid should be greater than value of auction'], u'location': u'body', u'name': u'value'}
+        ])
+
+        # set bid value.amount above auction value.amount
+
+        response = self.app.patch_json('/auctions/{}/bids/{}?acc_token={}'.format(self.auction_id, bid1_id, bid1_token),
+                                       {"data": {"value": {"amount": 800}}})
+        response = self.app.patch_json('/auctions/{}/bids/{}?acc_token={}'.format(self.auction_id, bid2_id, bid2_token),
+                                       {"data": {"value": {"amount": 900}}})
 
         # reactivate bids
 

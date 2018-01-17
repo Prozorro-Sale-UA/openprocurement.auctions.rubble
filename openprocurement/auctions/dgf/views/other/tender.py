@@ -14,9 +14,11 @@ from openprocurement.auctions.core.validation import (
 )
 from openprocurement.auctions.dgf.utils import (
     check_status,
+    invalidate_bids_data
 )
 from openprocurement.auctions.dgf.validation import (
-    validate_change_price_criteria_reduction
+    validate_price_only_amount_changed,
+    validate_enquiry_period_editing
 )
 
 
@@ -130,7 +132,7 @@ class AuctionResource(APIResource):
         #apply_patch(self.request, src=self.request.validated['auction_src'])
         #return {'data': auction.serialize(auction.status)}
 
-    @json_view(content_type="application/json", validators=(validate_patch_auction_data, validate_change_price_criteria_reduction, ), permission='edit_auction')
+    @json_view(content_type="application/json", validators=(validate_patch_auction_data, validate_price_only_amount_changed, validate_enquiry_period_editing), permission='edit_auction')
     def patch(self):
         """Auction Edit (partial)
 
@@ -189,7 +191,10 @@ class AuctionResource(APIResource):
             check_status(self.request)
             save_auction(self.request)
         else:
-            apply_patch(self.request, src=self.request.validated['auction_src'])
+            apply_patch(self.request, save=False, src=self.request.validated['auction_src'])
+            if auction.status == 'active.tendering':
+                invalidate_bids_data(self.request)
+            save_auction(self.request)
         self.LOGGER.info('Updated auction {}'.format(auction.id),
                     extra=context_unpack(self.request, {'MESSAGE_ID': 'auction_patch'}))
         return {'data': auction.serialize(auction.status)}

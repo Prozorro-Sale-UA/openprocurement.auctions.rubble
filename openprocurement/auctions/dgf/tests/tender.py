@@ -8,8 +8,9 @@ from iso8601 import parse_date
 
 from openprocurement.api.utils import ROUTE_PREFIX
 from openprocurement.api.models import get_now, SANDBOX_MODE, TZ
+from openprocurement.auctions.dgf.constants import MINIMAL_PERIOD_FROM_ENQUIRY_END, ENQUIRY_END_EDITING_AND_VALIDATION_REQUIRED_FROM
 from openprocurement.auctions.dgf.models import DGFOtherAssets, DGFFinancialAssets, DGF_ID_REQUIRED_FROM, CLASSIFICATION_PRECISELY_FROM
-from openprocurement.auctions.dgf.tests.base import test_auction_data, test_financial_auction_data, test_organization, test_financial_organization, BaseWebTest, BaseAuctionWebTest, DEFAULT_ACCELERATION
+from openprocurement.auctions.dgf.tests.base import test_auction_maximum_data, test_auction_data, test_financial_auction_data, test_organization, test_financial_organization, BaseWebTest, BaseAuctionWebTest, DEFAULT_ACCELERATION, test_bids, test_financial_bids
 
 
 class AuctionTest(BaseWebTest):
@@ -44,7 +45,7 @@ class AuctionTest(BaseWebTest):
             'procurementMethodRationale', 'procurementMethodRationale_en', 'procurementMethodRationale_ru',
             'procurementMethodType', 'procuringEntity', 'minNumberOfQualifiedBids',
             'submissionMethodDetails', 'submissionMethodDetails_en', 'submissionMethodDetails_ru',
-            'title', 'title_en', 'title_ru', 'value', 'auctionPeriod',
+            'title', 'title_en', 'title_ru', 'value', 'auctionPeriod', 'enquiryPeriod'
         ])
         if SANDBOX_MODE:
             fields.add('procurementMethodDetails')
@@ -52,8 +53,10 @@ class AuctionTest(BaseWebTest):
 
     def test_edit_role(self):
         fields = set([
-            'features', 'hasEnquiries', 'description', 'title', 'tenderAttempts', 'title_en',
-            'description_en', 'dgfID', 'title_ru', 'description_ru', 'minimalStep', 'value', 'guarantee'
+            'description', 'description_en', 'description_ru',
+            'features', 'hasEnquiries', 'items',
+            'value', 'minimalStep', 'guarantee', 'tenderAttempts', 'title_en', 'dgfID', 'title_ru',
+            'title'
         ])
         if SANDBOX_MODE:
             fields.add('procurementMethodDetails')
@@ -547,8 +550,21 @@ class AuctionResourceTest(BaseWebTest):
         self.assertEqual(response.content_type, 'application/json')
         self.assertEqual(response.json['status'], 'error')
         self.assertEqual(response.json['errors'], [
+            {u'description': [u'enquiryPeriod.endDate should come at least 5 working days earlier than tenderPeriod.endDate'], u'location': u'body', u'name': u'enquiryPeriod'},
             {u'description': [u'tenderPeriod should be greater than 6 days'], u'location': u'body', u'name': u'tenderPeriod'}
         ])
+
+        if SANDBOX_MODE:
+            auction_data['auctionPeriod'] = {'startDate': (now + timedelta(days=10) / DEFAULT_ACCELERATION).isoformat()}
+            auction_data['enquiryPeriod'] = {'endDate': (now + timedelta(days=9) / DEFAULT_ACCELERATION).isoformat()}
+        else:
+            auction_data['auctionPeriod'] = {'startDate': (now + timedelta(days=10)).isoformat()}
+            auction_data['enquiryPeriod'] = {'endDate': (now + timedelta(days=9)).isoformat()}
+        response = self.app.post_json(request_path, {'data': auction_data}, status=422)
+        self.assertEqual(response.status, '422 Unprocessable Entity')
+        self.assertEqual(response.content_type, 'application/json')
+        self.assertEqual(response.json['status'], 'error')
+        self.assertEqual(response.json['errors'], [{u'description': [u'enquiryPeriod.endDate should come at least 5 working days earlier than tenderPeriod.endDate'], u'location': u'body', u'name': u'enquiryPeriod'}])
 
         data = self.initial_data['minimalStep']
         self.initial_data['minimalStep'] = {'amount': '1000.0'}
@@ -649,6 +665,37 @@ class AuctionResourceTest(BaseWebTest):
         else:
             self.assertEqual(parse_date(auction['tenderPeriod']['endDate']).date(), parse_date(data['auctionPeriod']['startDate'], TZ).date() - timedelta(days=1))
             self.assertEqual(parse_date(auction['tenderPeriod']['endDate']).time(), time(20, 0))
+
+    @unittest.skipIf(get_now() < ENQUIRY_END_EDITING_AND_VALIDATION_REQUIRED_FROM, "enquiryPeriod.endDate validation required only from: {}".format(ENQUIRY_END_EDITING_AND_VALIDATION_REQUIRED_FROM))
+    def test_create_auction_enquiryPeriod_generated(self):
+        response = self.app.post_json('/auctions', {'data': self.initial_data})
+        self.assertEqual(response.status, '201 Created')
+        self.assertEqual(response.content_type, 'application/json')
+        auction = response.json['data']
+        self.assertIn('tenderPeriod', auction)
+        self.assertIn('enquiryPeriod', auction)
+        self.assertIn('auctionPeriod', auction)
+        self.assertNotIn('startDate', auction['auctionPeriod'])
+        self.assertEqual(parse_date(self.initial_data['auctionPeriod']['startDate']).date(), parse_date(auction['auctionPeriod']['shouldStartAfter'], TZ).date())
+        timedelta_during_periods_ends = parse_date(auction['tenderPeriod']['endDate']) - parse_date(auction['enquiryPeriod']['endDate'])
+        if not SANDBOX_MODE:
+            self.assertEqual(timedelta_during_periods_ends, MINIMAL_PERIOD_FROM_ENQUIRY_END)
+        else:    
+            self.assertEqual(timedelta_during_periods_ends, (MINIMAL_PERIOD_FROM_ENQUIRY_END / DEFAULT_ACCELERATION))
+
+    @unittest.skipIf(get_now() < ENQUIRY_END_EDITING_AND_VALIDATION_REQUIRED_FROM, "enquiryPeriod.endDate validation required only from: {}".format(ENQUIRY_END_EDITING_AND_VALIDATION_REQUIRED_FROM))
+    def test_create_auction_enquiryPeriod_set(self):
+        now = get_now()
+        auction_data = deepcopy(self.initial_data)
+        auction_data['enquiryPeriod'] = {'endDate' : (get_now() + timedelta(days=2)).isoformat()}
+        auction_data['auctionPeriod'] = {'startDate' : (get_now() + timedelta(days=10)).isoformat()}
+        response = self.app.post_json('/auctions', {'data': auction_data})
+        self.assertEqual(response.status, '201 Created')
+        auction = response.json['data']
+        self.assertIn('enquiryPeriod', auction)
+        timedelta_during_set_periods_ends = parse_date(auction['tenderPeriod']['endDate']) - parse_date(auction_data['enquiryPeriod']['endDate'])
+        self.assertGreaterEqual(timedelta_during_set_periods_ends, MINIMAL_PERIOD_FROM_ENQUIRY_END)
+        self.assertEqual(timedelta_during_set_periods_ends, parse_date(auction['tenderPeriod']['endDate']) - parse_date(auction['enquiryPeriod']['endDate']))
 
     def test_create_auction_generated(self):
         data = self.initial_data.copy()
@@ -1225,38 +1272,6 @@ class AuctionResourceTest(BaseWebTest):
         response = self.app.patch_json('/auctions/{}'.format(auction['id']), {'data': { 'value': {'valueAddedTaxIncluded': False, 'amount': value['amount']},
                                                                                         'minimalStep':{'valueAddedTaxIncluded': False}}}, status=403)
         self.assertEqual(response.json['errors'][0], {u'description': u'Only amount change is allowed', u'location': u'body', u'name': u'data'})
-        self.assertEqual(response.json['errors'][1], {u'description': u'Only amount change is allowed', u'location': u'body', u'name': u'data'})
-
-        # Try to decrease amount of value, guarantee, minimalStep
-
-        for param in ['value', 'minimalStep', 'guarantee']:
-            response = self.app.patch_json('/auctions/{}'.format(auction['id']), {'data': { param: {'amount': auction[param]['amount'] - 10 }}}, status=200)
-            self.assertEqual(response.json['data'][param]['amount'], auction[param]['amount'] - 10)
-
-
-        # Try to increase amount of value, guarantee, minimalStep
-
-        for param in ['value', 'minimalStep', 'guarantee']:
-            response = self.app.patch_json('/auctions/{}'.format(auction['id']), {'data': { param: {'amount': auction[param]['amount'] + 20 }}}, status=403)
-            if param != 'value':
-                self.assertEqual(response.json['errors'],[{"location": "body", "name": "data", "description": "Only reducing {} is allowed".format(param)}])
-            else:
-                self.assertEqual(response.json['errors'],[{"location": "body", "name": "data", "description": "Only {} reduction for not more than 50% is allowed".format(param)}])
-
-        # Try to decrease value and increase minimal Step  with guarantee
-
-        response = self.app.patch_json('/auctions/{}'.format(auction['id']),
-            {'data': {'value': {'amount': auction['value']['amount'] - 15},
-                      'guarantee': {'amount': auction['guarantee']['amount'] + 15},
-                    'minimalStep': {'amount': auction['minimalStep']['amount'] + 10}}}, status=403)
-
-        self.assertEqual(response.json['errors'], [{'description': 'Only reducing minimalStep is allowed', 'location': 'body', 'name': 'data'},
-                          {'description': 'Only reducing guarantee is allowed', 'location': 'body', 'name': 'data'}])
-
-        #  Check decrease value more than 50%
-
-        response = self.app.patch_json('/auctions/{}'.format(auction['id']),{'data': {'value': {'amount': auction['value']['amount'] - 60}}}, status=403)
-        self.assertEqual(response.json['errors'], [{"location": "body", "name": "data", "description": "Only value reduction for not more than 50% is allowed"}])
 
         # 422 very low amount
         response = self.app.patch_json('/auctions/{}'.format(auction['id']),{'data': {'value': {'amount': auction['value']['amount'] - 80}}}, status=422)
@@ -1393,6 +1408,124 @@ class AuctionResourceTest(BaseWebTest):
         self.assertIn('value', response.json['data'])
         self.assertIn('guarantee', response.json['data'])
         self.assertIn('minimalStep', response.json['data'])
+
+        # 422 very low amount
+        response = self.app.patch_json('/auctions/{}'.format(auction['id']),{'data': {'value': {'amount': auction['value']['amount'] - 80}}}, status=422)
+        self.assertEqual(response.json['errors'], [{'location': 'body', 'name': 'minimalStep', 'description': [u'value should be less than value of auction']}])
+
+
+class AuctionFieldsEditingTest(BaseAuctionWebTest):
+    initial_data = test_auction_data
+    initial_maximum_data = test_auction_maximum_data
+    initial_organization = test_organization
+    initial_bids = test_bids
+
+    def test_patch_auction_denied(self):
+
+        # patch auction during enquiryPeriod
+
+        response = self.app.patch_json('/auctions/{}'.format(self.auction_id), {'data': {'value': {'amount': 80}}}, status=200)
+        self.assertEqual(response.status, '200 OK')
+        self.assertEqual(response.content_type, 'application/json')
+        self.assertEqual(response.json['data']['value']['amount'], 80)
+        response = self.app.patch_json('/auctions/{}'.format(self.auction_id), {'data': {'minimalStep': {'amount': 20}}}, status=200)
+        self.assertEqual(response.status, '200 OK')
+        self.assertEqual(response.content_type, 'application/json')
+        self.assertEqual(response.json['data']['minimalStep']['amount'], 20)
+
+        self.go_to_enquiryPeriod_end()
+
+        # patch auction after the enquiryPeriod.endDate
+
+        response = self.app.patch_json('/auctions/{}'.format(self.auction_id), {'data': {'value': {'amount': 80}}}, status=403)
+        self.assertEqual(response.status, '403 Forbidden')
+        self.assertEqual(response.content_type, 'application/json')
+        self.assertIn(u'Auction can be edited only during the enquiry period', response.json['errors'][0][u'description'])
+        response = self.app.patch_json('/auctions/{}'.format(self.auction_id), {'data': {'minimalStep': {'amount': 20}}}, status=403)
+        self.assertEqual(response.status, '403 Forbidden')
+        self.assertEqual(response.content_type, 'application/json')
+        self.assertIn(u'Auction can be edited only during the enquiry period', response.json['errors'][0][u'description'])
+
+    def test_patch_auction_during_enquiry_period(self):
+        auction_data = deepcopy(self.initial_maximum_data)
+        classification_data_edited = {
+            "scheme": "CAV-PS",
+            "description": "Edited field",
+            "id": "06125000-4"
+        }
+        unit_data_edited = {
+            "code": "44617100-0",
+            "name": "edited item"
+        }
+        address_data_edited = auction_data["procuringEntity"]["address"]
+        response = self.app.post_json('/auctions', {'data': auction_data})
+        self.assertEqual(response.status, '201 Created')
+        auction = response.json['data']
+
+        for param in ['title', 'title_en', 'title_ru']:
+            response = self.app.patch_json('/auctions/{}'.format(self.auction_id), {'data': {param: auction[param] + u' EDITED'}}, status=200)
+            self.assertNotEqual(response.json['data'][param], auction[param])
+            self.assertEqual(response.json['data'][param], auction[param] + u' EDITED')
+
+        for param in ['description', 'description_en', 'description_ru']:
+            response = self.app.patch_json('/auctions/{}'.format(self.auction_id), {'data': {'items' : [{param: auction[param] + u' EDITED'}]}}, status=200)
+            self.assertNotEqual(response.json['data']['items'][0][param], auction['items'][0][param])
+            self.assertEqual(response.json['data']['items'][0][param], auction[param] + u' EDITED')
+
+        response = self.app.patch_json('/auctions/{}'.format(self.auction_id), {'data': {'items': [{"address": address_data_edited}]}})
+        self.assertEqual(response.status, '200 OK')
+        self.assertEqual(response.content_type, 'application/json')
+        self.assertNotEqual(response.json['data']['items'][0]['address'], auction['items'][0]['address'])
+        self.assertEqual(response.json['data']['items'][0]['address'], address_data_edited)
+
+        response = self.app.patch_json('/auctions/{}'.format(self.auction_id), {'data': {'items': [{"classification": classification_data_edited}]}})
+        self.assertEqual(response.status, '200 OK')
+        self.assertEqual(response.content_type, 'application/json')
+        self.assertNotEqual(response.json['data']['items'][0]['classification'], auction['items'][0]['classification'])
+        self.assertEqual(response.json['data']['items'][0]['classification'], classification_data_edited)
+
+        response = self.app.patch_json('/auctions/{}'.format(self.auction_id), {'data': {'items': [{"unit": unit_data_edited}]}})
+        self.assertEqual(response.status, '200 OK')
+        self.assertEqual(response.content_type, 'application/json')
+        self.assertNotEqual(response.json['data']['items'][0]['unit'], auction['items'][0]['unit'])
+        self.assertEqual(response.json['data']['items'][0]['unit'], unit_data_edited)
+
+        response = self.app.patch_json('/auctions/{}'.format(self.auction_id), {'data': {'items': [{"quantity": auction['items'][0]['quantity'] + 1}]}})
+        self.assertEqual(response.status, '200 OK')
+        self.assertEqual(response.content_type, 'application/json')
+        self.assertNotEqual(response.json['data']['items'][0]['quantity'], auction['items'][0]['quantity'])
+        self.assertEqual(response.json['data']['items'][0]['quantity'], auction['items'][0]['quantity'] + 1)
+
+        response = self.app.patch_json('/auctions/{}'.format(self.auction_id), {'data': {'tenderAttempts': auction['tenderAttempts'] + 1} })
+        self.assertEqual(response.status, '200 OK')
+        self.assertEqual(response.content_type, 'application/json')
+        self.assertNotEqual(response.json['data']['tenderAttempts'], auction['tenderAttempts'])
+        self.assertEqual(response.json['data']['tenderAttempts'], auction['tenderAttempts'] + 1)
+
+        response = self.app.patch_json('/auctions/{}'.format(self.auction_id), {'data': {'dgfID': auction['dgfID'] + u'EDITED'} })
+        self.assertEqual(response.status, '200 OK')
+        self.assertEqual(response.content_type, 'application/json')
+        self.assertNotEqual(response.json['data']['dgfID'], auction['dgfID'])
+        self.assertEqual(response.json['data']['dgfID'], auction['dgfID'] + u'EDITED')
+
+    def test_invalidate_bids_auction_unsuccessful(self):
+
+        # patch auction already created
+
+        response = self.app.patch_json('/auctions/{}'.format(self.auction_id), {'data': {'value': {'amount': 80}}})
+        self.assertEqual(response.status, '200 OK')
+        self.assertEqual(response.content_type, 'application/json')
+
+        # switch to active.auction
+        
+        response = self.set_status('active.auction', {'status': self.initial_status})
+        self.app.authorization = ('Basic', ('chronograph', ''))
+        response = self.app.patch_json('/auctions/{}'.format(self.auction_id), {'data': {'id': self.auction_id}})
+        self.assertEqual(response.status, '200 OK')
+        self.assertEqual(response.content_type, 'application/json')
+        self.assertEqual(response.json['data']["status"], "unsuccessful")
+        self.assertNotIn("awards", response.json['data'])
+        self.assertNotIn("bids", response.json['data'])
 
 
 class AuctionProcessTest(BaseAuctionWebTest):
@@ -1738,6 +1871,12 @@ class FinancialAuctionTest(AuctionTest):
     auction = DGFFinancialAssets
 
 
+class FinancialAuctionFieldsEditingTest(AuctionFieldsEditingTest):
+    initial_data = test_financial_auction_data
+    initial_organization = test_financial_organization
+    initial_bids = test_financial_bids
+
+
 class FinancialAuctionResourceTest(AuctionResourceTest):
     initial_data = test_financial_auction_data
     initial_organization = test_financial_organization
@@ -1776,9 +1915,11 @@ def suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(AuctionProcessTest))
     suite.addTest(unittest.makeSuite(AuctionResourceTest))
+    suite.addTest(unittest.makeSuite(AuctionFieldsEditingTest))
     suite.addTest(unittest.makeSuite(AuctionTest))
     suite.addTest(unittest.makeSuite(FinancialAuctionProcessTest))
     suite.addTest(unittest.makeSuite(FinancialAuctionResourceTest))
+    suite.addTest(unittest.makeSuite(FinancialAuctionFieldsEditingTest))
     suite.addTest(unittest.makeSuite(FinancialAuctionTest))
     return suite
 

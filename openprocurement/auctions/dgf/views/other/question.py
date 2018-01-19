@@ -29,8 +29,8 @@ class AuctionQuestionResource(APIResource):
         """Post a question
         """
         auction = self.request.validated['auction']
-        if auction.status != 'active.tendering' or get_now() < auction.enquiryPeriod.startDate or get_now() > auction.enquiryPeriod.endDate:
-            self.request.errors.add('body', 'data', 'Can add question only in enquiryPeriod')
+        if auction.status != 'active.tendering' or get_now() < auction.tenderPeriod.startDate or get_now() > auction.tenderPeriod.endDate:
+            self.request.errors.add('body', 'data', 'Can add question only in tenderPeriod')
             self.request.errors.status = 403
             return
         question = self.request.validated['question']

@@ -8,13 +8,15 @@ from schematics.types.serializable import serializable
 from urlparse import urlparse, parse_qs
 from string import hexdigits
 from zope.interface import implementer
+from pyramid.security import Allow
 from openprocurement.api.models import (
-    BooleanType, ListType, Feature, Period, get_now, TZ, ComplaintModelType,
+    BooleanType, ListType, Feature, Period, get_now, TZ,
     validate_features_uniq, validate_lots_uniq, Identifier as BaseIdentifier,
-    Classification, validate_items_uniq, ORA_CODES, Address, Location,
+    Classification, validate_items_uniq, Address, Location,
     schematics_embedded_role, SANDBOX_MODE, CPV_CODES
 )
 from openprocurement.api.utils import calculate_business_date
+from .utils import calculate_enddate
 from openprocurement.auctions.core.models import IAuction
 from openprocurement.auctions.flash.models import (
     Auction as BaseAuction, Document as BaseDocument, Bid as BaseBid,
@@ -27,26 +29,14 @@ from openprocurement.auctions.flash.models import (
 )
 from openprocurement.auctions.dgf.constants import (MINIMAL_EXPOSITION_PERIOD, MINIMAL_EXPOSITION_REQUIRED_FROM)
 
-
-def read_json(name):
-    import os.path
-    from json import loads
-    curr_dir = os.path.dirname(os.path.realpath(__file__))
-    file_path = os.path.join(curr_dir, name)
-    with open(file_path) as lang_file:
-        data = lang_file.read()
-    return loads(data)
-
-
-ORA_CODES = ORA_CODES[:]
-ORA_CODES[0:0] = ["UA-IPN", "UA-FIN"]
-
-CLASSIFICATION_PRECISELY_FROM = datetime(2017, 7, 19, tzinfo=TZ)
-
-CAVPS_CODES = read_json('cav_ps.json')
-CPVS_CODES = read_json('cpvs.json')
-
-DGF_ID_REQUIRED_FROM = datetime(2017, 1, 1, tzinfo=TZ)
+from .constants import (
+    AWARD_PAYMENT_TIME, CONTRACT_SIGNING_TIME,
+    VERIFY_AUCTION_PROTOCOL_TIME, DOCUMENT_TYPE_OFFLINE,
+    DOCUMENT_TYPE_URL_ONLY, CLASSIFICATION_PRECISELY_FROM,
+    DGF_ID_REQUIRED_FROM, CAVPS_CODES,
+    CPVS_CODES, ORA_CODES, MINIMAL_EXPOSITION_PERIOD,
+    MINIMAL_EXPOSITION_REQUIRED_FROM
+)
 
 
 class CPVCAVClassification(Classification):
@@ -112,7 +102,7 @@ class Document(BaseDocument):
         'eligibilityCriteria', 'contractProforma', 'commercialProposal',
         'qualificationDocuments', 'eligibilityDocuments', 'tenderNotice',
         'illustration', 'auctionProtocol', 'x_dgfAssetFamiliarization',
-        'x_presentation', 'x_nda',
+        'x_presentation', 'x_nda'
     ])
 
     @serializable(serialized_name="url", serialize_when_none=False)
@@ -147,25 +137,28 @@ class Document(BaseDocument):
         return generate_docservice_url(request, doc_id, False)
 
     def validate_hash(self, data, hash_):
-        if data.get('documentType') in ['virtualDataRoom', 'x_dgfAssetFamiliarization'] and hash_:
+        doc_type = data.get('documentType')
+        if doc_type in (DOCUMENT_TYPE_URL_ONLY + DOCUMENT_TYPE_OFFLINE) and hash_:
             raise ValidationError(u'This field is not required.')
 
     def validate_format(self, data, format_):
-        if data.get('documentType') not in ['virtualDataRoom', 'x_dgfAssetFamiliarization'] and not format_:
+        doc_type = data.get('documentType')
+        if doc_type not in (DOCUMENT_TYPE_URL_ONLY + DOCUMENT_TYPE_OFFLINE) and not format_:
             raise ValidationError(u'This field is required.')
-        if data.get('documentType') == 'virtualDataRoom' and format_:
+        if doc_type in DOCUMENT_TYPE_URL_ONLY and format_:
             raise ValidationError(u'This field is not required.')
 
     def validate_url(self, data, url):
-        if data.get('documentType') == 'virtualDataRoom':
+        doc_type = data.get('documentType')
+        if doc_type in DOCUMENT_TYPE_URL_ONLY:
             URLType().validate(url)
-        if data.get('documentType') == 'x_dgfAssetFamiliarization' and url:
+        if doc_type in DOCUMENT_TYPE_OFFLINE and url:
             raise ValidationError(u'This field is not required.')
-        if data.get('documentType') != 'x_dgfAssetFamiliarization' and not url:
+        if doc_type not in DOCUMENT_TYPE_OFFLINE and not url:
             raise ValidationError(u'This field is required.')
 
     def validate_accessDetails(self, data, accessDetails):
-        if data.get('documentType') == 'x_dgfAssetFamiliarization' and not accessDetails:
+        if data.get('documentType') in DOCUMENT_TYPE_OFFLINE and not accessDetails:
             raise ValidationError(u'This field is required.')
 
 
@@ -175,6 +168,7 @@ class Bid(BaseBid):
             'create': whitelist('value', 'tenderers', 'parameters', 'lotValues', 'status', 'qualified'),
         }
 
+    status = StringType(choices=['active', 'draft', 'invalid'], default='active')
     tenderers = ListType(ModelType(Organization), required=True, min_size=1, max_size=1)
     documents = ListType(ModelType(Document), default=list())
     qualified = BooleanType(required=True, choices=[True])
@@ -201,10 +195,67 @@ class Contract(BaseContract):
 
 
 class Award(BaseAward):
+    class Options:
+        roles = {
+            'create': blacklist('id', 'status', 'date', 'documents', 'complaints', 'complaintPeriod', 'verificationPeriod', 'paymentPeriod', 'signingPeriod'),
+            'Administrator': whitelist('verificationPeriod', 'paymentPeriod', 'signingPeriod'),
+        }
+
+    def __local_roles__(self):
+        auction = get_auction(self)
+        for bid in auction.bids:
+            if bid.id == self.bid_id:
+                bid_owner = bid.owner
+                bid_owner_token = bid.owner_token
+        return dict([('{}_{}'.format(bid_owner, bid_owner_token), 'bid_owner')])
+
+    def __acl__(self):
+        auction = get_auction(self)
+        for bid in auction.bids:
+            if bid.id == self.bid_id:
+                bid_owner = bid.owner
+                bid_owner_token = bid.owner_token
+        return [(Allow, '{}_{}'.format(bid_owner, bid_owner_token), 'edit_auction_award')]
+
+    # pending status is deprecated. Only for backward compatibility with awarding 1.0
+    status = StringType(required=True, choices=['pending.waiting', 'pending.verification', 'pending.payment', 'unsuccessful', 'active', 'cancelled', 'pending'], default='pending.verification')
     suppliers = ListType(ModelType(Organization), min_size=1, max_size=1)
     complaints = ListType(ModelType(Complaint), default=list())
     documents = ListType(ModelType(Document), default=list())
     items = ListType(ModelType(Item))
+    verificationPeriod = ModelType(Period)
+    paymentPeriod = ModelType(Period)
+    signingPeriod = ModelType(Period)
+
+    @serializable(serialized_name="verificationPeriod", serialize_when_none=False)
+    def award_verificationPeriod(self):
+        period = self.verificationPeriod
+        if not period:
+            return
+        if not period.endDate:
+            auction = get_auction(self)
+            calculate_enddate(auction, period, VERIFY_AUCTION_PROTOCOL_TIME)
+        return period.to_primitive()
+
+    @serializable(serialized_name="paymentPeriod", serialize_when_none=False)
+    def award_paymentPeriod(self):
+        period = self.paymentPeriod
+        if not period:
+            return
+        if not period.endDate:
+            auction = get_auction(self)
+            calculate_enddate(auction, period, AWARD_PAYMENT_TIME)
+        return period.to_primitive()
+
+    @serializable(serialized_name="signingPeriod", serialize_when_none=False)
+    def award_signingPeriod(self):
+        period = self.signingPeriod
+        if not period:
+            return
+        if not period.endDate:
+            auction = get_auction(self)
+            calculate_enddate(auction, period, CONTRACT_SIGNING_TIME)
+        return period.to_primitive()
 
 
 def validate_not_available(items, *args):
@@ -244,7 +295,9 @@ class AuctionAuctionPeriod(Period):
             raise ValidationError(u'This field is required.')
 
 
-create_role = (blacklist('owner_token', 'owner', '_attachments', 'revisions', 'date', 'dateModified', 'doc_id', 'auctionID', 'bids', 'documents', 'awards', 'questions', 'complaints', 'auctionUrl', 'status', 'enquiryPeriod', 'tenderPeriod', 'awardPeriod', 'procurementMethod', 'eligibilityCriteria', 'eligibilityCriteria_en', 'eligibilityCriteria_ru', 'awardCriteria', 'submissionMethod', 'cancellations', 'numberOfBidders', 'contracts') + schematics_embedded_role)
+create_role = (schematics_embedded_role + blacklist('owner_token', 'owner', '_attachments', 'revisions', 'date', 'dateModified', 'doc_id', 'auctionID', 'bids', 'documents', 'awards', 'questions', 'complaints', 'auctionUrl', 'status', 'enquiryPeriod', 'tenderPeriod', 'awardPeriod', 'procurementMethod', 'eligibilityCriteria', 'eligibilityCriteria_en', 'eligibilityCriteria_ru', 'awardCriteria', 'submissionMethod', 'cancellations', 'numberOfBidders', 'contracts'))
+edit_role = (edit_role + blacklist('enquiryPeriod', 'tenderPeriod', 'auction_value', 'auction_minimalStep', 'auction_guarantee', 'eligibilityCriteria', 'eligibilityCriteria_en', 'eligibilityCriteria_ru', 'awardCriteriaDetails', 'awardCriteriaDetails_en', 'awardCriteriaDetails_ru', 'procurementMethodRationale', 'procurementMethodRationale_en', 'procurementMethodRationale_ru', 'submissionMethodDetails', 'submissionMethodDetails_en', 'submissionMethodDetails_ru', 'items', 'procuringEntity', 'minNumberOfQualifiedBids'))
+Administrator_role = (whitelist('awards') + Administrator_role)
 
 
 @implementer(IAuction)
@@ -253,8 +306,8 @@ class Auction(BaseAuction):
     class Options:
         roles = {
             'create': create_role,
-            'edit_active.tendering': (blacklist('enquiryPeriod', 'tenderPeriod', 'auction_value', 'auction_minimalStep', 'auction_guarantee', 'eligibilityCriteria', 'eligibilityCriteria_en', 'eligibilityCriteria_ru', 'title', 'title_ru', 'title_en', 'dgfID', 'tenderAttempts', 'minNumberOfQualifiedBids') + edit_role),
-            'Administrator': (whitelist('value', 'minimalStep', 'guarantee') + Administrator_role),
+            'edit_active.tendering': edit_role,
+            'Administrator': Administrator_role,
         }
 
     awards = ListType(ModelType(Award), default=list())
@@ -276,6 +329,13 @@ class Auction(BaseAuction):
     lots = ListType(ModelType(Lot), default=list(), validators=[validate_lots_uniq, validate_not_available])
     items = ListType(ModelType(Item), required=True, min_size=1, validators=[validate_items_uniq])
     minNumberOfQualifiedBids = IntType(choices=[1, 2])
+
+    def __acl__(self):
+        return [
+            (Allow, '{}_{}'.format(self.owner, self.owner_token), 'edit_auction'),
+            (Allow, '{}_{}'.format(self.owner, self.owner_token), 'edit_auction_award'),
+            (Allow, '{}_{}'.format(self.owner, self.owner_token), 'upload_auction_documents'),
+        ]
 
     def initialize(self):
         if not self.enquiryPeriod:

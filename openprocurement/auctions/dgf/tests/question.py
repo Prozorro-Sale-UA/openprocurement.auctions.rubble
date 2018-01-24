@@ -159,7 +159,29 @@ class AuctionQuestionResourceTest(BaseAuctionWebTest):
             self.auction_id), {'data': {'title': 'question title', 'description': 'question description', 'author': self.initial_organization}}, status=403)
         self.assertEqual(response.status, '403 Forbidden')
         self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(response.json['errors'][0]["description"], "Can add question only in enquiryPeriod")
+        self.assertEqual(response.json['errors'][0]["description"], "Can add question only in tenderPeriod")
+
+    def test_create_auction_question_after_enquiryPeriod_endDate(self):
+        response = self.app.post_json('/auctions/{}/questions'.format(
+            self.auction_id), {'data': {'title': 'question title', 'description': 'question description', 'author': self.initial_organization}})
+        self.assertEqual(response.status, '201 Created')
+        self.assertEqual(response.content_type, 'application/json')
+        question = response.json['data']
+        self.assertEqual(question['author']['name'], self.initial_organization['name'])
+        self.assertIn('id', question)
+        self.assertIn(question['id'], response.headers['Location'])
+
+        self.go_to_enquiryPeriod_end()
+
+        response = self.app.post_json('/auctions/{}/questions'.format(
+            self.auction_id), {'data': {'title': 'question title', 'description': 'question description', 'author': self.initial_organization}})
+        self.assertEqual(response.status, '201 Created')
+        self.assertEqual(response.content_type, 'application/json')
+
+        response = self.app.patch_json('/auctions/{}/questions/{}'.format(self.auction_id, question['id']), {"data": {"answer": "answer"}})
+        self.assertEqual(response.status, '200 OK')
+        self.assertEqual(response.content_type, 'application/json')
+        self.assertEqual(response.json['data']["answer"], "answer")
 
     def test_patch_auction_question(self):
         response = self.app.post_json('/auctions/{}/questions'.format(

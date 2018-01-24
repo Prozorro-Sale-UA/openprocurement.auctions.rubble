@@ -1261,11 +1261,6 @@ class AuctionResourceTest(BaseWebTest):
 
         value = response.json['data']['value']
 
-        # Only amount change is allowed
-        response = self.app.patch_json('/auctions/{}'.format(auction['id']), {'data': { 'value': {'valueAddedTaxIncluded': False, 'amount': value['amount']},
-                                                                                        'minimalStep':{'valueAddedTaxIncluded': False}}}, status=403)
-        self.assertEqual(response.json['errors'][0], {u'description': u'Only amount change is allowed', u'location': u'body', u'name': u'data'})
-
         # 422 very low amount
         response = self.app.patch_json('/auctions/{}'.format(auction['id']),{'data': {'value': {'amount': auction['value']['amount'] - 80}}}, status=422)
         self.assertEqual(response.json['errors'], [{'location': 'body', 'name': 'minimalStep', 'description': [u'value should be less than value of auction']}])
@@ -1502,6 +1497,13 @@ class AuctionFieldsEditingTest(BaseAuctionWebTest):
         self.assertEqual(response.content_type, 'application/json')
         self.assertNotEqual(response.json['data']['dgfID'], auction['dgfID'])
         self.assertEqual(response.json['data']['dgfID'], auction['dgfID'] + u'EDITED')
+
+        response = self.app.patch_json('/auctions/{}'.format(self.auction_id), {'data': { 'value': {'valueAddedTaxIncluded': False, 'amount': auction['value']['amount']},
+                                                                                        'minimalStep':{'valueAddedTaxIncluded': False}}})
+        self.assertEqual(response.status, '200 OK')
+        self.assertEqual(response.content_type, 'application/json')
+        self.assertEqual(response.json['data']['value']['valueAddedTaxIncluded'], False)
+        self.assertEqual(response.json['data']['minimalStep']['valueAddedTaxIncluded'], False)
 
     def test_invalidate_bids_auction_unsuccessful(self):
 

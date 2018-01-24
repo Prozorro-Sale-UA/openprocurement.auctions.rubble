@@ -3,23 +3,6 @@ from openprocurement.api.utils import error_handler
 from openprocurement.api.models import get_now, TZ
 
 
-def validate_price_only_amount_changed(request):
-    """
-        Validate value, minimalStep, guarantee 
-        only amount change
-    """
-    if request.context.status != 'active.tendering':
-        return
-
-    for k in [k for k in request.json['data'] if k in ('value', 'minimalStep', 'guarantee')]:
-        if any([request.validated['data'][k][i] != request.context[k][i] for i in request.validated['data'][k] if
-                i != 'amount']):
-            request.errors.add('body', 'data', 'Only amount change is allowed')
-
-        if request.errors:
-            request.errors.status = 403
-            raise error_handler(request.errors)
-
 def validate_enquiry_period_editing(request):
     if request.context.status == 'active.tendering' and request.authenticated_role not in ['chronograph', 'Administrator']:
         auction = request.validated['auction']

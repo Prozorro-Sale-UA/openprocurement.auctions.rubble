@@ -12,7 +12,12 @@ from openprocurement.auctions.core.utils import (
     check_auction_status, remove_draft_bids
 )
 
-from .constants import DOCUMENT_TYPE_URL_ONLY, DOCUMENT_TYPE_OFFLINE
+from .constants import (
+    DOCUMENT_TYPE_URL_ONLY,
+    DOCUMENT_TYPE_OFFLINE,
+    NUMBER_OF_BIDS_TO_BE_QUALIFIED
+)
+
 
 PKG = get_distribution(__package__)
 LOGGER = getLogger(PKG.project_name)
@@ -70,15 +75,24 @@ def check_auction_status(request):
 
 
 def create_awards(request):
+    """
+        Function create NUMBER_OF_BIDS_TO_BE_QUALIFIED awards objects
+        First award always in pending.verification status
+        others in pending.waiting status
+    """
     auction = request.validated['auction']
     auction.status = 'active.qualification'
     now = get_now()
     auction.awardPeriod = type(auction).awardPeriod({'startDate': now})
-
     bids = chef(auction.bids, auction.features or [], [], True)
-    for i, bid in enumerate(bids):
-        bid = bid.serialize()
-        status = 'pending.verification' if i == 0 else 'pending.waiting'
+    # minNumberOfQualifiedBids == 1
+    bids_to_qualify = NUMBER_OF_BIDS_TO_BE_QUALIFIED if len(bids) > 1 else 1
+
+    for i in xrange(0, bids_to_qualify):
+        status = 'pending.waiting'
+        if i == 0:
+            status = 'pending.verification'
+        bid = bids[i].serialize()
         award = type(auction).awards.model_class({
             '__parent__': request.context,
             'bid_id': bid['id'],
@@ -88,9 +102,15 @@ def create_awards(request):
             'suppliers': bid['tenderers'],
             'complaintPeriod': {'startDate': now}
         })
+        if bid['status'] == 'invalid':
+            award.status = 'unsuccessful'
+            award.complaintPeriod.endDate = now
         if award.status == 'pending.verification':
             award.verificationPeriod = award.paymentPeriod = award.signingPeriod = {'startDate': now}
-            request.response.headers['Location'] = request.route_url('{}:Auction Awards'.format(auction.procurementMethodType), auction_id=auction.id, award_id=award['id'])
+            request.response.headers['Location'] = request.route_url('{}:Auction Awards'.format(
+                auction.procurementMethodType),
+                auction_id=auction.id,
+                award_id=award['id'])
         auction.awards.append(award)
 
 
@@ -175,3 +195,31 @@ def calculate_enddate(auction, period, duration):
     period.endDate = calculate_business_date(period.startDate, duration, auction, True)
     round_to_18_hour_delta = period.endDate.replace(hour=18, minute=0, second=0) - period.endDate
     period.endDate = calculate_business_date(period.endDate, round_to_18_hour_delta, auction, False)
+
+
+def get_auction_creation_date(data):
+    auction_creation_date = (data.get('revisions')[0].date if data.get('revisions') else get_now())
+    return auction_creation_date
+
+
+def remove_invalid_bids(request):
+    auction = request.validated['auction']
+    if [bid for bid in auction.bids if getattr(bid, "status", "active") == "invalid"]:
+        LOGGER.info('Remove invalid bids',
+                    extra=context_unpack(request, {'MESSAGE_ID': 'remove_invalid_bids'}))
+        auction.bids = [bid for bid in auction.bids if getattr(bid, "status", "active") != "invalid"]
+
+
+def invalidate_bids_data(request):
+    auction = request.validated['auction']
+    for bid in auction.bids:
+        setattr(bid, "status", "invalid")
+
+
+def invalidate_bids_under_threshold(auction):
+    """Invalidate bids that lower value.amount + minimalStep.amount"""
+    value_threshold = round(auction['value']['amount'] +
+                            auction['minimalStep']['amount'], 2)
+    for bid in auction['bids']:
+        if bid['value']['amount'] < value_threshold:
+            bid['status'] = 'invalid'

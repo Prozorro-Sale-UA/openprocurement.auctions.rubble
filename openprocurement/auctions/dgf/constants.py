@@ -31,3 +31,4 @@ DGF_DECISION_REQUIRED_FROM = datetime(2017, 1, 1, tzinfo=TZ)
 CAVPS_CODES = read_json('cav_ps.json')
 CPVS_CODES = read_json('cpvs.json')
 ORA_CODES[0:0] = ["UA-IPN", "UA-FIN"]
+NUMBER_OF_BIDS_TO_BE_QUALIFIED = 2

@@ -8,7 +8,7 @@ from iso8601 import parse_date
 
 from openprocurement.api.utils import ROUTE_PREFIX
 from openprocurement.api.models import get_now, SANDBOX_MODE, TZ
-from openprocurement.auctions.dgf.models import DGFOtherAssets, DGFFinancialAssets, DGF_ID_REQUIRED_FROM, CLASSIFICATION_PRECISELY_FROM, DGF_ADDRESS_LOCATION_REQUIRED_FROM
+from openprocurement.auctions.dgf.models import DGFOtherAssets, DGFFinancialAssets, DGF_ID_REQUIRED_FROM, CLASSIFICATION_PRECISELY_FROM, DGF_ADDRESS_REQUIRED_FROM
 from openprocurement.auctions.dgf.tests.base import test_auction_data, test_financial_auction_data, test_organization, test_financial_organization, BaseWebTest, BaseAuctionWebTest, DEFAULT_ACCELERATION
 
 
@@ -625,8 +625,8 @@ class AuctionResourceTest(BaseWebTest):
         self.assertIn('dgfID', auction)
         self.assertEqual(data['dgfID'], auction['dgfID'])
 
-    @unittest.skipIf(get_now() < DGF_ADDRESS_LOCATION_REQUIRED_FROM, "Can`t create auction without item.location and item.address only from {}".format(DGF_ADDRESS_LOCATION_REQUIRED_FROM))
-    def test_required_dgf_item_address_location(self):
+    @unittest.skipIf(get_now() < DGF_ADDRESS_REQUIRED_FROM, "Can`t create auction without item.address only from {}".format(DGF_ADDRESS_REQUIRED_FROM))
+    def test_required_dgf_item_address(self):
         auction_data = deepcopy(self.initial_data)
         del auction_data['items'][0]['address']
 
@@ -640,10 +640,7 @@ class AuctionResourceTest(BaseWebTest):
         self.assertEqual(response.status, '422 Unprocessable Entity')
         self.assertEqual(response.content_type, 'application/json')
         self.assertEqual(response.json['status'], 'error')
-        self.assertEqual(response.json['errors'][0]['location'], "body")
-        self.assertEqual(response.json['errors'][0]['name'], "items")
-        self.assertIn({"address":  ["This field is required."],
-                       "location": ["This field is required."]}, response.json['errors'][0]['description'])
+        self.assertEqual(response.json['errors'], [{"location": "body", "name": "items", "description": [{"address": ["This field is required."]}]}])
 
         # CPV non specific location code test
         auction_data['items'][0]['classification'] = {
@@ -655,10 +652,7 @@ class AuctionResourceTest(BaseWebTest):
         self.assertEqual(response.status, '422 Unprocessable Entity')
         self.assertEqual(response.content_type, 'application/json')
         self.assertEqual(response.json['status'], 'error')
-        self.assertEqual(response.json['errors'][0]['location'], "body")
-        self.assertEqual(response.json['errors'][0]['name'], "items")
-        self.assertIn({"address": ["This field is required."],
-                       "location": ["This field is required."]}, response.json['errors'][0]['description'])
+        self.assertEqual(response.json['errors'], [{"location": "body", "name": "items", "description": [{"address": ["This field is required."]}]}])
 
         auction_data['items'][0]['classification'] = {
             "scheme": u"CPV",

@@ -26,7 +26,7 @@ MINIMAL_EXPOSITION_REQUIRED_FROM = datetime(2017, 11, 17, tzinfo=TZ)
 CLASSIFICATION_PRECISELY_FROM = datetime(2017, 7, 19, tzinfo=TZ)
 DGF_ID_REQUIRED_FROM = datetime(2017, 1, 1, tzinfo=TZ)
 DGF_DECISION_REQUIRED_FROM = datetime(2017, 1, 1, tzinfo=TZ)
-DGF_ADDRESS_LOCATION_REQUIRED_FROM = datetime(2017, 1, 1, tzinfo=TZ)
+DGF_ADDRESS_REQUIRED_FROM = datetime(2017, 1, 1, tzinfo=TZ)
 
 #codes
 CAVPS_CODES = read_json('cav_ps.json')

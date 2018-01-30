@@ -54,7 +54,7 @@ class AuctionTest(BaseWebTest):
     def test_edit_role(self):
         fields = set([
             'description', 'description_en', 'description_ru',
-            'features', 'hasEnquiries', 'items',
+            'features', 'hasEnquiries', 'items', 'procuringEntity',
             'value', 'minimalStep', 'guarantee', 'tenderAttempts', 'title_en', 'dgfID', 'title_ru',
             'title'
         ])

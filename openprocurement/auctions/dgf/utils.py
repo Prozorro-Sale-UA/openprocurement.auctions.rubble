@@ -86,12 +86,11 @@ def create_awards(request):
     auction.awardPeriod = type(auction).awardPeriod({'startDate': now})
     bids = chef(auction.bids, auction.features or [], [], True)
     # minNumberOfQualifiedBids == 1
-    bids_to_qualify = NUMBER_OF_BIDS_TO_BE_QUALIFIED if len(bids) > 1 else 1
-
+    bids_to_qualify = NUMBER_OF_BIDS_TO_BE_QUALIFIED \
+        if (len(bids) > NUMBER_OF_BIDS_TO_BE_QUALIFIED) \
+        else len(bids)
     for i in xrange(0, bids_to_qualify):
-        status = 'pending.waiting'
-        if i == 0:
-            status = 'pending.verification'
+        status = 'pending.verification' if i == 0 else 'pending.waiting'
         bid = bids[i].serialize()
         award = type(auction).awards.model_class({
             '__parent__': request.context,

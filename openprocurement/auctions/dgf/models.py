@@ -35,7 +35,10 @@ from .constants import (
     DOCUMENT_TYPE_URL_ONLY, CLASSIFICATION_PRECISELY_FROM,
     DGF_ID_REQUIRED_FROM, CAVPS_CODES,
     CPVS_CODES, ORA_CODES, MINIMAL_EXPOSITION_PERIOD,
-    MINIMAL_EXPOSITION_REQUIRED_FROM
+    MINIMAL_EXPOSITION_REQUIRED_FROM,
+    CPV_NON_SPECIFIC_LOCATION_UNITS,
+    CAV_NON_SPECIFIC_LOCATION_UNITS,
+    DGF_ADDRESS_LOCATION_REQUIRED_FROM
 )
 
 
@@ -70,6 +73,18 @@ class Item(BaseItem):
     additionalClassifications = ListType(ModelType(AdditionalClassification), default=list())
     address = ModelType(Address)
     location = ModelType(Location)
+
+    def validate_address(self, data, address):
+        if (data.get('revisions')[0].date if data.get('revisions') else get_now()) > DGF_ADDRESS_LOCATION_REQUIRED_FROM:
+            if (data['classification']['scheme'] == u'CAV-PS' and data['classification']['id'].startswith(CAV_NON_SPECIFIC_LOCATION_UNITS) or
+                    data['classification']['scheme'] == u'CPV' and data['classification']['id'].startswith(CPV_NON_SPECIFIC_LOCATION_UNITS)):
+                raise ValidationError(u'This field is required.')
+
+    def validate_location(self, data, location):
+        if (data.get('revisions')[0].date if data.get('revisions') else get_now()) > DGF_ADDRESS_LOCATION_REQUIRED_FROM:
+            if (data['classification']['scheme'] == u'CAV-PS' and data['classification']['id'].startswith(CAV_NON_SPECIFIC_LOCATION_UNITS) or
+                    data['classification']['scheme'] == u'CPV' and data['classification']['id'].startswith(CPV_NON_SPECIFIC_LOCATION_UNITS)):
+                raise ValidationError(u'This field is required.')
 
 
 class Identifier(BaseIdentifier):

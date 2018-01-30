@@ -196,25 +196,6 @@ def calculate_enddate(auction, period, duration):
     period.endDate = calculate_business_date(period.endDate, round_to_18_hour_delta, auction, False)
 
 
-def get_auction_creation_date(data):
-    auction_creation_date = (data.get('revisions')[0].date if data.get('revisions') else get_now())
-    return auction_creation_date
-
-
-def remove_invalid_bids(request):
-    auction = request.validated['auction']
-    if [bid for bid in auction.bids if getattr(bid, "status", "active") == "invalid"]:
-        LOGGER.info('Remove invalid bids',
-                    extra=context_unpack(request, {'MESSAGE_ID': 'remove_invalid_bids'}))
-        auction.bids = [bid for bid in auction.bids if getattr(bid, "status", "active") != "invalid"]
-
-
-def invalidate_bids_data(request):
-    auction = request.validated['auction']
-    for bid in auction.bids:
-        setattr(bid, "status", "invalid")
-
-
 def invalidate_bids_under_threshold(auction):
     """Invalidate bids that lower value.amount + minimalStep.amount"""
     value_threshold = round(auction['value']['amount'] +

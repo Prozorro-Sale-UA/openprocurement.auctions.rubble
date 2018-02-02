@@ -12,7 +12,7 @@ from openprocurement.api.models import (
     BooleanType, ListType, Feature, Period, get_now, TZ, ComplaintModelType,
     validate_features_uniq, validate_lots_uniq, Identifier as BaseIdentifier,
     Classification, validate_items_uniq, ORA_CODES, Address, Location,
-    schematics_embedded_role, SANDBOX_MODE, CPV_CODES
+    schematics_embedded_role, SANDBOX_MODE, CPV_CODES, IsoDateTimeType
 )
 from openprocurement.api.utils import calculate_business_date
 from openprocurement.auctions.dgf.utils import get_auction_creation_date
@@ -26,7 +26,7 @@ from openprocurement.auctions.flash.models import (
     ProcuringEntity as BaseProcuringEntity, Question as BaseQuestion,
     get_auction, Administrator_role
 )
-from openprocurement.auctions.dgf.constants import (MINIMAL_EXPOSITION_PERIOD, MINIMAL_EXPOSITION_REQUIRED_FROM, MINIMAL_PERIOD_FROM_ENQUIRY_END, ENQUIRY_END_EDITING_AND_VALIDATION_REQUIRED_FROM)
+from openprocurement.auctions.dgf.constants import (MINIMAL_EXPOSITION_PERIOD, MINIMAL_EXPOSITION_REQUIRED_FROM, MINIMAL_PERIOD_FROM_RECTIFICATION_END, RECTIFICATION_END_EDITING_AND_VALIDATION_REQUIRED_FROM)
 
 
 def read_json(name):
@@ -268,7 +268,11 @@ class AuctionAuctionPeriod(Period):
             raise ValidationError(u'This field is required.')
 
 
-create_role = (blacklist('owner_token', 'owner', '_attachments', 'revisions', 'date', 'dateModified', 'doc_id', 'auctionID', 'bids', 'documents', 'awards', 'questions', 'complaints', 'auctionUrl', 'status', 'tenderPeriod', 'awardPeriod', 'procurementMethod', 'eligibilityCriteria', 'eligibilityCriteria_en', 'eligibilityCriteria_ru', 'awardCriteria', 'submissionMethod', 'cancellations', 'numberOfBidders', 'contracts') + schematics_embedded_role)
+class RectificationPeriod(Period):
+    invalidationDate = IsoDateTimeType()
+
+
+create_role = (blacklist('owner_token', 'owner', '_attachments', 'revisions', 'date', 'dateModified', 'doc_id', 'auctionID', 'bids', 'documents', 'awards', 'questions', 'complaints', 'auctionUrl', 'status', 'enquiryPeriod', 'tenderPeriod', 'awardPeriod', 'procurementMethod', 'eligibilityCriteria', 'eligibilityCriteria_en', 'eligibilityCriteria_ru', 'awardCriteria', 'submissionMethod', 'cancellations', 'numberOfBidders', 'contracts') + schematics_embedded_role)
 
 
 @implementer(IAuction)
@@ -277,8 +281,8 @@ class Auction(BaseAuction):
     class Options:
         roles = {
             'create': create_role,
-            'edit_active.tendering': (blacklist('enquiryPeriod', 'tenderPeriod', 'auction_value', 'auction_minimalStep', 'auction_guarantee', 'eligibilityCriteria', 'eligibilityCriteria_en', 'eligibilityCriteria_ru', 'minNumberOfQualifiedBids') + edit_role),
-            'Administrator': (whitelist('value', 'minimalStep', 'guarantee') + Administrator_role),
+            'edit_active.tendering': (blacklist('enquiryPeriod', 'tenderPeriod', 'rectificationPeriod', 'auction_value', 'auction_minimalStep', 'auction_guarantee', 'eligibilityCriteria', 'eligibilityCriteria_en', 'eligibilityCriteria_ru', 'minNumberOfQualifiedBids') + edit_role),
+            'Administrator': (whitelist('rectificationPeriod') + Administrator_role),
         }
 
     awards = ListType(ModelType(Award), default=list())
@@ -289,6 +293,7 @@ class Auction(BaseAuction):
     dgfID = StringType()
     documents = ListType(ModelType(Document), default=list())  # All documents and attachments related to the auction.
     enquiryPeriod = ModelType(Period)  # The period during which enquiries may be made and will be answered.
+    rectificationPeriod = ModelType(RectificationPeriod)  # The period during which editing of main procedure fields are allowed
     tenderPeriod = ModelType(Period)  # The period when the auction is open for submissions. The end date is the closing date for auction submissions.
     tenderAttempts = IntType(choices=[1, 2, 3, 4])
     auctionPeriod = ModelType(AuctionAuctionPeriod, required=True, default={})
@@ -306,16 +311,19 @@ class Auction(BaseAuction):
             self.enquiryPeriod = type(self).enquiryPeriod.model_class()
         if not self.tenderPeriod:
             self.tenderPeriod = type(self).tenderPeriod.model_class()
+        if not self.rectificationPeriod:
+            self.rectificationPeriod = type(self).rectificationPeriod.model_class()
         now = get_now()
-        self.tenderPeriod.startDate = self.enquiryPeriod.startDate = now
+        self.tenderPeriod.startDate = self.enquiryPeriod.startDate = self.rectificationPeriod.startDate = now
         pause_between_periods = self.auctionPeriod.startDate - (self.auctionPeriod.startDate.replace(hour=20, minute=0, second=0, microsecond=0) - timedelta(days=1))
-        self.tenderPeriod.endDate = calculate_business_date(self.auctionPeriod.startDate, -pause_between_periods, self)
-        if not self.enquiryPeriod.endDate:
-            enquiryPeriod_calculated_endDate = calculate_business_date(self.tenderPeriod.endDate, -MINIMAL_PERIOD_FROM_ENQUIRY_END, self)
-            if enquiryPeriod_calculated_endDate > now:
-                self.enquiryPeriod.endDate = enquiryPeriod_calculated_endDate
+        self.tenderPeriod.endDate = self.enquiryPeriod.endDate = calculate_business_date(self.auctionPeriod.startDate, -pause_between_periods, self)
+        if not self.rectificationPeriod.endDate:
+            rectificationPeriod_calculated_endDate = calculate_business_date(self.tenderPeriod.endDate, -MINIMAL_PERIOD_FROM_RECTIFICATION_END, self)
+            if rectificationPeriod_calculated_endDate > now:
+                self.rectificationPeriod.endDate = rectificationPeriod_calculated_endDate
             else:
-                self.enquiryPeriod.endDate = now
+                self.rectificationPeriod.endDate = now
+        self.rectificationPeriod.invalidationDate = None
         self.auctionPeriod.startDate = None
         self.auctionPeriod.endDate = None
         self.date = now
@@ -332,13 +340,13 @@ class Auction(BaseAuction):
         if calculate_business_date(period.startDate, MINIMAL_EXPOSITION_PERIOD, data) > period.endDate:
             raise ValidationError(u"tenderPeriod should be greater than 6 days")
 
-    def validate_enquiryPeriod(self, data, period):
+    def validate_rectificationPeriod(self, data, period):
         if not (period and period.startDate) or not period.endDate:
             return
-        if get_auction_creation_date(data) < ENQUIRY_END_EDITING_AND_VALIDATION_REQUIRED_FROM:
+        if get_auction_creation_date(data) < RECTIFICATION_END_EDITING_AND_VALIDATION_REQUIRED_FROM:
             return
-        if period.endDate > calculate_business_date(data['tenderPeriod']['endDate'], -MINIMAL_PERIOD_FROM_ENQUIRY_END, data):
-            raise ValidationError(u"enquiryPeriod.endDate should come at least 5 working days earlier than tenderPeriod.endDate")
+        if period.endDate > calculate_business_date(data['tenderPeriod']['endDate'], -MINIMAL_PERIOD_FROM_RECTIFICATION_END, data):
+            raise ValidationError(u"rectificationPeriod.endDate should come at least 5 working days earlier than tenderPeriod.endDate")
             
     def validate_value(self, data, value):
         if value.currency != u'UAH':

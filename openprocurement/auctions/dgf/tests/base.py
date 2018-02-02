@@ -240,14 +240,18 @@ class BaseAuctionWebTest(FlashBaseAuctionWebTest):
     initial_data = test_auction_data
     initial_organization = test_organization
 
-    def go_to_enquiryPeriod_end(self):
+    def go_to_rectificationPeriod_end(self):
         now = get_now()
         self.set_status('active.tendering', {
-            "enquiryPeriod": {
+            "rectificationPeriod": {
                 "startDate": (now - timedelta(days=14)).isoformat(),
                 "endDate": (now - (timedelta(minutes=6) if SANDBOX_MODE else timedelta(days=6))).isoformat()
             },
             "tenderPeriod": {
+                "startDate": (now - timedelta(days=14)).isoformat(),
+                "endDate": (now + (timedelta(minutes=1) if SANDBOX_MODE else timedelta(days=1))).isoformat()
+            },
+            "enquiryPeriod": {
                 "startDate": (now - timedelta(days=14)).isoformat(),
                 "endDate": (now + (timedelta(minutes=1) if SANDBOX_MODE else timedelta(days=1))).isoformat()
             },
@@ -262,6 +266,10 @@ class BaseAuctionWebTest(FlashBaseAuctionWebTest):
             data.update({
                 "enquiryPeriod": {
                     "startDate": (now).isoformat(),
+                    "endDate": (now + timedelta(days=7)).isoformat()
+                },
+                "rectificationPeriod": {
+                    "startDate": (now).isoformat(),
                     "endDate": (now + timedelta(days=1)).isoformat()
                 },
                 "tenderPeriod": {
@@ -272,6 +280,10 @@ class BaseAuctionWebTest(FlashBaseAuctionWebTest):
         elif status == 'active.auction':
             data.update({
                 "enquiryPeriod": {
+                    "startDate": (now - timedelta(days=7)).isoformat(),
+                    "endDate": (now).isoformat()
+                },
+                "rectificationPeriod": {
                     "startDate": (now - timedelta(days=7)).isoformat(),
                     "endDate": (now - timedelta(days=6)).isoformat()
                 },
@@ -297,6 +309,10 @@ class BaseAuctionWebTest(FlashBaseAuctionWebTest):
         elif status == 'active.qualification':
             data.update({
                 "enquiryPeriod": {
+                    "startDate": (now - timedelta(days=8)).isoformat(),
+                    "endDate": (now - timedelta(days=1)).isoformat()
+                },
+                "rectificationPeriod": {
                     "startDate": (now - timedelta(days=8)).isoformat(),
                     "endDate": (now - timedelta(days=6)).isoformat()
                 },
@@ -328,6 +344,10 @@ class BaseAuctionWebTest(FlashBaseAuctionWebTest):
             data.update({
                 "enquiryPeriod": {
                     "startDate": (now - timedelta(days=8)).isoformat(),
+                    "endDate": (now - timedelta(days=1)).isoformat()
+                },
+                "rectificationPeriod": {
+                    "startDate": (now - timedelta(days=8)).isoformat(),
                     "endDate": (now - timedelta(days=6)).isoformat()
                 },
                 "tenderPeriod": {
@@ -358,6 +378,10 @@ class BaseAuctionWebTest(FlashBaseAuctionWebTest):
         elif status == 'complete':
             data.update({
                 "enquiryPeriod": {
+                    "startDate": (now - timedelta(days=18)).isoformat(),
+                    "endDate": (now - timedelta(days=11)).isoformat()
+                },
+                "rectificationPeriod": {
                     "startDate": (now - timedelta(days=18)).isoformat(),
                     "endDate": (now - timedelta(days=17)).isoformat()
                 },

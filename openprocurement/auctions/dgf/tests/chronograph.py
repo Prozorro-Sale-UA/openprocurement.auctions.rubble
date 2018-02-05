@@ -182,9 +182,11 @@ class AuctionAuctionPeriodResourceTest(BaseAuctionWebTest):
         auction = self.db.get(self.auction_id)
         self.assertGreater(auction['next_check'], response.json['data']['tenderPeriod']['endDate'])
         auction['tenderPeriod']['endDate'] = auction['tenderPeriod']['startDate']
-        auction['tenderPeriod']['startDate'] = (datetime.strptime(auction['tenderPeriod']['endDate'][:19], "%Y-%m-%dT%H:%M:%S")  - timedelta(days=10)).isoformat()
-        auction['enquiryPeriod']['startDate'] = (datetime.strptime(auction['tenderPeriod']['endDate'][:19], "%Y-%m-%dT%H:%M:%S")  - timedelta(days=10)).isoformat()
-        auction['enquiryPeriod']['endDate'] = (datetime.strptime(auction['tenderPeriod']['endDate'][:19], "%Y-%m-%dT%H:%M:%S")  - timedelta(days=5)).isoformat()
+        auction['tenderPeriod']['startDate'] = (datetime.strptime(auction['tenderPeriod']['endDate'][:19], "%Y-%m-%dT%H:%M:%S") - timedelta(days=10)).isoformat()
+        auction['enquiryPeriod']['startDate'] = auction['tenderPeriod']['startDate']
+        auction['enquiryPeriod']['endDate'] = auction['tenderPeriod']['endDate']
+        auction['rectificationPeriod']['startDate'] = (datetime.strptime(auction['tenderPeriod']['endDate'][:19], "%Y-%m-%dT%H:%M:%S") - timedelta(days=10)).isoformat()
+        auction['rectificationPeriod']['endDate'] = (datetime.strptime(auction['tenderPeriod']['endDate'][:19], "%Y-%m-%dT%H:%M:%S") - timedelta(days=5)).isoformat()
         if self.initial_lots:
             auction['lots'][0]['auctionPeriod']['startDate'] = auction['tenderPeriod']['endDate']
         else:

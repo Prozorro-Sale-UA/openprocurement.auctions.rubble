@@ -433,7 +433,7 @@ class AuctionBidInvalidationAuctionResourceTest(BaseAuctionWebTest):
         for i in range(3)
     ]
 
-    def test_post_auction_all_inva lid_bids(self):
+    def test_post_auction_all_invalid_bids(self):
         self.app.authorization = ('Basic', ('auction', ''))
 
         response = self.app.post_json('/auctions/{}/auction'.format(self.auction_id),

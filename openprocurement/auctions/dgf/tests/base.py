@@ -471,10 +471,8 @@ class BaseAuctionWebTest(FlashBaseAuctionWebTest):
         self.assertEqual('active.qualification', auction["status"])
         self.first_award = auction['awards'][0]
         self.second_award = auction['awards'][1]
-        self.third_award = auction['awards'][2]
         self.first_award_id = self.first_award['id']
         self.second_award_id = self.second_award['id']
-        self.third_award_id = self.third_award['id']
         self.app.authorization = authorization
 
     def generate_docservice_url(self):

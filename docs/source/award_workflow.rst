@@ -50,18 +50,21 @@ Roles
 Procedure Description
 ---------------------
 
-1. The award with the highest qualifying bid initially receives a "pending.verification" status. The procedure enters the "verificationPeriod" stage. When the protocol is uploaded and confirmed by the organizer, the award should be manually switched to "pending.payment" status.
-2. When the organizer confirms that the payment has been received, the award has to be switched to the "active" status, while the procedure moves to the status "signingPeriod". Within this stage the organizer should upload and activate the contract in the system.
-3. For the next bidder to be qualified, the organizer should check tha status of the previous one to "unsuccessful" first and then switch the next award to "pending.verification".
+1. The awards are created for 2 participants whose bids were the highest within the auction. Note that the participants with valid bids only can be qualified.  
+2. The award with the highest valid bid initially receives `pending.verification` status (the second one is in `pending.waiting`). The procedure enters the verificationPeriod phase (status: `active.qualification`). When the protocol is uploaded and confirmed by the Organizer, the award should be manually switched to `pending.payment` status. Simultaneously the procedure enters the signingPeriod phase (status: `active.awarded`).
+3. When the payment has been received, the Organizer should switch award to `active`. Thereby, the contract is being created for this award in `pending` status and the procedure enters the signingPeriod phase (status: `active.awarded`). Within this stage the Organizer should upload the document and switch contract to active.
+4. For the next bidder to be qualified, the Organizer should check the status of the previous one to unsuccessful first and then switch the next award to pending.verification.
 
 Notes
 -----
 
-1. The organizer can disqualify the award at any stage of the awarding process up until the moment, when the contract has been uploaded and activated in the system.
-2. The second highest qualifying bidder can disqualify himself/herself at any point in time BEFORE the start of his/her qualification process.
-3. The awards are formed for all of the bidders.
-4. All of the statuses are switched manually. Start and end dates of the periods do not influence the actions available to be done (completed).  
-
+1. For the bidder to be qualified and not invalidated, his/her bid should be equal to or exceed the starting price of the auction + the minimal step of the auction.
+    * In case the first two highest bids do not exceed the amount of starting price + the minimal step, the awards are not being formed at all, and the procedure automatically becomes “unsuccessful”.
+    * In case the second highest bid is smaller than the starting price + the minimal step, two awards are formed with the smaller one becoming unsuccessful immediately. The first highest bid (if larger than the starting price + minimum step) undergoes the awarding procedure and can win the auction.
+2. The Organizer can disqualify the award at any stage of the awarding process up until the moment, when the contract has been uploaded and activated in the system.
+3. The second highest qualifying bidder can disqualify himself/herself (switch award to `cancelled`) at any point of time BEFORE the start of his/her qualification process.
+4. All of the statuses are switched manually. Start and end dates of the periods do not influence the actions available to be done (completed).
+5. In case of the Organizer noted minNumberOfQualifiedBids: 1 and only one bidder submitted the proposal, the auction would be oveleaped and this participant would become the qualified one.
 
 Statuses
 --------

@@ -92,8 +92,31 @@ msgstr ""
 "Додатково оновлена властивість `dateModified`, щоб відображати останню дату "
 "модифікації."
 
+msgid "Keep in mind, that every time Organizer edits the auction all bids will be switched to `invalid` status."
+msgstr "Пам'ятайте, що кожного разу, коли Організатор редагує аукціон, статус всіх ставок перемикається на `invalid`."
+
+msgid "Bidders can reactivate their bids."
+msgstr "Після цього учасники можуть наново активувати власні ставки."
+
 msgid "Checking the listing again reflects the new modification date:"
 msgstr "Ще одна перевірка списку відображає нову дату модифікації:"
+
+msgid "Organizer can edit procedure only during *enquiryPeriod*."
+msgstr "Організатор може редагувати аукціон тільки впродовж *enquiryPeriod*. "
+
+msgid "When this period ends 403 error will be returned on editing attempt:"
+msgstr "Після закінчення цього періоду на спробу редагування буде повернуто помилку 403: "
+
+msgid "Organizer can set *enquiryPeriod.endDate*. The difference between the given date and *tenderPeriod.endDate* should not be less than 5 working days."
+msgstr "Організатор має можливість встановити *enquiryPeriod.endDate*. Ця дата повинна бути не пізніша, ніж за 5 днів до *tenderPeriod.endDate*."
+
+msgid "If the duration between *enquiryPeriod.endDate* provided by Organizer and *tenderPeriod.endDate* is less than 5 days `422 Unprocessable Entity` response will be returned with the error message '*enquiryPeriod.endDate* should come at least 5 working days earlier than tenderPeriod.endDate.'"
+msgstr "Якщо *enquiryPeriod.endDate*, яку передав Організатор, буде ближчою, ніж 5 днів до *tenderPeriod.endDate*, "
+"згенерується помилка `422 Unprocessable Entity` та у JSON відповіді буде передано повідомлення "
+"'*enquiryPeriod.endDate* should come at least 5 working days earlier than tenderPeriod.endDate.'"
+
+msgid "If Organizer does not set *enquiryPeriod.endDate* it will be calculated automatically as *tenderPeriod.endDate* minus 5 working days."
+msgstr "Якщо *enquiryPeriod.endDate* не передано Організатором, кінцева дата періоду встановлюється автоматично на дату за 5 робочих днів до *tenderPeriod.endDate*."
 
 msgid "Uploading documentation"
 msgstr "Завантаження документації"

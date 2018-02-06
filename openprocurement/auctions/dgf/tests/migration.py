@@ -106,11 +106,11 @@ class MigrateTestFrom1To2Bids(BaseAuctionWebTest):
         auction['awards'] = [award]
         auction.update({
             "enquiryPeriod": {
-                "startDate": (now - timedelta(days=8)).isoformat(),
-                "endDate": (now - timedelta(days=1)).isoformat()
+                "startDate": (now - timedelta(days=15)).isoformat(),
+                "endDate": (now - timedelta(days=7)).isoformat()
             },
             "tenderPeriod": {
-                "startDate": (now - timedelta(days=8)).isoformat(),
+                "startDate": (now - timedelta(days=15)).isoformat(),
                 "endDate": (now - timedelta(days=1)).isoformat()
             },
             "auctionPeriod": {
@@ -430,11 +430,11 @@ class MigrateTestFrom1To2WithTwoBids(BaseAuctionWebTest):
         auction['awards'] = [award]
         auction.update({
             "enquiryPeriod": {
-                "startDate": (now - timedelta(days=8)).isoformat(),
-                "endDate": (now - timedelta(days=1)).isoformat()
+                "startDate": (now - timedelta(days=15)).isoformat(),
+                "endDate": (now - timedelta(days=7)).isoformat()
             },
             "tenderPeriod": {
-                "startDate": (now - timedelta(days=8)).isoformat(),
+                "startDate": (now - timedelta(days=15)).isoformat(),
                 "endDate": (now - timedelta(days=1)).isoformat()
             },
             "auctionPeriod": {
@@ -515,11 +515,11 @@ class MigrateTestFrom1To2WithTwoBids(BaseAuctionWebTest):
         auction['awards'] = [award]
         auction.update({
             "enquiryPeriod": {
-                "startDate": (now - timedelta(days=8)).isoformat(),
-                "endDate": (now - timedelta(days=1)).isoformat()
+                "startDate": (now - timedelta(days=15)).isoformat(),
+                "endDate": (now - timedelta(days=7)).isoformat()
             },
             "tenderPeriod": {
-                "startDate": (now - timedelta(days=8)).isoformat(),
+                "startDate": (now - timedelta(days=15)).isoformat(),
                 "endDate": (now - timedelta(days=1)).isoformat()
             },
             "auctionPeriod": {
@@ -755,11 +755,11 @@ class MigrateTestFrom1To2WithTwoBids(BaseAuctionWebTest):
 
         auction.update({
             "enquiryPeriod": {
-                "startDate": (now - timedelta(days=8)).isoformat(),
-                "endDate": (now - timedelta(days=1)).isoformat()
+                "startDate": (now - timedelta(days=15)).isoformat(),
+                "endDate": (now - timedelta(days=9)).isoformat()
             },
             "tenderPeriod": {
-                "startDate": (now - timedelta(days=8)).isoformat(),
+                "startDate": (now - timedelta(days=15)).isoformat(),
                 "endDate": (now - timedelta(days=1)).isoformat()
             },
             "auctionPeriod": {
@@ -986,11 +986,11 @@ class MigrateTestFrom1To2WithTwoBids(BaseAuctionWebTest):
 
         auction.update({
             "enquiryPeriod": {
-                "startDate": (now - timedelta(days=8)).isoformat(),
-                "endDate": (now - timedelta(days=1)).isoformat()
+                "startDate": (now - timedelta(days=15)).isoformat(),
+                "endDate": (now - timedelta(days=7)).isoformat()
             },
             "tenderPeriod": {
-                "startDate": (now - timedelta(days=8)).isoformat(),
+                "startDate": (now - timedelta(days=15)).isoformat(),
                 "endDate": (now - timedelta(days=1)).isoformat()
             },
             "auctionPeriod": {

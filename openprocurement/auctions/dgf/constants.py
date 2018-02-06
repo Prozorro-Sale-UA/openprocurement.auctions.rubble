@@ -17,6 +17,7 @@ DOCUMENT_TYPE_URL_ONLY = ['virtualDataRoom']
 
 #requiremnt periods
 MINIMAL_EXPOSITION_PERIOD = timedelta(days=7)
+MINIMAL_PERIOD_FROM_ENQUIRY_END = timedelta(days=5)
 VERIFY_AUCTION_PROTOCOL_TIME = timedelta(days=6)
 AWARD_PAYMENT_TIME = timedelta(days=20)
 CONTRACT_SIGNING_TIME = timedelta(days=20)
@@ -26,7 +27,8 @@ MINIMAL_EXPOSITION_REQUIRED_FROM = datetime(2017, 11, 17, tzinfo=TZ)
 CLASSIFICATION_PRECISELY_FROM = datetime(2017, 7, 19, tzinfo=TZ)
 DGF_ID_REQUIRED_FROM = datetime(2017, 1, 1, tzinfo=TZ)
 DGF_DECISION_REQUIRED_FROM = datetime(2017, 1, 1, tzinfo=TZ)
-DGF_ADDRESS_REQUIRED_FROM = datetime(2017, 1, 1, tzinfo=TZ)
+DGF_ADDRESS_REQUIRED_FROM = datetime(2017, 2, 7, tzinfo=TZ)
+ENQUIRY_END_EDITING_AND_VALIDATION_REQUIRED_FROM = datetime(2018, 01, 22, tzinfo=TZ)
 
 #codes
 CAVPS_CODES = read_json('cav_ps.json')

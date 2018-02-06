@@ -3,12 +3,12 @@
 import json
 import os
 from datetime import timedelta, datetime
-from uuid import uuid4
 
 from openprocurement.api.models import get_now
 import openprocurement.auctions.dgf.tests.base as base_test
 from openprocurement.auctions.flash.tests.base import PrefixedRequestClass
 from openprocurement.auctions.dgf.tests.base import test_auction_data as base_test_auction_data, test_bids, test_financial_bids
+from openprocurement.auctions.dgf.tests.base import test_auction_maximum_data
 from openprocurement.auctions.dgf.tests.tender import BaseAuctionWebTest
 from webtest import TestApp
 
@@ -120,20 +120,6 @@ cancellation = {
         'reason': 'cancellation reason'
     }
 }
-
-test_max_uid = uuid4().hex
-
-test_auction_maximum_data = test_auction_data.copy()
-test_auction_maximum_data.update({
-    "title_en": u"Cases with state awards",
-    "title_ru": u"футляры к государственным наградам",
-    "value": {
-        "amount": 500,
-        "currency": u"UAH"
-    },
-    "mode": u"test"
-})
-
 
 test_complaint_data = {'data':
         {
@@ -323,6 +309,12 @@ class AuctionResourceTest(BaseAuctionWebTest):
 
         self.app.authorization = ('Basic', ('broker', ''))
         self.auction_id = auction['id']
+        self.go_to_enquiryPeriod_end()
+        data = test_auction_data.copy()
+        with open('docs/source/tutorial/out-of-enquiryperiod-editing-denied.http', 'w') as self.app.file_obj:
+            response = self.app.patch_json('/auctions/{}?acc_token={}'.format(auction['id'], owner_token),
+            {"data": data}, status=403)
+            self.assertEqual(response.status, '403 Forbidden')
 
         # Uploading documentation
         #

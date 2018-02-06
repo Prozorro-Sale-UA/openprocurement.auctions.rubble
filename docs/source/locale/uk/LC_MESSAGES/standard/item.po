@@ -195,6 +195,11 @@ msgstr ""
 "СontractPeriod ідентифікує дату початку та завершення договору, підписаного під час проведення торгів з продажу майна (активів) банку. "
 "Також, contractPeriod може використовуватись для детермінування часового проміжку дії аренди."
 
+msgid "Additional classifier is CPVS. The property can be leased, when entering value PA01-7 "
+"in the classifier CPVS field."
+msgstr "Додатковим класифікатором є CPVS. Майно може бути здане в оренду, при передачі "
+"значення PA01-7 в полі класифікатора CPVS."
+
 #~ msgid "ID of related :ref:`lot`."
 #~ msgstr "ID пов’язаного :ref:`lot`."
 

@@ -2,7 +2,7 @@
 import unittest
 from datetime import datetime, timedelta
 from openprocurement.api.models import get_now
-from openprocurement.auctions.dgf.tests.base import BaseAuctionWebTest, test_lots, test_bids, test_financial_auction_data, test_financial_organization, test_financial_bids
+from openprocurement.auctions.dgf.tests.base import BaseAuctionWebTest, test_lots, test_bids, test_financial_auction_data, test_financial_organization, test_financial_bids, test_organization
 
 
 class AuctionSwitchQualificationResourceTest(BaseAuctionWebTest):
@@ -224,11 +224,6 @@ class AuctionAuctionPeriodResourceTest(BaseAuctionWebTest):
         self.assertIn('9999-01-01T00:00:00', response.json['data']['next_check'])
 
 
-@unittest.skip("option not available")
-class AuctionLotAuctionPeriodResourceTest(AuctionAuctionPeriodResourceTest):
-    initial_lots = test_lots
-
-
 class AuctionComplaintSwitchResourceTest(BaseAuctionWebTest):
 
     def test_switch_to_pending(self):
@@ -417,12 +412,6 @@ class FinancialAuctionLotSwitchUnsuccessfulResourceTest(AuctionLotSwitchUnsucces
 
 class FinancialAuctionAuctionPeriodResourceTest(AuctionAuctionPeriodResourceTest):
     initial_bids = test_financial_bids
-    initial_data = test_financial_auction_data
-    initial_organization = test_financial_organization
-
-
-@unittest.skip("option not available")
-class FinancialAuctionLotAuctionPeriodResourceTest(AuctionLotAuctionPeriodResourceTest):
     initial_data = test_financial_auction_data
     initial_organization = test_financial_organization
 

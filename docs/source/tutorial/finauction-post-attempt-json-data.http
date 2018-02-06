@@ -20,7 +20,7 @@ Host: api-sandbox.ea.openprocurement.org
     }, 
     "dgfID": "219560", 
     "auctionPeriod": {
-      "startDate": "2017-04-12"
+      "startDate": "2017-12-14"
     }, 
     "items": [
       {
@@ -69,21 +69,21 @@ Host: api-sandbox.ea.openprocurement.org
 
 201 Created
 Content-Type: application/json; charset=UTF-8
-Location: http://api-sandbox.ea.openprocurement.org/api/2.3/auctions/a66af4ecf50e4a9ba3c0a287b0c13de1
+Location: http://api-sandbox.ea.openprocurement.org/api/2.3/auctions/73e1598288054eb98e8153ee9e69bb28
 
 {
   "access": {
-    "token": "55adce4ad40548ec879f68439cae2a70"
+    "token": "6c03609dd6844e42bc1318fddf20c937"
   }, 
   "data": {
     "procurementMethod": "open", 
-    "auctionID": "UA-PS-2017-03-29-000001", 
+    "auctionID": "UA-PS-2017-11-30-000001", 
     "enquiryPeriod": {
-      "startDate": "2017-03-29T15:47:32.460753+03:00", 
-      "endDate": "2017-04-11T23:59:50+03:00"
+      "startDate": "2017-11-30T16:56:23.942831+02:00", 
+      "endDate": "2017-12-13T23:59:50+02:00"
     }, 
     "submissionMethod": "electronicAuction", 
-    "next_check": "2017-04-11T23:59:50+03:00", 
+    "next_check": "2017-12-13T23:59:50+02:00", 
     "procuringEntity": {
       "contactPoint": {
         "name": "Державне управління справами", 
@@ -104,25 +104,25 @@ Location: http://api-sandbox.ea.openprocurement.org/api/2.3/auctions/a66af4ecf50
       }
     }, 
     "owner": "broker", 
-    "id": "a66af4ecf50e4a9ba3c0a287b0c13de1", 
+    "id": "73e1598288054eb98e8153ee9e69bb28", 
     "eligibilityCriteria_ru": "К участию допускаются только лицензированные финансовые учреждения.", 
     "title": "футляри до державних нагород", 
     "tenderAttempts": 1, 
     "eligibilityCriteria_en": "Only licensed financial institutions are eligible to participate.", 
     "procurementMethodDetails": "quick, accelerator=1440", 
-    "dateModified": "2017-03-29T15:47:32.463700+03:00", 
+    "dateModified": "2017-11-30T16:56:23.946137+02:00", 
     "status": "active.tendering", 
     "eligibilityCriteria": "До участі допускаються лише ліцензовані фінансові установи.", 
     "tenderPeriod": {
-      "startDate": "2017-03-29T15:47:32.460753+03:00", 
-      "endDate": "2017-04-11T23:59:50+03:00"
+      "startDate": "2017-11-30T16:56:23.942831+02:00", 
+      "endDate": "2017-12-13T23:59:50+02:00"
     }, 
     "auctionPeriod": {
-      "shouldStartAfter": "2017-04-12T00:00:00+03:00"
+      "shouldStartAfter": "2017-12-14T00:00:00+02:00"
     }, 
     "procurementMethodType": "dgfFinancialAssets", 
     "dgfID": "219560", 
-    "date": "2017-03-29T15:47:32.460753+03:00", 
+    "date": "2017-11-30T16:56:23.942831+02:00", 
     "minimalStep": {
       "currency": "UAH", 
       "amount": 35.0, 
@@ -143,7 +143,7 @@ Location: http://api-sandbox.ea.openprocurement.org/api/2.3/auctions/a66af4ecf50
           "region": "м. Київ", 
           "locality": "м. Київ"
         }, 
-        "id": "2d869cd128564dd188b763524a4143cc", 
+        "id": "e16351a78632484e8756b1dea38e6201", 
         "unit": {
           "code": "44617100-9", 
           "name": "item"

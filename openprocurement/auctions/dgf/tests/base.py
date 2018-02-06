@@ -2,6 +2,10 @@
 import os
 from datetime import datetime, timedelta
 from copy import deepcopy
+from datetime import datetime
+from uuid import uuid4
+from base64 import b64encode
+from urllib import urlencode
 
 from openprocurement.api.models import SANDBOX_MODE, get_now
 from openprocurement.api.utils import apply_data_patch
@@ -163,6 +167,7 @@ base_test_bids = [
 
 test_bids = []
 for i in base_test_bids:
+    i = deepcopy(i)
     i.update({'qualified': True})
     test_bids.append(i)
 
@@ -423,6 +428,79 @@ class BaseAuctionWebTest(FlashBaseAuctionWebTest):
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
         return response
+
+    def upload_auction_protocol(self, award):
+        award_id = award['id']
+        response = self.app.post_json('/auctions/{}/awards/{}/documents?acc_token={}'.format(self.auction_id, award_id, self.auction_token),
+            {'data': {
+                'title': 'auction_protocol.pdf',
+                'url': self.generate_docservice_url(),
+                'hash': 'md5:' + '0' * 32,
+                'format': 'application/msword',
+                "description": "auction protocol",
+                "documentType": 'auctionProtocol',
+
+            }})
+
+        self.assertEqual(response.status, '201 Created')
+        self.assertEqual(response.content_type, 'application/json')
+        doc_id = response.json["data"]['id']
+        self.assertIn(doc_id, response.headers['Location'])
+        self.assertEqual('auction_protocol.pdf', response.json["data"]["title"])
+        self.assertEqual('auctionProtocol', response.json["data"]["documentType"])
+        self.assertEqual('auction_owner', response.json["data"]["author"])
+
+    def post_auction_results(self):
+        authorization = self.app.authorization
+        self.app.authorization = ('Basic', ('auction', ''))
+        now = get_now()
+        auction_result = {
+            'bids': [
+                {
+                    "id": b['id'],
+                    "date": (now - timedelta(seconds=i)).isoformat(),
+                    "value": b['value']
+                }
+                for i, b in enumerate(self.initial_bids)
+            ]
+        }
+        response = self.app.post_json('/auctions/{}/auction'.format(self.auction_id), {'data': auction_result})
+        self.assertEqual(response.status, '200 OK')
+        self.assertEqual(response.content_type, 'application/json')
+        auction = response.json['data']
+        self.assertEqual('active.qualification', auction["status"])
+        self.first_award = auction['awards'][0]
+        self.second_award = auction['awards'][1]
+        self.third_award = auction['awards'][2]
+        self.first_award_id = self.first_award['id']
+        self.second_award_id = self.second_award['id']
+        self.third_award_id = self.third_award['id']
+        self.app.authorization = authorization
+
+    def generate_docservice_url(self):
+        uuid = uuid4().hex
+        key = self.app.app.registry.docservice_key
+        keyid = key.hex_vk()[:8]
+        signature = b64encode(key.signature("{}\0{}".format(uuid, '0' * 32)))
+        query = {'Signature': signature, 'KeyID': keyid}
+        return "http://localhost/get/{}?{}".format(uuid, urlencode(query))
+
+    def patch_award(self, award_id, status, bid_token=None):
+        if bid_token:
+            response = self.app.patch_json('/auctions/{}/awards/{}?acc_token={}'.format(self.auction_id, award_id, bid_token), {"data": {"status": status}})
+            self.assertEqual(response.status, '200 OK')
+            self.assertEqual(response.content_type, 'application/json')
+            return response
+        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, award_id), {"data": {"status": status}})
+        self.assertEqual(response.status, '200 OK')
+        self.assertEqual(response.content_type, 'application/json')
+        return response
+
+    def forbidden_patch_award(self, award_id, before_status, status):
+        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, award_id), {"data": {"status": status}}, status=403)
+        self.assertEqual(response.status, '403 Forbidden')
+        self.assertEqual(response.content_type, 'application/json')
+        self.assertEqual(response.json['errors'][0]["description"], "Can't switch award ({}) status to ({}) status".format(before_status, status))
 
 
 class BaseFinancialAuctionWebTest(BaseAuctionWebTest):

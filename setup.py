@@ -6,6 +6,9 @@ version = '1.0.19-sale'
 entry_points = {
     'openprocurement.auctions.core.plugins': [
         'auctions.dgf = openprocurement.auctions.dgf:includeme'
+    ],
+    'openprocurement.api.migrations': [
+        'auctions = openprocurement.auctions.dgf.migration:migrate_data'
     ]
 }
 

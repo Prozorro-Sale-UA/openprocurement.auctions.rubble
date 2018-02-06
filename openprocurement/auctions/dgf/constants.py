@@ -27,9 +27,14 @@ MINIMAL_EXPOSITION_REQUIRED_FROM = datetime(2017, 11, 17, tzinfo=TZ)
 CLASSIFICATION_PRECISELY_FROM = datetime(2017, 7, 19, tzinfo=TZ)
 DGF_ID_REQUIRED_FROM = datetime(2017, 1, 1, tzinfo=TZ)
 DGF_DECISION_REQUIRED_FROM = datetime(2017, 1, 1, tzinfo=TZ)
+DGF_ADDRESS_REQUIRED_FROM = datetime(2017, 2, 7, tzinfo=TZ)
 ENQUIRY_END_EDITING_AND_VALIDATION_REQUIRED_FROM = datetime(2018, 01, 22, tzinfo=TZ)
 
 #codes
 CAVPS_CODES = read_json('cav_ps.json')
 CPVS_CODES = read_json('cpvs.json')
 ORA_CODES[0:0] = ["UA-IPN", "UA-FIN"]
+
+#code units
+CPV_NON_SPECIFIC_LOCATION_UNITS = ('71', '72', '73', '75', '76', '77', '79', '80', '85', '90', '92', '98')
+CAV_NON_SPECIFIC_LOCATION_UNITS = ('07', '08')

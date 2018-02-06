@@ -9,6 +9,7 @@ from urlparse import urlparse, parse_qs
 from string import hexdigits
 from zope.interface import implementer
 from pyramid.security import Allow
+
 from openprocurement.api.models import (
     BooleanType, ListType, Feature, Period, get_now, TZ,
     validate_features_uniq, validate_lots_uniq, Identifier as BaseIdentifier,
@@ -16,7 +17,7 @@ from openprocurement.api.models import (
     schematics_embedded_role, SANDBOX_MODE, CPV_CODES
 )
 from openprocurement.api.utils import calculate_business_date
-from .utils import calculate_enddate
+
 from openprocurement.auctions.core.models import IAuction
 from openprocurement.auctions.flash.models import (
     Auction as BaseAuction, Document as BaseDocument, Bid as BaseBid,
@@ -27,7 +28,8 @@ from openprocurement.auctions.flash.models import (
     ProcuringEntity as BaseProcuringEntity, Question as BaseQuestion,
     get_auction, Administrator_role
 )
-from openprocurement.auctions.dgf.constants import (MINIMAL_EXPOSITION_PERIOD, MINIMAL_EXPOSITION_REQUIRED_FROM)
+
+from .utils import calculate_enddate, get_auction_creation_date
 
 from .constants import (
     AWARD_PAYMENT_TIME, CONTRACT_SIGNING_TIME,
@@ -35,8 +37,28 @@ from .constants import (
     DOCUMENT_TYPE_URL_ONLY, CLASSIFICATION_PRECISELY_FROM,
     DGF_ID_REQUIRED_FROM, CAVPS_CODES,
     CPVS_CODES, ORA_CODES, MINIMAL_EXPOSITION_PERIOD,
-    MINIMAL_EXPOSITION_REQUIRED_FROM
+    MINIMAL_EXPOSITION_REQUIRED_FROM, MINIMAL_PERIOD_FROM_ENQUIRY_END,
+    ENQUIRY_END_EDITING_AND_VALIDATION_REQUIRED_FROM
 )
+
+
+def bids_validation_wrapper(validation_func):
+    def validator(klass, data, value):
+        orig_data = data
+        while not isinstance(data['__parent__'], BaseAuction):
+            # in case this validation wrapper is used for subelement of bid (such as parameters)
+            # traverse back to the bid to get possibility to check status  # troo-to-to =)
+            data = data['__parent__']
+        if data['status'] in ('invalid', 'draft'):
+            # skip not valid bids
+            return
+        tender = data['__parent__']
+        request = tender.__parent__.request
+        if request.method == "PATCH" and isinstance(tender, BaseAuction) and request.authenticated_role == "auction_owner":
+            # disable bids validation on tender PATCH requests as tender bids will be invalidated
+            return
+        return validation_func(klass, orig_data, value)
+    return validator
 
 
 class CPVCAVClassification(Classification):
@@ -49,7 +71,7 @@ class CPVCAVClassification(Classification):
             raise ValidationError(BaseType.MESSAGES['choices'].format(unicode(CPV_CODES)))
         elif data.get('scheme') == u'CAV-PS' and code not in CAVPS_CODES:
             raise ValidationError(BaseType.MESSAGES['choices'].format(unicode(CAVPS_CODES)))
-        if code.find("00000-") > 0 and (auction.get('revisions')[0].date if auction.get('revisions') else get_now()) > CLASSIFICATION_PRECISELY_FROM:
+        if code.find("00000-") > 0 and get_auction_creation_date(data) > CLASSIFICATION_PRECISELY_FROM:
             raise ValidationError('At least {} classification class (XXXX0000-Y) should be specified more precisely'.format(data.get('scheme')))
 
 
@@ -173,6 +195,9 @@ class Bid(BaseBid):
     documents = ListType(ModelType(Document), default=list())
     qualified = BooleanType(required=True, choices=[True])
 
+    @bids_validation_wrapper
+    def validate_value(self, data, value):
+        BaseBid._validator_functions['value'](self, data, value)
 
 class Question(BaseQuestion):
     author = ModelType(Organization, required=True)
@@ -295,9 +320,10 @@ class AuctionAuctionPeriod(Period):
             raise ValidationError(u'This field is required.')
 
 
-create_role = (schematics_embedded_role + blacklist('owner_token', 'owner', '_attachments', 'revisions', 'date', 'dateModified', 'doc_id', 'auctionID', 'bids', 'documents', 'awards', 'questions', 'complaints', 'auctionUrl', 'status', 'enquiryPeriod', 'tenderPeriod', 'awardPeriod', 'procurementMethod', 'eligibilityCriteria', 'eligibilityCriteria_en', 'eligibilityCriteria_ru', 'awardCriteria', 'submissionMethod', 'cancellations', 'numberOfBidders', 'contracts'))
-edit_role = (edit_role + blacklist('enquiryPeriod', 'tenderPeriod', 'auction_value', 'auction_minimalStep', 'auction_guarantee', 'eligibilityCriteria', 'eligibilityCriteria_en', 'eligibilityCriteria_ru', 'awardCriteriaDetails', 'awardCriteriaDetails_en', 'awardCriteriaDetails_ru', 'procurementMethodRationale', 'procurementMethodRationale_en', 'procurementMethodRationale_ru', 'submissionMethodDetails', 'submissionMethodDetails_en', 'submissionMethodDetails_ru', 'items', 'procuringEntity', 'minNumberOfQualifiedBids'))
-Administrator_role = (whitelist('awards') + Administrator_role)
+create_role = (schematics_embedded_role + blacklist('owner_token', 'owner', '_attachments', 'revisions', 'date', 'dateModified', 'doc_id', 'auctionID', 'bids', 'documents', 'awards', 'questions', 'complaints', 'auctionUrl', 'status', 'tenderPeriod', 'awardPeriod', 'procurementMethod', 'eligibilityCriteria', 'eligibilityCriteria_en', 'eligibilityCriteria_ru', 'awardCriteria', 'submissionMethod', 'cancellations', 'numberOfBidders', 'contracts'))
+edit_role = (edit_role + blacklist('enquiryPeriod', 'tenderPeriod', 'auction_value', 'auction_minimalStep', 'auction_guarantee', 'eligibilityCriteria', 'eligibilityCriteria_en', 'eligibilityCriteria_ru', 'awardCriteriaDetails', 'awardCriteriaDetails_en', 'awardCriteriaDetails_ru', 'procurementMethodRationale', 'procurementMethodRationale_en', 'procurementMethodRationale_ru', 'submissionMethodDetails', 'submissionMethodDetails_en', 'submissionMethodDetails_ru', 'minNumberOfQualifiedBids'))
+Administrator_role = (Administrator_role + whitelist('awards'))
+
 
 
 @implementer(IAuction)
@@ -345,7 +371,13 @@ class Auction(BaseAuction):
         now = get_now()
         self.tenderPeriod.startDate = self.enquiryPeriod.startDate = now
         pause_between_periods = self.auctionPeriod.startDate - (self.auctionPeriod.startDate.replace(hour=20, minute=0, second=0, microsecond=0) - timedelta(days=1))
-        self.enquiryPeriod.endDate = self.tenderPeriod.endDate = calculate_business_date(self.auctionPeriod.startDate, -pause_between_periods, self)
+        self.tenderPeriod.endDate = calculate_business_date(self.auctionPeriod.startDate, -pause_between_periods, self)
+        if not self.enquiryPeriod.endDate:
+            enquiryPeriod_calculated_endDate = calculate_business_date(self.tenderPeriod.endDate, -MINIMAL_PERIOD_FROM_ENQUIRY_END, self)
+            if enquiryPeriod_calculated_endDate > now:
+                self.enquiryPeriod.endDate = enquiryPeriod_calculated_endDate
+            else:
+                self.enquiryPeriod.endDate = now
         self.auctionPeriod.startDate = None
         self.auctionPeriod.endDate = None
         self.date = now
@@ -357,18 +389,26 @@ class Auction(BaseAuction):
         """Auction start date must be not closer than MINIMAL_EXPOSITION_PERIOD days and not a holiday"""
         if not (period and period.startDate and period.endDate):
             return
-        if (data.get('revisions')[0].date if data.get('revisions') else get_now()) < MINIMAL_EXPOSITION_REQUIRED_FROM:
+        if get_auction_creation_date(data) < MINIMAL_EXPOSITION_REQUIRED_FROM:
             return
         if calculate_business_date(period.startDate, MINIMAL_EXPOSITION_PERIOD, data) > period.endDate:
             raise ValidationError(u"tenderPeriod should be greater than 6 days")
 
+    def validate_enquiryPeriod(self, data, period):
+        if not (period and period.startDate) or not period.endDate:
+            return
+        if get_auction_creation_date(data) < ENQUIRY_END_EDITING_AND_VALIDATION_REQUIRED_FROM:
+            return
+        if period.endDate > calculate_business_date(data['tenderPeriod']['endDate'], -MINIMAL_PERIOD_FROM_ENQUIRY_END, data):
+            raise ValidationError(u"enquiryPeriod.endDate should come at least 5 working days earlier than tenderPeriod.endDate")
+            
     def validate_value(self, data, value):
         if value.currency != u'UAH':
             raise ValidationError(u"currency should be only UAH")
 
     def validate_dgfID(self, data, dgfID):
         if not dgfID:
-            if (data.get('revisions')[0].date if data.get('revisions') else get_now()) > DGF_ID_REQUIRED_FROM:
+            if get_auction_creation_date(data) > DGF_ID_REQUIRED_FROM:
                 raise ValidationError(u'This field is required.')
 
     @serializable(serialize_when_none=False)

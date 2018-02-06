@@ -85,6 +85,18 @@ test_auction_data = {
 }
 if SANDBOX_MODE:
     test_auction_data['procurementMethodDetails'] = 'quick, accelerator={}'.format(DEFAULT_ACCELERATION)
+test_auction_maximum_data = deepcopy(test_auction_data)
+test_auction_maximum_data.update({
+    "title_en" : u"Cases with state awards",
+    "title_ru" : u"футляры к государственным наградам",
+    "description" : u"футляри до державних нагород",
+    "description_en" : u"Cases with state awards",
+    "description_ru" : u"футляры к государственным наградам"
+})
+test_auction_maximum_data["items"][0].update({
+    "description_en" : u"Cases with state awards",
+    "description_ru" : u"футляры к государственным наградам"
+})
 test_features_auction_data = test_auction_data.copy()
 test_features_item = test_features_auction_data['items'][0].copy()
 test_features_item['id'] = "1"
@@ -233,13 +245,29 @@ class BaseAuctionWebTest(FlashBaseAuctionWebTest):
     initial_data = test_auction_data
     initial_organization = test_organization
 
+    def go_to_enquiryPeriod_end(self):
+        now = get_now()
+        self.set_status('active.tendering', {
+            "enquiryPeriod": {
+                "startDate": (now - timedelta(days=14)).isoformat(),
+                "endDate": (now - (timedelta(minutes=6) if SANDBOX_MODE else timedelta(days=6))).isoformat()
+            },
+            "tenderPeriod": {
+                "startDate": (now - timedelta(days=14)).isoformat(),
+                "endDate": (now + (timedelta(minutes=1) if SANDBOX_MODE else timedelta(days=1))).isoformat()
+            },
+            "auctionPeriod": {
+                "startDate": (now + timedelta(days=1)).isoformat()
+            }
+        })
+
     def set_status(self, status, extra=None):
         data = {'status': status}
         if status == 'active.tendering':
             data.update({
                 "enquiryPeriod": {
                     "startDate": (now).isoformat(),
-                    "endDate": (now + timedelta(days=7)).isoformat()
+                    "endDate": (now + timedelta(days=1)).isoformat()
                 },
                 "tenderPeriod": {
                     "startDate": (now).isoformat(),
@@ -250,7 +278,7 @@ class BaseAuctionWebTest(FlashBaseAuctionWebTest):
             data.update({
                 "enquiryPeriod": {
                     "startDate": (now - timedelta(days=7)).isoformat(),
-                    "endDate": (now).isoformat()
+                    "endDate": (now - timedelta(days=6)).isoformat()
                 },
                 "tenderPeriod": {
                     "startDate": (now - timedelta(days=7)).isoformat(),
@@ -275,7 +303,7 @@ class BaseAuctionWebTest(FlashBaseAuctionWebTest):
             data.update({
                 "enquiryPeriod": {
                     "startDate": (now - timedelta(days=8)).isoformat(),
-                    "endDate": (now - timedelta(days=1)).isoformat()
+                    "endDate": (now - timedelta(days=6)).isoformat()
                 },
                 "tenderPeriod": {
                     "startDate": (now - timedelta(days=8)).isoformat(),
@@ -305,7 +333,7 @@ class BaseAuctionWebTest(FlashBaseAuctionWebTest):
             data.update({
                 "enquiryPeriod": {
                     "startDate": (now - timedelta(days=8)).isoformat(),
-                    "endDate": (now - timedelta(days=1)).isoformat()
+                    "endDate": (now - timedelta(days=6)).isoformat()
                 },
                 "tenderPeriod": {
                     "startDate": (now - timedelta(days=8)).isoformat(),
@@ -336,7 +364,7 @@ class BaseAuctionWebTest(FlashBaseAuctionWebTest):
             data.update({
                 "enquiryPeriod": {
                     "startDate": (now - timedelta(days=18)).isoformat(),
-                    "endDate": (now - timedelta(days=11)).isoformat()
+                    "endDate": (now - timedelta(days=17)).isoformat()
                 },
                 "tenderPeriod": {
                     "startDate": (now - timedelta(days=18)).isoformat(),

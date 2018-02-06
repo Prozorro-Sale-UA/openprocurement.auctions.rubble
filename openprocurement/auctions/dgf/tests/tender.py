@@ -1232,10 +1232,9 @@ class AuctionResourceTest(BaseWebTest):
         self.assertEqual(response.content_type, 'application/json')
         new_auction = response.json['data']
         new_dateModified = new_auction.pop('dateModified')
-        auction['procurementMethodRationale'] = 'Open'
         new_auction['rectificationPeriod'].pop('invalidationDate')
         self.assertEqual(auction, new_auction)
-        self.assertEqual(dateModified, new_dateModified)
+        self.assertNotEqual(dateModified, new_dateModified)
 
         response = self.app.patch_json('/auctions/{}'.format(
             auction['id']), {'data': {'dateModified': new_dateModified}})
@@ -1248,8 +1247,6 @@ class AuctionResourceTest(BaseWebTest):
         self.assertEqual(new_dateModified, new_dateModified2)
 
         revisions = self.db.get(auction['id']).get('revisions')
-        self.assertEqual(revisions[-1][u'changes'][0]['op'], u'remove')
-        self.assertEqual(revisions[-1][u'changes'][0]['path'], u'/procurementMethod')
 
         response = self.app.patch_json('/auctions/{}'.format(
             auction['id']), {'data': {'items': [self.initial_data['items'][0]]}})

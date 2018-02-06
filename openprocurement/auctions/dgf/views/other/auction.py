@@ -10,7 +10,10 @@ from openprocurement.auctions.core.utils import (
     apply_patch,
     opresource,
 )
-from openprocurement.auctions.dgf.utils import create_awards
+from openprocurement.auctions.dgf.utils import (
+    create_awards,
+    invalidate_bids_under_threshold
+)
 from openprocurement.auctions.core.validation import (
     validate_auction_auction_data,
 )
@@ -163,7 +166,11 @@ class AuctionAuctionResource(APIResource):
         """
         apply_patch(self.request, save=False, src=self.request.validated['auction_src'])
         auction = self.request.validated['auction']
-        create_awards(self.request)
+        invalidate_bids_under_threshold(auction)
+        if any([i.status == 'active' for i in auction.bids]): 
+            create_awards(self.request)
+        else:
+            auction.status = 'unsuccessful'
         if save_auction(self.request):
             self.LOGGER.info('Report auction results', extra=context_unpack(self.request, {'MESSAGE_ID': 'auction_auction_post'}))
             return {'data': self.request.validated['auction'].serialize(self.request.validated['auction'].status)}
@@ -184,7 +191,11 @@ class AuctionAuctionResource(APIResource):
         auction = self.request.validated['auction']
         if all([i.auctionPeriod and i.auctionPeriod.endDate for i in auction.lots if i.numberOfBids > 1 and i.status == 'active']):
             cleanup_bids_for_cancelled_lots(auction)
-            create_awards(self.request)
+            invalidate_bids_under_threshold(auction)
+            if any([i.status == 'active' for i in auction.bids]): 
+                create_awards(self.request)
+            else:
+                auction.status = 'unsuccessful'
         if save_auction(self.request):
             self.LOGGER.info('Report auction results', extra=context_unpack(self.request, {'MESSAGE_ID': 'auction_lot_auction_post'}))
             return {'data': self.request.validated['auction'].serialize(self.request.validated['auction'].status)}

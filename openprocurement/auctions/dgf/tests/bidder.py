@@ -530,8 +530,8 @@ class AuctionBidInvalidationAuctionResourceTest(BaseAuctionWebTest):
             if status == 'pending.verification':
                 self.assertIn("verificationPeriod", auction["awards"][i])
 
-                
- class AuctionBidderProcessTest(BaseAuctionWebTest):
+               
+class AuctionBidderProcessTest(BaseAuctionWebTest):
     initial_data = test_auction_data
     initial_bids = test_bids
 

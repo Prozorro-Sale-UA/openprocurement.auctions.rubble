@@ -17,6 +17,10 @@ DOCUMENT_TYPE_URL_ONLY = ['virtualDataRoom']
 
 #requiremnt periods
 MINIMAL_EXPOSITION_PERIOD = timedelta(days=7)
+MINIMAL_EXPOSITION_REQUIRED_FROM = datetime(2017, 11, 17, tzinfo=TZ)
+MINIMAL_PERIOD_FROM_RECTIFICATION_END = timedelta(days=5)
+RECTIFICATION_END_EDITING_AND_VALIDATION_REQUIRED_FROM = datetime(2016, 12, 11, tzinfo=TZ)
+
 MINIMAL_PERIOD_FROM_ENQUIRY_END = timedelta(days=5)
 VERIFY_AUCTION_PROTOCOL_TIME = timedelta(days=6)
 AWARD_PAYMENT_TIME = timedelta(days=20)
@@ -33,6 +37,7 @@ ENQUIRY_END_EDITING_AND_VALIDATION_REQUIRED_FROM = datetime(2018, 01, 22, tzinfo
 #codes
 CAVPS_CODES = read_json('cav_ps.json')
 CPVS_CODES = read_json('cpvs.json')
+
 ORA_CODES[0:0] = ["UA-IPN", "UA-FIN"]
 
 NUMBER_OF_BIDS_TO_BE_QUALIFIED = 2

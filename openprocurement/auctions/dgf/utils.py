@@ -226,3 +226,4 @@ def invalidate_bids_data(request):
     auction = request.validated['auction']
     for bid in auction.bids:
         setattr(bid, "status", "invalid")
+    auction.rectificationPeriod.invalidationDate = get_now()

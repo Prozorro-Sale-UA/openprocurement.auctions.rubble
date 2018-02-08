@@ -29,8 +29,7 @@ from openprocurement.auctions.flash.models import (
     get_auction, Administrator_role
 )
 
-
-from .utils import calculate_enddate, get_auction_creation_date
+from .utils import calculate_enddate, get_auction_creation_date, generate_rectificationPeriod
 
 from .constants import (
     AWARD_PAYMENT_TIME, CONTRACT_SIGNING_TIME,
@@ -42,8 +41,7 @@ from .constants import (
     CPV_NON_SPECIFIC_LOCATION_UNITS,
     CAV_NON_SPECIFIC_LOCATION_UNITS,
     DGF_ADDRESS_REQUIRED_FROM,
-    MINIMAL_PERIOD_FROM_RECTIFICATION_END,
-    RECTIFICATION_END_EDITING_AND_VALIDATION_REQUIRED_FROM
+    MINIMAL_PERIOD_FROM_RECTIFICATION_END
 )
 
 
@@ -393,19 +391,13 @@ class Auction(BaseAuction):
             self.enquiryPeriod = type(self).enquiryPeriod.model_class()
         if not self.tenderPeriod:
             self.tenderPeriod = type(self).tenderPeriod.model_class()
-        if not self.rectificationPeriod:
-            self.rectificationPeriod = type(self).rectificationPeriod.model_class()
         now = get_now()
-        self.tenderPeriod.startDate = self.enquiryPeriod.startDate = self.rectificationPeriod.startDate = now
+        self.tenderPeriod.startDate = self.enquiryPeriod.startDate = now
         pause_between_periods = self.auctionPeriod.startDate - (self.auctionPeriod.startDate.replace(hour=20, minute=0, second=0, microsecond=0) - timedelta(days=1))
         self.tenderPeriod.endDate = self.enquiryPeriod.endDate = calculate_business_date(self.auctionPeriod.startDate, -pause_between_periods, self)
-        if not self.rectificationPeriod.endDate:
-            rectificationPeriod_calculated_endDate = calculate_business_date(self.tenderPeriod.endDate, -MINIMAL_PERIOD_FROM_RECTIFICATION_END, self)
-            if rectificationPeriod_calculated_endDate > now:
-                self.rectificationPeriod.endDate = rectificationPeriod_calculated_endDate
-            else:
-                self.rectificationPeriod.endDate = now
-        self.rectificationPeriod.invalidationDate = None
+        if not self.rectificationPeriod:
+            self.rectificationPeriod = generate_rectificationPeriod(self)
+        self.rectificationPeriod.startDate = now
         self.auctionPeriod.startDate = None
         self.auctionPeriod.endDate = None
         self.date = now
@@ -425,11 +417,9 @@ class Auction(BaseAuction):
     def validate_rectificationPeriod(self, data, period):
         if not (period and period.startDate) or not period.endDate:
             return
-        if get_auction_creation_date(data) < RECTIFICATION_END_EDITING_AND_VALIDATION_REQUIRED_FROM:
-            return
         if period.endDate > calculate_business_date(data['tenderPeriod']['endDate'], -MINIMAL_PERIOD_FROM_RECTIFICATION_END, data):
             raise ValidationError(u"rectificationPeriod.endDate should come at least 5 working days earlier than tenderPeriod.endDate")
-            
+
     def validate_value(self, data, value):
         if value.currency != u'UAH':
             raise ValidationError(u"currency should be only UAH")

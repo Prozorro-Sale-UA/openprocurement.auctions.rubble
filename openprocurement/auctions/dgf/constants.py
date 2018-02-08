@@ -28,7 +28,6 @@ DGF_DECISION_REQUIRED_FROM = datetime(2017, 1, 1, tzinfo=TZ)
 CLASSIFICATION_PRECISELY_FROM = datetime(2017, 7, 19, tzinfo=TZ)
 MINIMAL_EXPOSITION_REQUIRED_FROM = datetime(2017, 11, 17, tzinfo=TZ)
 DGF_ADDRESS_REQUIRED_FROM = datetime(2018, 2, 8, tzinfo=TZ)
-RECTIFICATION_COMES_IN_FORCE_FROM = datetime(2018, 2, 8, tzinfo=TZ)
 
 #codes
 CAVPS_CODES = read_json('cav_ps.json')

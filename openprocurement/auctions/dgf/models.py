@@ -28,7 +28,7 @@ from openprocurement.auctions.flash.models import (
     ProcuringEntity as BaseProcuringEntity, Question as BaseQuestion,
     get_auction, Administrator_role
 )
-from openprocurement.auctions.dgf.constants import (MINIMAL_EXPOSITION_PERIOD, MINIMAL_EXPOSITION_REQUIRED_FROM, MINIMAL_PERIOD_FROM_RECTIFICATION_END, RECTIFICATION_END_EDITING_AND_VALIDATION_REQUIRED_FROM)
+
 
 from .utils import calculate_enddate, get_auction_creation_date
 
@@ -42,8 +42,8 @@ from .constants import (
     CPV_NON_SPECIFIC_LOCATION_UNITS,
     CAV_NON_SPECIFIC_LOCATION_UNITS,
     DGF_ADDRESS_REQUIRED_FROM,
-    MINIMAL_PERIOD_FROM_ENQUIRY_END,
-    ENQUIRY_END_EDITING_AND_VALIDATION_REQUIRED_FROM
+    MINIMAL_PERIOD_FROM_RECTIFICATION_END,
+    RECTIFICATION_END_EDITING_AND_VALIDATION_REQUIRED_FROM
 )
 
 

@@ -2,7 +2,16 @@
 import unittest
 from copy import deepcopy
 
-from openprocurement.auctions.dgf.tests.base import BaseAuctionWebTest, test_auction_data, test_features_auction_data, test_financial_organization, test_financial_auction_data, test_bids, test_financial_bids
+from openprocurement.auctions.dgf.tests.base import (
+    BaseAuctionWebTest,
+    test_auction_data,
+    test_features_auction_data,
+    test_financial_organization,
+    test_financial_auction_data,
+    test_bids,
+    test_financial_bids,
+    test_organization
+)
 
 
 class AuctionBidderResourceTest(BaseAuctionWebTest):
@@ -406,6 +415,122 @@ class AuctionBidderResourceTest(BaseAuctionWebTest):
         self.assertEqual(response.json['data']["tenderers"][0]["identifier"]["id"], "00000000")
 
 
+class AuctionBidInvalidationAuctionResourceTest(BaseAuctionWebTest):
+    initial_data = test_auction_data
+    initial_status = 'active.auction'
+    initial_bids = [
+        {
+            "tenderers": [
+                test_organization
+            ],
+            "value": {
+                "amount": (initial_data['value']['amount'] + initial_data['minimalStep']['amount']/2),
+                "currency": "UAH",
+                "valueAddedTaxIncluded": True
+            },
+            'qualified': True
+        }
+        for i in range(3)
+    ]
+
+    def test_post_auction_all_invalid_bids(self):
+        self.app.authorization = ('Basic', ('auction', ''))
+
+        response = self.app.post_json('/auctions/{}/auction'.format(self.auction_id),
+                                      {'data': {'bids': self.initial_bids}})
+        self.assertEqual(response.status, '200 OK')
+        self.assertEqual(response.content_type, 'application/json')
+        auction = response.json['data']
+
+        self.assertEqual(auction["bids"][0]['value']['amount'], self.initial_bids[0]['value']['amount'])
+        self.assertEqual(auction["bids"][1]['value']['amount'], self.initial_bids[1]['value']['amount'])
+        self.assertEqual(auction["bids"][2]['value']['amount'], self.initial_bids[2]['value']['amount'])
+
+        value_threshold = auction['value']['amount'] + auction['minimalStep']['amount']
+        self.assertLess(auction["bids"][0]['value']['amount'], value_threshold)
+        self.assertLess(auction["bids"][1]['value']['amount'], value_threshold)
+        self.assertLess(auction["bids"][2]['value']['amount'], value_threshold)
+        self.assertEqual(auction["bids"][0]['status'], 'invalid')
+        self.assertEqual(auction["bids"][1]['status'], 'invalid')
+        self.assertEqual(auction["bids"][2]['status'], 'invalid')
+        self.assertEqual('unsuccessful', auction["status"])
+
+    def test_post_auction_one_invalid_bid(self):
+        self.app.authorization = ('Basic', ('auction', ''))
+
+        bids = deepcopy(self.initial_bids)
+        bids[0]['value']['amount'] = bids[0]['value']['amount'] * 3
+        bids[1]['value']['amount'] = bids[1]['value']['amount'] * 2
+        response = self.app.post_json('/auctions/{}/auction'.format(self.auction_id), {'data': {'bids': bids}})
+        self.assertEqual(response.status, '200 OK')
+        self.assertEqual(response.content_type, 'application/json')
+        auction = response.json['data']
+
+        self.assertEqual(auction["bids"][0]['value']['amount'], bids[0]['value']['amount'])
+        self.assertEqual(auction["bids"][1]['value']['amount'], bids[1]['value']['amount'])
+        self.assertEqual(auction["bids"][2]['value']['amount'], bids[2]['value']['amount'])
+
+        value_threshold = auction['value']['amount'] + auction['minimalStep']['amount']
+
+        self.assertGreater(auction["bids"][0]['value']['amount'], value_threshold)
+        self.assertGreater(auction["bids"][1]['value']['amount'], value_threshold)
+        self.assertLess(auction["bids"][2]['value']['amount'], value_threshold)
+
+        self.assertEqual(auction["bids"][0]['status'], 'active')
+        self.assertEqual(auction["bids"][1]['status'], 'active')
+        self.assertEqual(auction["bids"][2]['status'], 'invalid')
+
+        self.assertEqual('active.qualification', auction["status"])
+
+        for i, status in enumerate(['pending.verification', 'pending.waiting']):
+            self.assertIn("tenderers", auction["bids"][i])
+            self.assertIn("name", auction["bids"][i]["tenderers"][0])
+            # self.assertIn(auction["awards"][0]["id"], response.headers['Location'])
+            self.assertEqual(auction["awards"][i]['bid_id'], bids[i]['id'])
+            self.assertEqual(auction["awards"][i]['value']['amount'], bids[i]['value']['amount'])
+            self.assertEqual(auction["awards"][i]['suppliers'], bids[i]['tenderers'])
+            self.assertEqual(auction["awards"][i]['status'], status)
+            if status == 'pending.verification':
+                self.assertIn("verificationPeriod", auction["awards"][i])
+
+    def test_post_auction_one_valid_bid(self):
+        self.app.authorization = ('Basic', ('auction', ''))
+
+        bids = deepcopy(self.initial_bids)
+        bids[0]['value']['amount'] = bids[0]['value']['amount'] * 2
+        response = self.app.post_json('/auctions/{}/auction'.format(self.auction_id), {'data': {'bids': bids}})
+        self.assertEqual(response.status, '200 OK')
+        self.assertEqual(response.content_type, 'application/json')
+        auction = response.json['data']
+
+        self.assertEqual(auction["bids"][0]['value']['amount'], bids[0]['value']['amount'])
+        self.assertEqual(auction["bids"][1]['value']['amount'], bids[1]['value']['amount'])
+        self.assertEqual(auction["bids"][2]['value']['amount'], bids[2]['value']['amount'])
+
+        value_threshold = auction['value']['amount'] + auction['minimalStep']['amount']
+
+        self.assertGreater(auction["bids"][0]['value']['amount'], value_threshold)
+        self.assertLess(auction["bids"][1]['value']['amount'], value_threshold)
+        self.assertLess(auction["bids"][2]['value']['amount'], value_threshold)
+
+        self.assertEqual(auction["bids"][0]['status'], 'active')
+        self.assertEqual(auction["bids"][1]['status'], 'invalid')
+        self.assertEqual(auction["bids"][2]['status'], 'invalid')
+
+        self.assertEqual('active.qualification', auction["status"])
+
+        for i, status in enumerate(['pending.verification', 'unsuccessful']):
+            self.assertIn("tenderers", auction["bids"][i])
+            self.assertIn("name", auction["bids"][i]["tenderers"][0])
+            # self.assertIn(auction["awards"][0]["id"], response.headers['Location'])
+            self.assertEqual(auction["awards"][i]['bid_id'], bids[i]['id'])
+            self.assertEqual(auction["awards"][i]['value']['amount'], bids[i]['value']['amount'])
+            self.assertEqual(auction["awards"][i]['suppliers'], bids[i]['tenderers'])
+            self.assertEqual(auction["awards"][i]['status'], status)
+            if status == 'pending.verification':
+                self.assertIn("verificationPeriod", auction["awards"][i])
+
+               
 class AuctionBidderProcessTest(BaseAuctionWebTest):
     initial_data = test_auction_data
     initial_bids = test_bids

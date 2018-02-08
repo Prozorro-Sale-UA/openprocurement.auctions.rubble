@@ -309,9 +309,9 @@ class AuctionResourceTest(BaseAuctionWebTest):
 
         self.app.authorization = ('Basic', ('broker', ''))
         self.auction_id = auction['id']
-        self.go_to_enquiryPeriod_end()
+        self.go_to_rectificationPeriod_end()
         data = test_auction_data.copy()
-        with open('docs/source/tutorial/out-of-enquiryperiod-editing-denied.http', 'w') as self.app.file_obj:
+        with open('docs/source/tutorial/out-of-rectification-period-editing-denied.http', 'w') as self.app.file_obj:
             response = self.app.patch_json('/auctions/{}?acc_token={}'.format(auction['id'], owner_token),
             {"data": data}, status=403)
             self.assertEqual(response.status, '403 Forbidden')

@@ -78,7 +78,7 @@ Content-Type: application/json; charset=UTF-8
   "status": "error", 
   "errors": [
     {
-      "description": "Auction can be edited only during the enquiry period: from (2017-11-06T15:29:31.491067+02:00) to (2017-11-20T15:28:31.491067+02:00).", 
+      "description": "Auction can be edited only during the rectification period: from (2017-11-06T15:29:31.491067+02:00) to (2017-11-20T15:28:31.491067+02:00).",
       "location": "body", 
       "name": "data"
     }

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from itertools import izip_longest
 from logging import getLogger
 from pkg_resources import get_distribution
 from barbecue import chef
@@ -89,9 +90,10 @@ def create_awards(request):
     bids_to_qualify = NUMBER_OF_BIDS_TO_BE_QUALIFIED \
         if (len(bids) > NUMBER_OF_BIDS_TO_BE_QUALIFIED) \
         else len(bids)
-    for i in xrange(0, bids_to_qualify):
-        status = 'pending.verification' if i == 0 else 'pending.waiting'
-        bid = bids[i].serialize()
+    for bid, status in izip_longest(bids[:bids_to_qualify],
+                                    ['pending.verification'],
+                                    fillvalue='pending.waiting'):
+        bid = bid.serialize()
         award = type(auction).awards.model_class({
             '__parent__': request.context,
             'bid_id': bid['id'],

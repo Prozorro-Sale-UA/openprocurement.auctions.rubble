@@ -672,6 +672,20 @@ class AuctionResourceTest(BaseWebTest):
         self.assertEqual(response.json['status'], 'error')
         self.assertEqual(response.json['errors'], [{"location": "body", "name": "items", "description": [{"address": ["This field is required."]}]}])
 
+        auction_data['items'][0]["address"] = {
+            "countryName": u"Україна",
+            "postalCode": "79000",
+            "region": u"м. Київ",
+            "locality": u"м. Київ",
+            "streetAddress": u"вул. Банкова 1"
+        }
+
+        response = self.app.post_json('/auctions', {'data': auction_data})
+        self.assertEqual(response.status, '201 Created')
+        self.assertEqual(response.content_type, 'application/json')
+
+        del auction_data['items'][0]["address"]
+
         auction_data['items'][0]['classification'] = {
             "scheme": u"CPV",
             "id": u"34965000-9",

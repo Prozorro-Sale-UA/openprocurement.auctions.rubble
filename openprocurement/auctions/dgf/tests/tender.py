@@ -651,31 +651,7 @@ class AuctionResourceTest(BaseWebTest):
         auction_data = deepcopy(self.initial_data)
         del auction_data['items'][0]['address']
 
-        # CAV-PS non specific location code test
-        auction_data['items'][0]['classification'] = {
-            "scheme": u"CAV-PS",
-            "id": u"07227000-6",
-            "description": u"Застава - Інше"
-        }
-        response = self.app.post_json('/auctions', {'data': auction_data}, status=422)
-        self.assertEqual(response.status, '422 Unprocessable Entity')
-        self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(response.json['status'], 'error')
-        self.assertEqual(response.json['errors'], [{"location": "body", "name": "items", "description": [{"address": ["This field is required."]}]}])
-
-        # CPV non specific location code test
-        auction_data['items'][0]['classification'] = {
-            "scheme": u"CPV",
-            "id": u"90470000-2",
-            "description": u"Послуги з чищення каналізаційних колекторів"
-        }
-        response = self.app.post_json('/auctions', {'data': auction_data}, status=422)
-        self.assertEqual(response.status, '422 Unprocessable Entity')
-        self.assertEqual(response.content_type, 'application/json')
-        self.assertEqual(response.json['status'], 'error')
-        self.assertEqual(response.json['errors'], [{"location": "body", "name": "items", "description": [{"address": ["This field is required."]}]}])
-
-        auction_data['items'][0]["address"] = {
+        address = {
             "countryName": u"Україна",
             "postalCode": "79000",
             "region": u"м. Київ",
@@ -683,24 +659,66 @@ class AuctionResourceTest(BaseWebTest):
             "streetAddress": u"вул. Банкова 1"
         }
 
+        # CAV-PS specific location code test (address is required)
+        auction_data['items'][0]['classification'] = {
+            "scheme": u"CAV-PS",
+            "id": u"04210000-3",
+            "description": u"Промислова нерухомість"
+        }
+        response = self.app.post_json('/auctions', {'data': auction_data}, status=422)
+        self.assertEqual(response.status, '422 Unprocessable Entity')
+        self.assertEqual(response.content_type, 'application/json')
+        self.assertEqual(response.json['status'], 'error')
+        self.assertEqual(response.json['errors'], [{"location": "body", "name": "items", "description": [{"address": ["This field is required."]}]}])
+
+        auction_data['items'][0]["address"] = address
+
+        response = self.app.post_json('/auctions', {'data': auction_data})
+        self.assertEqual(response.status, '201 Created')
+        self.assertEqual(response.content_type, 'application/json')
+
+        del auction_data['items'][0]['address']
+
+        # CPV specific location code test (address is required)
+        auction_data['items'][0]['classification'] = {
+            "scheme": u"CPV",
+            "id": u"34965000-9",
+            "description": u"Всебічно направлений далекомірний радіомаяк"
+        }
+        response = self.app.post_json('/auctions', {'data': auction_data}, status=422)
+        self.assertEqual(response.status, '422 Unprocessable Entity')
+        self.assertEqual(response.content_type, 'application/json')
+        self.assertEqual(response.json['status'], 'error')
+        self.assertEqual(response.json['errors'], [{"location": "body", "name": "items", "description": [{"address": ["This field is required."]}]}])
+
+        auction_data['items'][0]["address"] = address
+
         response = self.app.post_json('/auctions', {'data': auction_data})
         self.assertEqual(response.status, '201 Created')
         self.assertEqual(response.content_type, 'application/json')
 
         del auction_data['items'][0]["address"]
 
+        # CAV-PS/CPV non specific location code test (address is not required)
         auction_data['items'][0]['classification'] = {
             "scheme": u"CPV",
-            "id": u"34965000-9",
-            "description": u"Всебічно направлений далекомірний радіомаяк"
+            "id": u"90470000-2",
+            "description": u"Послуги з чищення каналізаційних колекторів"
         }
         item = deepcopy(auction_data['items'][0])
         item['classification'] = {
             "scheme": u"CAV-PS",
-            "id": u"04210000-3",
-            "description": u"Промислова нерухомість"
+            "id": u"07227000-6",
+            "description": u"Застава - Інше"
         }
         auction_data['items'].append(item)
+
+        response = self.app.post_json('/auctions', {'data': auction_data})
+        self.assertEqual(response.status, '201 Created')
+        self.assertEqual(response.content_type, 'application/json')
+
+        auction_data['items'][0]["address"] = address
+
         response = self.app.post_json('/auctions', {'data': auction_data})
         self.assertEqual(response.status, '201 Created')
         self.assertEqual(response.content_type, 'application/json')

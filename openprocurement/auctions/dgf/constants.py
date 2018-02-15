@@ -43,5 +43,7 @@ ORA_CODES[0:0] = ["UA-IPN", "UA-FIN"]
 NUMBER_OF_BIDS_TO_BE_QUALIFIED = 2
 
 #code units
-CPV_NON_SPECIFIC_LOCATION_UNITS = ('71', '72', '73', '75', '76', '77', '79', '80', '85', '90', '92', '98')
+CPV_NON_SPECIFIC_LOCATION_UNITS = ('45', '48', '50', '51', '55', '60', '63', '64',
+                                   '65', '66', '71', '72', '73', '75', '76', '77',
+                                   '79', '80', '85', '90', '92', '98')
 CAV_NON_SPECIFIC_LOCATION_UNITS = ('07', '08')

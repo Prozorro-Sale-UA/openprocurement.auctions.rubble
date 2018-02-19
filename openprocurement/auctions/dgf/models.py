@@ -108,9 +108,10 @@ class Item(BaseItem):
 
     def validate_address(self, data, address):
         if not address:
-            if (data.get('revisions')[0].date if data.get('revisions') else get_now()) > DGF_ADDRESS_REQUIRED_FROM:
-                if (data['classification']['scheme'] == u'CAV-PS' and data['classification']['id'].startswith(CAV_NON_SPECIFIC_LOCATION_UNITS) or
-                        data['classification']['scheme'] == u'CPV' and data['classification']['id'].startswith(CPV_NON_SPECIFIC_LOCATION_UNITS)):
+            if get_auction_creation_date(data) > DGF_ADDRESS_REQUIRED_FROM:
+                non_specific_location_cav = data['classification']['scheme'] == u'CAV-PS' and not data['classification']['id'].startswith(CAV_NON_SPECIFIC_LOCATION_UNITS)
+                non_specific_location_cpv = data['classification']['scheme'] == u'CPV' and not data['classification']['id'].startswith(CPV_NON_SPECIFIC_LOCATION_UNITS)
+                if non_specific_location_cav or non_specific_location_cpv:
                     raise ValidationError(u'This field is required.')
 
 

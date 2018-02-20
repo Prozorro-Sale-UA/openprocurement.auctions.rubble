@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from openprocurement.api.utils import (
-    update_file_content_type,
     json_view,
     context_unpack,
     APIResource,
@@ -15,7 +14,8 @@ from openprocurement.auctions.core.utils import (
     apply_patch,
     opresource,
 )
-from openprocurement.auctions.dgf.utils import upload_file, get_file
+from openprocurement.auctions.dgf.utils import upload_file, get_file, invalidate_bids_data, generate_rectificationPeriod
+from openprocurement.api.models import get_now, TZ
 
 
 @opresource(name='dgfOtherAssets:Auction Documents',
@@ -24,6 +24,21 @@ from openprocurement.auctions.dgf.utils import upload_file, get_file
             auctionsprocurementMethodType="dgfOtherAssets",
             description="Auction related binary files (PDFs, etc.)")
 class AuctionDocumentResource(APIResource):
+
+    def validate_document_editing_period(self, operation):
+        auction_not_in_editable_state = (self.request.authenticated_role != 'auction' and self.request.validated['auction_status'] != 'active.tendering' or \
+           self.request.authenticated_role == 'auction' and self.request.validated['auction_status'] not in ['active.auction', 'active.qualification'])
+
+        auction = self.request.validated['auction']
+        if auction_not_in_editable_state:
+            self.request.errors.add('body', 'data', 'Can\'t {} document in current ({}) auction status'.format('add' if operation == 'add' else 'update', self.request.validated['auction_status']))
+            self.request.errors.status = 403
+            return
+        if auction.rectificationPeriod.endDate < get_now() and self.request.authenticated_role != 'auction':
+            self.request.errors.add('body', 'data', 'Document can be {} only during the rectificationPeriod period.'.format('added' if operation == 'add' else 'updated'))
+            self.request.errors.status = 403
+            return
+        return True
 
     @json_view(permission='view_auction')
     def collection_get(self):
@@ -40,12 +55,13 @@ class AuctionDocumentResource(APIResource):
     @json_view(permission='upload_auction_documents', validators=(validate_file_upload,))
     def collection_post(self):
         """Auction Document Upload"""
-        if self.request.authenticated_role != 'auction' and self.request.validated['auction_status'] != 'active.tendering' or \
-           self.request.authenticated_role == 'auction' and self.request.validated['auction_status'] not in ['active.auction', 'active.qualification']:
-            self.request.errors.add('body', 'data', 'Can\'t add document in current ({}) auction status'.format(self.request.validated['auction_status']))
-            self.request.errors.status = 403
+        if not self.validate_document_editing_period('add'):
             return
         document = upload_file(self.request)
+        if self.request.authenticated_role != "auction":
+            if not self.request.auction.rectificationPeriod:
+                self.request.auction.rectificationPeriod = generate_rectificationPeriod(self.request.auction)
+            invalidate_bids_data(self.request.auction)
         self.context.documents.append(document)
         if save_auction(self.request):
             self.LOGGER.info('Created auction document {}'.format(document.id),
@@ -74,12 +90,13 @@ class AuctionDocumentResource(APIResource):
     @json_view(permission='upload_auction_documents', validators=(validate_file_update,))
     def put(self):
         """Auction Document Update"""
-        if self.request.authenticated_role != 'auction' and self.request.validated['auction_status'] != 'active.tendering' or \
-           self.request.authenticated_role == 'auction' and self.request.validated['auction_status'] not in ['active.auction', 'active.qualification']:
-            self.request.errors.add('body', 'data', 'Can\'t update document in current ({}) auction status'.format(self.request.validated['auction_status']))
-            self.request.errors.status = 403
+        if not self.validate_document_editing_period('update'):
             return
         document = upload_file(self.request)
+        if self.request.authenticated_role != "auction":
+            if not self.request.auction.rectificationPeriod:
+                self.request.auction.rectificationPeriod = generate_rectificationPeriod(self.request.auction)
+            invalidate_bids_data(self.request.auction)
         self.request.validated['auction'].documents.append(document)
         if save_auction(self.request):
             self.LOGGER.info('Updated auction document {}'.format(self.request.context.id),
@@ -89,13 +106,14 @@ class AuctionDocumentResource(APIResource):
     @json_view(content_type="application/json", permission='upload_auction_documents', validators=(validate_patch_document_data,))
     def patch(self):
         """Auction Document Update"""
-        if self.request.authenticated_role != 'auction' and self.request.validated['auction_status'] != 'active.tendering' or \
-           self.request.authenticated_role == 'auction' and self.request.validated['auction_status'] not in ['active.auction', 'active.qualification']:
-            self.request.errors.add('body', 'data', 'Can\'t update document in current ({}) auction status'.format(self.request.validated['auction_status']))
-            self.request.errors.status = 403
+        if not self.validate_document_editing_period('update'):
             return
-        if apply_patch(self.request, src=self.request.context.serialize()):
-            update_file_content_type(self.request)
+        apply_patch(self.request, save=False, src=self.request.context.serialize())
+        if self.request.authenticated_role != "auction":
+            if not self.request.auction.rectificationPeriod:
+                self.request.auction.rectificationPeriod = generate_rectificationPeriod(self.request.auction)
+            invalidate_bids_data(self.request.auction)
+        if save_auction(self.request):
             self.LOGGER.info('Updated auction document {}'.format(self.request.context.id),
                         extra=context_unpack(self.request, {'MESSAGE_ID': 'auction_document_patch'}))
             return {'data': self.request.context.serialize("view")}

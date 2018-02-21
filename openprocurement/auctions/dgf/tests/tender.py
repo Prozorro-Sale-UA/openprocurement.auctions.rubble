@@ -9,10 +9,7 @@ from iso8601 import parse_date
 from openprocurement.api.utils import ROUTE_PREFIX
 from openprocurement.api.models import get_now, SANDBOX_MODE, TZ
 from openprocurement.auctions.dgf.constants import (
-  MINIMAL_PERIOD_FROM_RECTIFICATION_END,
-  RECTIFICATION_END_EDITING_AND_VALIDATION_REQUIRED_FROM,
-  MINIMAL_PERIOD_FROM_ENQUIRY_END,
-  ENQUIRY_END_EDITING_AND_VALIDATION_REQUIRED_FROM
+  MINIMAL_PERIOD_FROM_RECTIFICATION_END
 )
 from openprocurement.auctions.dgf.models import DGFOtherAssets, DGFFinancialAssets, DGF_ID_REQUIRED_FROM, CLASSIFICATION_PRECISELY_FROM, DGF_ADDRESS_REQUIRED_FROM
 from openprocurement.auctions.dgf.tests.base import test_auction_maximum_data, test_auction_data, test_financial_auction_data, test_organization, test_financial_organization, BaseWebTest, BaseAuctionWebTest, DEFAULT_ACCELERATION, test_bids, test_financial_bids
@@ -715,7 +712,6 @@ class AuctionResourceTest(BaseWebTest):
             self.assertEqual(parse_date(auction['tenderPeriod']['endDate']).date(), parse_date(data['auctionPeriod']['startDate'], TZ).date() - timedelta(days=1))
             self.assertEqual(parse_date(auction['tenderPeriod']['endDate']).time(), time(20, 0))
 
-    @unittest.skipIf(get_now() < RECTIFICATION_END_EDITING_AND_VALIDATION_REQUIRED_FROM, "rectification.endDate validation required only from: {}".format(RECTIFICATION_END_EDITING_AND_VALIDATION_REQUIRED_FROM))
     def test_create_auction_rectificationPeriod_generated(self):
         response = self.app.post_json('/auctions', {'data': self.initial_data})
         self.assertEqual(response.status, '201 Created')
@@ -733,7 +729,6 @@ class AuctionResourceTest(BaseWebTest):
         else:
             self.assertEqual(timedelta_during_periods_ends, (MINIMAL_PERIOD_FROM_RECTIFICATION_END / DEFAULT_ACCELERATION))
 
-    @unittest.skipIf(get_now() < RECTIFICATION_END_EDITING_AND_VALIDATION_REQUIRED_FROM, "rectificationPeriod.endDate validation required only from: {}".format(RECTIFICATION_END_EDITING_AND_VALIDATION_REQUIRED_FROM))
     def test_create_auction_rectificationPeriod_set(self):
         now = get_now()
         auction_data = deepcopy(self.initial_data)
@@ -1330,7 +1325,6 @@ class AuctionResourceTest(BaseWebTest):
         self.assertEqual(response.content_type, 'application/json')
         self.assertEqual(response.json['errors'][0]["description"], "Can't update auction in current (complete) status")
 
-    @unittest.skipIf(get_now() < RECTIFICATION_END_EDITING_AND_VALIDATION_REQUIRED_FROM, "rectificationPeriod.endDate validation required only from: {}".format(RECTIFICATION_END_EDITING_AND_VALIDATION_REQUIRED_FROM))
     def test_patch_auction_rectificationPeriod_invalidationDate(self):
 
         response = self.app.get('/auctions')
@@ -1345,6 +1339,33 @@ class AuctionResourceTest(BaseWebTest):
         self.assertNotIn('invalidationDate', response.json['data']['rectificationPeriod'])
         auction = response.json['data']
         owner_token = response.json['access']['token']
+
+        # patch one of main auction field by auction owner
+
+        response = self.app.patch_json('/auctions/{}?acc_token={}'.format(auction['id'], owner_token), {"data": {"value": {"amount": 120}}})
+        self.assertEqual(response.status, '200 OK')
+        self.assertEqual(response.content_type, 'application/json')
+        self.assertIn('invalidationDate', response.json['data']['rectificationPeriod'])
+
+    def test_patch_old_auction_rectificationPeriod_invalidationDate(self):
+
+        response = self.app.get('/auctions')
+        self.assertEqual(response.status, '200 OK')
+        self.assertEqual(len(response.json['data']), 0)
+
+        data = deepcopy(self.initial_data)
+        data['auctionPeriod']['startDate'] = (get_now().date() + timedelta(days=8)).isoformat()
+        data['guarantee'] = {"amount": 100, "currency": "UAH"}
+
+        response = self.app.post_json('/auctions', {'data': data})
+        self.assertEqual(response.status, '201 Created')
+        self.assertNotIn('invalidationDate', response.json['data']['rectificationPeriod'])
+        auction = response.json['data']
+        owner_token = response.json['access']['token']
+
+        db_auction = self.db.get(auction['id'])
+        del db_auction['rectificationPeriod']
+        self.db.save(db_auction)
 
         # patch one of main auction field by auction owner
 

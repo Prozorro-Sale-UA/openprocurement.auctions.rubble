@@ -14,7 +14,8 @@ from openprocurement.auctions.core.validation import (
 )
 from openprocurement.auctions.dgf.utils import (
     check_status,
-    invalidate_bids_data
+    invalidate_bids_data,
+    generate_rectificationPeriod
 )
 from openprocurement.auctions.dgf.validation import (
     validate_rectification_period_editing,
@@ -192,7 +193,9 @@ class AuctionResource(APIResource):
         else:
             apply_patch(self.request, save=False, src=self.request.validated['auction_src'])
             if auction.status == 'active.tendering' and self.request.authenticated_role == 'auction_owner':
-                invalidate_bids_data(self.request)
+                if not auction.rectificationPeriod:
+                    auction.rectificationPeriod = generate_rectificationPeriod(auction)
+                invalidate_bids_data(auction)
             save_auction(self.request)
         self.LOGGER.info('Updated auction {}'.format(auction.id),
                     extra=context_unpack(self.request, {'MESSAGE_ID': 'auction_patch'}))

@@ -138,8 +138,12 @@ msgid "|ocdsDescription| Name of the unit"
 msgstr "|ocdsDescription| Назва одиниці виміру"
 
 #: ../../source/standard/item.rst:63
-msgid "Address, where the item is located."
-msgstr "Адреса, де розташований елемент."
+msgid ""
+"Address, where the item is located. "
+"Classification codes (CAV-PS) for which item.address object is optional are given below:"
+msgstr ""
+"Адреса, де розташований елемент. "
+"Класифікатори (CAV-PS) для яких заповнення полів item.address є необов'язковим, знаходяться за посиланням нижче:"
 
 #: ../../source/standard/item.rst:68
 msgid ""

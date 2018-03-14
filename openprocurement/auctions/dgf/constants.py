@@ -42,3 +42,13 @@ CPV_NON_SPECIFIC_LOCATION_UNITS = ('45', '48', '50', '51', '55', '60', '63', '64
                                    '65', '66', '71', '72', '73', '75', '76', '77',
                                    '79', '80', '85', '90', '92', '98')
 CAV_NON_SPECIFIC_LOCATION_UNITS = ('07', '08')
+
+#Views location
+
+FINANCIAL_VIEW_LOCATIONS = [
+    "openprocurement.auctions.dgf.views.financial",
+]
+
+OTHER_VIEW_LOCATIONS = [
+    "openprocurement.auctions.dgf.views.other",
+]

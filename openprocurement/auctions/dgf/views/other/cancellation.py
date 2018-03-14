@@ -8,7 +8,7 @@ from openprocurement.api.utils import (
 from openprocurement.auctions.core.utils import (
     apply_patch,
     save_auction,
-    add_next_award,
+    # add_next_award,
     opresource,
 
 )

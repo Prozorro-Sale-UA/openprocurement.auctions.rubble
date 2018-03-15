@@ -21,27 +21,34 @@ from openprocurement.api.interfaces import IAwardingNextCheck
 
 from openprocurement.auctions.core.models import IAuction
 from openprocurement.auctions.flash.models import (
-    Auction as BaseAuction, Document as BaseDocument, Bid as BaseBid,
-    Complaint as BaseComplaint, Cancellation as BaseCancellation,
-    Contract as BaseContract, Award as BaseAward, Lot, edit_role,
+    Auction as BaseAuction, Bid as BaseBid,
+    Cancellation as BaseCancellation,
+    Lot, edit_role,
     calc_auction_end_time, COMPLAINT_STAND_STILL_TIME,
-    Organization as BaseOrganization, Item as BaseItem,
     ProcuringEntity as BaseProcuringEntity, Question as BaseQuestion,
     get_auction, Administrator_role
 )
 
+
+from openprocurement.auctions.core.models import (
+    dgfCDB2Document as Document,
+    dgfCDB2Item as Item,
+    dgfOrganization as Organization,
+    dgfCDB2Complaint as Complaint,
+    Identifier
+)
+
+from openprocurement.auctions.core.plugins.awarding.v2_1.models import Award
+from openprocurement.auctions.core.plugins.contracting.v2_1.models import Contract
+
 from .utils import calculate_enddate, get_auction_creation_date, generate_rectificationPeriod
 
 from .constants import (
-    AWARD_PAYMENT_TIME, CONTRACT_SIGNING_TIME,
-    VERIFY_AUCTION_PROTOCOL_TIME, DOCUMENT_TYPE_OFFLINE,
-    DOCUMENT_TYPE_URL_ONLY, CLASSIFICATION_PRECISELY_FROM,
-    DGF_ID_REQUIRED_FROM, CAVPS_CODES,
-    CPVS_CODES, ORA_CODES, MINIMAL_EXPOSITION_PERIOD,
+    DOCUMENT_TYPE_OFFLINE,
+    DOCUMENT_TYPE_URL_ONLY,
+    DGF_ID_REQUIRED_FROM,
+    ORA_CODES, MINIMAL_EXPOSITION_PERIOD,
     MINIMAL_EXPOSITION_REQUIRED_FROM,
-    CPV_NON_SPECIFIC_LOCATION_UNITS,
-    CAV_NON_SPECIFIC_LOCATION_UNITS,
-    DGF_ADDRESS_REQUIRED_FROM,
     MINIMAL_PERIOD_FROM_RECTIFICATION_END
 )
 
@@ -75,137 +82,9 @@ def bids_validation_wrapper(validation_func):
     return validator
 
 
-class CPVCAVClassification(Classification):
-    scheme = StringType(required=True, default=u'CPV', choices=[u'CPV', u'CAV-PS'])
-    id = StringType(required=True)
-
-    def validate_id(self, data, code):
-        auction = get_auction(data['__parent__'])
-        if data.get('scheme') == u'CPV' and code not in CPV_CODES:
-            raise ValidationError(BaseType.MESSAGES['choices'].format(unicode(CPV_CODES)))
-        elif data.get('scheme') == u'CAV-PS' and code not in CAVPS_CODES:
-            raise ValidationError(BaseType.MESSAGES['choices'].format(unicode(CAVPS_CODES)))
-        if code.find("00000-") > 0 and get_auction_creation_date(data) > CLASSIFICATION_PRECISELY_FROM:
-            raise ValidationError('At least {} classification class (XXXX0000-Y) should be specified more precisely'.format(data.get('scheme')))
-
-
-class AdditionalClassification(Classification):
-    def validate_id(self, data, code):
-        if data.get('scheme') == u'CPVS' and code not in CPVS_CODES:
-            raise ValidationError(BaseType.MESSAGES['choices'].format(unicode(CPVS_CODES)))
-
-
-class Item(BaseItem):
-    """A good, service, or work to be contracted."""
-    class Options:
-        roles = {
-            'create': blacklist('deliveryLocation', 'deliveryAddress'),
-            'edit_active.tendering': blacklist('deliveryLocation', 'deliveryAddress'),
-        }
-    classification = ModelType(CPVCAVClassification, required=True)
-    additionalClassifications = ListType(ModelType(AdditionalClassification), default=list())
-    address = ModelType(Address)
-    location = ModelType(Location)
-    deliveryDate = None
-
-    def validate_address(self, data, address):
-        import pdb; pdb.set_trace()
-        if not address:
-            if get_auction_creation_date(data) > DGF_ADDRESS_REQUIRED_FROM:
-                non_specific_location_cav = data['classification']['scheme'] == u'CAV-PS' and not data['classification']['id'].startswith(CAV_NON_SPECIFIC_LOCATION_UNITS)
-                non_specific_location_cpv = data['classification']['scheme'] == u'CPV' and not data['classification']['id'].startswith(CPV_NON_SPECIFIC_LOCATION_UNITS)
-                if non_specific_location_cav or non_specific_location_cpv:
-                    raise ValidationError(u'This field is required.')
-
-
-class Identifier(BaseIdentifier):
-    scheme = StringType(required=True, choices=ORA_CODES)
-
-
-class Organization(BaseOrganization):
-    identifier = ModelType(Identifier, required=True)
-    additionalIdentifiers = ListType(ModelType(Identifier))
-
-
 class ProcuringEntity(BaseProcuringEntity):
     identifier = ModelType(Identifier, required=True)
     additionalIdentifiers = ListType(ModelType(Identifier))
-
-
-class Document(BaseDocument):
-    format = StringType(regex='^[-\w]+/[-\.\w\+]+$')
-    url = StringType()
-    index = IntType()
-    accessDetails = StringType()
-    documentType = StringType(choices=[
-        'auctionNotice', 'awardNotice', 'contractNotice',
-        'notice', 'biddingDocuments', 'technicalSpecifications',
-        'evaluationCriteria', 'clarifications', 'shortlistedFirms',
-        'riskProvisions', 'billOfQuantity', 'bidders', 'conflictOfInterest',
-        'debarments', 'evaluationReports', 'winningBid', 'complaints',
-        'contractSigned', 'contractArrangements', 'contractSchedule',
-        'contractAnnexe', 'contractGuarantees', 'subContract',
-        'eligibilityCriteria', 'contractProforma', 'commercialProposal',
-        'qualificationDocuments', 'eligibilityDocuments', 'tenderNotice',
-        'illustration', 'auctionProtocol', 'x_dgfAssetFamiliarization',
-        'x_presentation', 'x_nda'
-    ])
-
-    @serializable(serialized_name="url", serialize_when_none=False)
-    def download_url(self):
-        url = self.url
-        if not url or '?download=' not in url:
-            return url
-        doc_id = parse_qs(urlparse(url).query)['download'][-1]
-        root = self.__parent__
-        parents = []
-        while root.__parent__ is not None:
-            parents[0:0] = [root]
-            root = root.__parent__
-        request = root.request
-        if not request.registry.docservice_url:
-            return url
-        if 'status' in parents[0] and parents[0].status in type(parents[0])._options.roles:
-            role = parents[0].status
-            for index, obj in enumerate(parents):
-                if obj.id != url.split('/')[(index - len(parents)) * 2 - 1]:
-                    break
-                field = url.split('/')[(index - len(parents)) * 2]
-                if "_" in field:
-                    field = field[0] + field.title().replace("_", "")[1:]
-                roles = type(obj)._options.roles
-                if roles[role if role in roles else 'default'](field, []):
-                    return url
-        from openprocurement.api.utils import generate_docservice_url
-        if not self.hash:
-            path = [i for i in urlparse(url).path.split('/') if len(i) == 32 and not set(i).difference(hexdigits)]
-            return generate_docservice_url(request, doc_id, False, '{}/{}'.format(path[0], path[-1]))
-        return generate_docservice_url(request, doc_id, False)
-
-    def validate_hash(self, data, hash_):
-        doc_type = data.get('documentType')
-        if doc_type in (DOCUMENT_TYPE_URL_ONLY + DOCUMENT_TYPE_OFFLINE) and hash_:
-            raise ValidationError(u'This field is not required.')
-
-    def validate_format(self, data, format_):
-        doc_type = data.get('documentType')
-        if doc_type not in (DOCUMENT_TYPE_URL_ONLY + DOCUMENT_TYPE_OFFLINE) and not format_:
-            raise ValidationError(u'This field is required.')
-        if doc_type in DOCUMENT_TYPE_URL_ONLY and format_:
-            raise ValidationError(u'This field is not required.')
-
-    def validate_url(self, data, url):
-        doc_type = data.get('documentType')
-        if doc_type in DOCUMENT_TYPE_URL_ONLY:
-            URLType().validate(url)
-        if doc_type in DOCUMENT_TYPE_OFFLINE and url:
-            raise ValidationError(u'This field is not required.')
-        if doc_type not in DOCUMENT_TYPE_OFFLINE and not url:
-            raise ValidationError(u'This field is required.')
-
-    def validate_accessDetails(self, data, accessDetails):
-        if data.get('documentType') in DOCUMENT_TYPE_OFFLINE and not accessDetails:
-            raise ValidationError(u'This field is required.')
 
 
 class Bid(BaseBid):
@@ -227,84 +106,8 @@ class Question(BaseQuestion):
     author = ModelType(Organization, required=True)
 
 
-class Complaint(BaseComplaint):
-    author = ModelType(Organization, required=True)
-    documents = ListType(ModelType(Document), default=list())
-
-
 class Cancellation(BaseCancellation):
     documents = ListType(ModelType(Document), default=list())
-
-
-class Contract(BaseContract):
-    items = ListType(ModelType(Item))
-    suppliers = ListType(ModelType(Organization), min_size=1, max_size=1)
-    complaints = ListType(ModelType(Complaint), default=list())
-    documents = ListType(ModelType(Document), default=list())
-
-
-class Award(BaseAward):
-    class Options:
-        roles = {
-            'create': blacklist('id', 'status', 'date', 'documents', 'complaints', 'complaintPeriod', 'verificationPeriod', 'paymentPeriod', 'signingPeriod'),
-            'Administrator': whitelist('verificationPeriod', 'paymentPeriod', 'signingPeriod'),
-        }
-
-    def __local_roles__(self):
-        auction = get_auction(self)
-        for bid in auction.bids:
-            if bid.id == self.bid_id:
-                bid_owner = bid.owner
-                bid_owner_token = bid.owner_token
-        return dict([('{}_{}'.format(bid_owner, bid_owner_token), 'bid_owner')])
-
-    def __acl__(self):
-        auction = get_auction(self)
-        for bid in auction.bids:
-            if bid.id == self.bid_id:
-                bid_owner = bid.owner
-                bid_owner_token = bid.owner_token
-        return [(Allow, '{}_{}'.format(bid_owner, bid_owner_token), 'edit_auction_award')]
-
-    # pending status is deprecated. Only for backward compatibility with awarding 1.0
-    status = StringType(required=True, choices=['pending.waiting', 'pending.verification', 'pending.payment', 'unsuccessful', 'active', 'cancelled', 'pending'], default='pending.verification')
-    suppliers = ListType(ModelType(Organization), min_size=1, max_size=1)
-    complaints = ListType(ModelType(Complaint), default=list())
-    documents = ListType(ModelType(Document), default=list())
-    items = ListType(ModelType(Item))
-    verificationPeriod = ModelType(Period)
-    paymentPeriod = ModelType(Period)
-    signingPeriod = ModelType(Period)
-
-    @serializable(serialized_name="verificationPeriod", serialize_when_none=False)
-    def award_verificationPeriod(self):
-        period = self.verificationPeriod
-        if not period:
-            return
-        if not period.endDate:
-            auction = get_auction(self)
-            calculate_enddate(auction, period, VERIFY_AUCTION_PROTOCOL_TIME)
-        return period.to_primitive()
-
-    @serializable(serialized_name="paymentPeriod", serialize_when_none=False)
-    def award_paymentPeriod(self):
-        period = self.paymentPeriod
-        if not period:
-            return
-        if not period.endDate:
-            auction = get_auction(self)
-            calculate_enddate(auction, period, AWARD_PAYMENT_TIME)
-        return period.to_primitive()
-
-    @serializable(serialized_name="signingPeriod", serialize_when_none=False)
-    def award_signingPeriod(self):
-        period = self.signingPeriod
-        if not period:
-            return
-        if not period.endDate:
-            auction = get_auction(self)
-            calculate_enddate(auction, period, CONTRACT_SIGNING_TIME)
-        return period.to_primitive()
 
 
 def validate_not_available(items, *args):
@@ -490,7 +293,7 @@ def validate_ua_fin(items, *args):
         raise ValidationError(u"One of additional classifications should be UA-FIN.")
 
 
-class FinantialOrganization(BaseOrganization):
+class FinantialOrganization(Organization):
     identifier = ModelType(Identifier, required=True)
     additionalIdentifiers = ListType(ModelType(Identifier), required=True, validators=[validate_ua_fin])
 

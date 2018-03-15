@@ -11,9 +11,12 @@ from openprocurement.api.models import get_now, SANDBOX_MODE, TZ
 from openprocurement.auctions.dgf.constants import (
   MINIMAL_PERIOD_FROM_RECTIFICATION_END
 )
-from openprocurement.auctions.dgf.models import DGFOtherAssets, DGFFinancialAssets, DGF_ID_REQUIRED_FROM, CLASSIFICATION_PRECISELY_FROM, DGF_ADDRESS_REQUIRED_FROM
+from openprocurement.auctions.dgf.models import DGFOtherAssets, DGFFinancialAssets, DGF_ID_REQUIRED_FROM
 from openprocurement.auctions.dgf.tests.base import test_auction_maximum_data, test_auction_data, test_financial_auction_data, test_organization, test_financial_organization, BaseWebTest, BaseAuctionWebTest, DEFAULT_ACCELERATION, test_bids, test_financial_bids
-
+from openprocurement.auctions.core.constants import (
+    DGF_CDB2_CLASSIFICATION_PRECISELY_FROM as CLASSIFICATION_PRECISELY_FROM,
+    DGF_CDB2_ADDRESS_REQUIRED_FROM as DGF_ADDRESS_REQUIRED_FROM
+)
 
 class AuctionTest(BaseWebTest):
     auction = DGFOtherAssets

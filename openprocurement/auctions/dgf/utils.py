@@ -57,23 +57,7 @@ def check_bids(request):
             auction.status = 'unsuccessful'
         elif auction.numberOfBids == 1:
             auction.auctionPeriod.startDate = None
-            request.content_configurator.start_awarding(request)
-
-
-def check_auction_status(request):
-    auction = request.validated['auction']
-    if auction.awards:
-        awards_statuses = set([award.status for award in auction.awards])
-    else:
-        awards_statuses = set([""])
-    if not awards_statuses.difference(set(['unsuccessful', 'cancelled'])):
-        LOGGER.info('Switched auction {} to {}'.format(auction.id, 'unsuccessful'),
-                    extra=context_unpack(request, {'MESSAGE_ID': 'switched_auction_unsuccessful'}))
-        auction.status = 'unsuccessful'
-    if auction.contracts and auction.contracts[-1].status == 'active':
-        LOGGER.info('Switched auction {} to {}'.format(auction.id, 'complete'),
-                    extra=context_unpack(request, {'MESSAGE_ID': 'switched_auction_complete'}))
-        auction.status = 'complete'
+            request.content_configurator.start_awarding()
 
 
 def check_auction_protocol(award):

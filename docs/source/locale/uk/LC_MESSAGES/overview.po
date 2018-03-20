@@ -113,8 +113,11 @@ msgstr ""
 msgid "`tenderPeriod` must be at least 7 calendar days."
 msgstr "`tenderPeriod` має складати щонайменше 7 календарних днів."
 
-msgid "Organizer can edit procedure only during *enquiryPeriod*. "
-msgstr "Організатор може редагувати аукціон тільки впродовж *enquiryPeriod*. "
+msgid "Organizer can edit procedure only during *rectificationPeriod*."
+msgstr "Організатор може редагувати аукціон тільки впродовж *rectificationPeriod*."
+
+msgid "Organizer can add and edit documents only during *rectificationPeriod*."
+msgstr "Організатор може додавати та редагувати документи аукціону тільки впродовж *rectificationPeriod*. "
 
 msgid "Optionally Organizer can set *enquiryPeriod.endDate*."
 msgstr "Також додатково Організатор має можливість встановити *enquiryPeriod.endDate*."

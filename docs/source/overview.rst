@@ -18,7 +18,8 @@ Features
 * If *enquiryPeriod.endDate* is not provided it will be calculated automatically.
 * Organizer can both increase and decrease `value.amount`, `guarantee.amount`, `minimalStep.amount`.
 * `tenderPeriod` must be at least 7 calendar days.
-* Organizer can edit procedure only during *enquiryPeriod*.
+* Organizer can edit procedure only during *rectificationPeriod*.
+* Organizer can add and edit documents only during *rectificationPeriod*.
 * As soon as the action is edited, the status of all of the submitted bids will be switched to `invalid`.
 * Procedure can be switched from *draft* status to *active.tendering*.
 * During *active.tendering* period participants can ask questions, submit proposals, and upload documents.

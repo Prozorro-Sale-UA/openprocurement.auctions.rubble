@@ -23,14 +23,18 @@ from openprocurement.auctions.core.models import IAuction
 from openprocurement.auctions.flash.models import (
     Auction as BaseAuction, Bid as BaseBid,
     Cancellation as BaseCancellation,
-    Lot, edit_role,
-    calc_auction_end_time, COMPLAINT_STAND_STILL_TIME,
+    Lot,
     ProcuringEntity as BaseProcuringEntity, Question as BaseQuestion,
-    get_auction, Administrator_role
+    get_auction
 )
 
 
 from openprocurement.auctions.core.models import (
+    IAuction,
+    calc_auction_end_time,
+    edit_role,
+    COMPLAINT_STAND_STILL_TIME,
+    Administrator_role,
     dgfCDB2Document as Document,
     dgfCDB2Item as Item,
     dgfOrganization as Organization,

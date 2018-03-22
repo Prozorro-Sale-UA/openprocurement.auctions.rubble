@@ -9,6 +9,7 @@ from urlparse import urlparse, parse_qs
 from string import hexdigits
 from zope.interface import implementer
 from pyramid.security import Allow
+from pytz import UTC
 
 from openprocurement.api.models import (
     BooleanType, ListType, Feature, Period, get_now, TZ,
@@ -394,9 +395,12 @@ class Auction(BaseAuction):
         if not self.tenderPeriod:
             self.tenderPeriod = type(self).tenderPeriod.model_class()
         now = get_now()
+        start_date = TZ.localize(self.auctionPeriod.startDate.replace(tzinfo=None))
         self.tenderPeriod.startDate = self.enquiryPeriod.startDate = now
-        pause_between_periods = self.auctionPeriod.startDate - (self.auctionPeriod.startDate.replace(hour=20, minute=0, second=0, microsecond=0) - timedelta(days=1))
-        self.tenderPeriod.endDate = self.enquiryPeriod.endDate = calculate_business_date(self.auctionPeriod.startDate, -pause_between_periods, self)
+        pause_between_periods = start_date - (start_date.replace(hour=20, minute=0, second=0, microsecond=0) - timedelta(days=1))
+        end_date = calculate_business_date(start_date, -pause_between_periods, self)
+        self.enquiryPeriod.endDate = end_date
+        self.tenderPeriod.endDate = self.enquiryPeriod.endDate
         if not self.rectificationPeriod:
             self.rectificationPeriod = generate_rectificationPeriod(self)
         self.rectificationPeriod.startDate = now

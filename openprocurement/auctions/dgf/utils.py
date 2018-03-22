@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from datetime import timedelta
 from itertools import izip_longest
 from logging import getLogger
 from pkg_resources import get_distribution

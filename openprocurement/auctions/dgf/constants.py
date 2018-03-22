@@ -16,7 +16,7 @@ DOCUMENT_TYPE_OFFLINE = ['x_dgfAssetFamiliarization']
 DOCUMENT_TYPE_URL_ONLY = ['virtualDataRoom']
 
 #requiremnt periods
-MINIMAL_EXPOSITION_PERIOD = timedelta(days=7)
+MINIMAL_EXPOSITION_PERIOD = timedelta(days=6)
 MINIMAL_PERIOD_FROM_RECTIFICATION_END = timedelta(days=5)
 VERIFY_AUCTION_PROTOCOL_TIME = timedelta(days=6)
 AWARD_PAYMENT_TIME = timedelta(days=20)

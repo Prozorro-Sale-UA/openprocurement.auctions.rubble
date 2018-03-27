@@ -11,4 +11,4 @@ def validate_rectification_period_editing(request):
         if rectificationPeriod.endDate.astimezone(TZ) < get_now():
             request.errors.add('body', 'data', 'Auction can be edited only during the rectification period: from ({}) to ({}).'.format(rectificationPeriod.startDate.isoformat(), rectificationPeriod.endDate.isoformat()))
             request.errors.status = 403
-            raise error_handler(request.errors)
+            raise error_handler(request)

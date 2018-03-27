@@ -11,13 +11,14 @@ from zope.interface import implementer
 from pyramid.security import Allow
 
 from openprocurement.api.models import (
-    BooleanType, ListType, Feature, Period, get_now, TZ,
+    BooleanType, ListType, Feature, Period, get_now,
     validate_features_uniq, validate_lots_uniq, Identifier as BaseIdentifier,
-    Classification, validate_items_uniq, ORA_CODES, Address, Location,
-    schematics_embedded_role, SANDBOX_MODE, CPV_CODES, IsoDateTimeType
+    Classification, validate_items_uniq, Address, Location,
+    schematics_embedded_role, IsoDateTimeType
 )
 from openprocurement.api.utils import calculate_business_date, get_request_from_root
 from openprocurement.api.interfaces import IAwardingNextCheck
+from openprocurement.api.constants import SANDBOX_MODE, CPV_CODES, ORA_CODES, TZ, AUCTIONS_COMPLAINT_STAND_STILL_TIME as COMPLAINT_STAND_STILL_TIME
 
 from openprocurement.auctions.core.models import IAuction
 from openprocurement.auctions.flash.models import (
@@ -33,7 +34,6 @@ from openprocurement.auctions.core.models import (
     IAuction,
     calc_auction_end_time,
     edit_role,
-    COMPLAINT_STAND_STILL_TIME,
     Administrator_role,
     dgfCDB2Document as Document,
     dgfCDB2Item as Item,

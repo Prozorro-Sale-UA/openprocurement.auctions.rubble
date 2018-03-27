@@ -7,7 +7,8 @@ from uuid import uuid4
 from base64 import b64encode
 from urllib import urlencode
 
-from openprocurement.api.models import SANDBOX_MODE, get_now
+from openprocurement.api.models import get_now
+from openprocurement.api.constants import SANDBOX_MODE
 from openprocurement.api.utils import apply_data_patch
 from openprocurement.auctions.flash.tests.base import (
     BaseWebTest as FlashBaseWebTest,

@@ -8,7 +8,8 @@ from openprocurement.auctions.core.constants import (
     DGF_CDB2_CLASSIFICATION_PRECISELY_FROM as CLASSIFICATION_PRECISELY_FROM,
     DGF_CDB2_ADDRESS_REQUIRED_FROM as DGF_ADDRESS_REQUIRED_FROM
 )
-from openprocurement.api.models import get_now, SANDBOX_MODE, TZ
+from openprocurement.auctions.core.models import SANDBOX_MODE
+from openprocurement.api.models import get_now, TZ
 from openprocurement.auctions.dgf.tests.base import (
     test_auction_maximum_data,
     test_auction_data,
@@ -106,7 +107,7 @@ def create_auction_invalid(self):
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['status'], 'error')
     self.assertEqual(response.json['errors'], [
-        {u'description': u'Expecting value: line 1 column 1 (char 0)',
+        {u'description': u'No JSON object could be decoded',
             u'location': u'body', u'name': u'data'}
     ])
 
@@ -142,7 +143,7 @@ def create_auction_invalid(self):
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['status'], 'error')
     self.assertEqual(response.json['errors'], [
-        {u'description': u'Not implemented', u'location': u'data', u'name': u'procurementMethodType'}
+        {u'description': u'procurementMethodType is not implemented', u'location': u'body', u'name': u'data'}
     ])
 
     response = self.app.post_json(request_path, {'data': {'invalid_field': 'invalid_value', 'procurementMethodType': self.initial_data['procurementMethodType']}}, status=422)
@@ -1006,11 +1007,11 @@ def patch_auction_during_rectification_period(self):
     self.assertEqual(response.json['data']['items'][0]['unit'], unit_data_edited)
 
     response = self.app.patch_json('/auctions/{}'.format(self.auction_id),
-                                   {'data': {'items': [{"quantity": auction['items'][0]['quantity'] + 1}]}})
+                                   {'data': {'items': [{"quantity": float(auction['items'][0]['quantity']) + 1}]}})
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
     self.assertNotEqual(response.json['data']['items'][0]['quantity'], auction['items'][0]['quantity'])
-    self.assertEqual(response.json['data']['items'][0]['quantity'], auction['items'][0]['quantity'] + 1)
+    self.assertEqual(response.json['data']['items'][0]['quantity'], str(float(auction['items'][0]['quantity']) + 1))
 
     response = self.app.patch_json('/auctions/{}'.format(self.auction_id),
                                    {'data': {'tenderAttempts': auction['tenderAttempts'] + 1}})

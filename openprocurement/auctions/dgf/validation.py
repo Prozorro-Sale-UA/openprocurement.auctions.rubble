@@ -4,7 +4,7 @@ from openprocurement.api.models import get_now, TZ
 from openprocurement.auctions.dgf.utils import generate_rectificationPeriod
 
 
-def validate_rectification_period_editing(request):
+def validate_rectification_period_editing(request, **kwargs):
     if request.context.status == 'active.tendering' and request.authenticated_role not in ['chronograph', 'Administrator']:
         auction = request.validated['auction']
         rectificationPeriod = auction.rectificationPeriod or generate_rectificationPeriod(auction)

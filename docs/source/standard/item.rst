@@ -67,6 +67,12 @@ Schema
     :ref:`Address`
 
     Address, where the item is located.
+    Classification codes (CAV-PS) for which `item.address` object is optional are given below:
+
+    :download:`CPV <../tutorial/cpv_codes_item_address_optional.json>`
+
+    :download:`CAV_v2 <../tutorial/cav_v2_codes_item_address_optional.json>`
+
 
 :location:
     dictionary

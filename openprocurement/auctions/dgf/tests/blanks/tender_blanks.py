@@ -1007,11 +1007,11 @@ def patch_auction_during_rectification_period(self):
     self.assertEqual(response.json['data']['items'][0]['unit'], unit_data_edited)
 
     response = self.app.patch_json('/auctions/{}'.format(self.auction_id),
-                                   {'data': {'items': [{"quantity": float(auction['items'][0]['quantity']) + 1}]}})
+                                   {'data': {'items': [{"quantity": auction['items'][0]['quantity'] + 1}]}})
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
     self.assertNotEqual(response.json['data']['items'][0]['quantity'], auction['items'][0]['quantity'])
-    self.assertEqual(response.json['data']['items'][0]['quantity'], str(float(auction['items'][0]['quantity']) + 1))
+    self.assertEqual(response.json['data']['items'][0]['quantity'], auction['items'][0]['quantity'] + 1)
 
     response = self.app.patch_json('/auctions/{}'.format(self.auction_id),
                                    {'data': {'tenderAttempts': auction['tenderAttempts'] + 1}})

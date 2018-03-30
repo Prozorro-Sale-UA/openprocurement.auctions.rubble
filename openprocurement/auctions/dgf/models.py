@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime, timedelta, time
-from schematics.types import StringType, URLType, IntType, BaseType
+from schematics.types import StringType, URLType, IntType, BaseType, BooleanType
 from schematics.types.compound import ModelType
 from schematics.exceptions import ValidationError
 from schematics.transforms import blacklist, whitelist
@@ -10,12 +10,14 @@ from string import hexdigits
 from zope.interface import implementer
 from pyramid.security import Allow
 
-from openprocurement.api.models import (
-    BooleanType, ListType, Feature, Period, get_now,
+from openprocurement.api.models.auction_models.models import (
+    Feature, get_now,
     validate_features_uniq, validate_lots_uniq, Identifier as BaseIdentifier,
     Classification, validate_items_uniq, Address, Location,
     schematics_embedded_role, IsoDateTimeType
 )
+from openprocurement.api.models.schematics_extender import ListType
+from openprocurement.api.models.models import Period
 from openprocurement.api.utils import calculate_business_date, get_request_from_root
 from openprocurement.api.interfaces import IAwardingNextCheck
 from openprocurement.api.constants import SANDBOX_MODE, CPV_CODES, ORA_CODES, TZ, AUCTIONS_COMPLAINT_STAND_STILL_TIME as COMPLAINT_STAND_STILL_TIME

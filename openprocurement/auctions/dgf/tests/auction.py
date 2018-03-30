@@ -3,7 +3,7 @@ import unittest
 from datetime import timedelta
 from copy import deepcopy
 
-from openprocurement.api.models import get_now
+from openprocurement.api.models.auction_models.models import get_now
 from openprocurement.auctions.dgf.tests.base import (
     BaseAuctionWebTest, test_bids, test_lots, test_organization, test_features_auction_data,
     test_financial_auction_data, test_financial_bids, test_financial_organization, test_auction_data

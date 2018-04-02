@@ -20,7 +20,7 @@ from openprocurement.auctions.core.plugins.contracting.v2_1.tests.blanks.contrac
     patch_auction_contract_2_lots
 
 )
-from openprocurement.api.models.auction_models.models import get_now
+from openprocurement.api.utils import get_now
 from openprocurement.auctions.dgf.tests.base import BaseAuctionWebTest, test_auction_data, test_bids, test_lots, test_financial_auction_data, test_financial_bids, test_financial_organization
 
 

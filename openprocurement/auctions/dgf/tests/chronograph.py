@@ -15,7 +15,7 @@ from openprocurement.auctions.core.tests.blanks.chronograph_blanks import (
     switch_to_pending_award,
     switch_to_complaint_award,
 )
-from openprocurement.api.models.auction_models.models import get_now
+from openprocurement.api.utils import get_now
 from openprocurement.auctions.dgf.tests.base import BaseAuctionWebTest, test_lots, test_bids, test_financial_auction_data, test_financial_organization, test_financial_bids, test_organization
 from openprocurement.auctions.dgf.tests.blanks.chronograph_blanks import (
     # AuctionSwitchQualificationResourceTest

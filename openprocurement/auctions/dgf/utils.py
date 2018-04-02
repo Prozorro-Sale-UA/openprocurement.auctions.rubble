@@ -3,10 +3,10 @@ from itertools import izip_longest
 from logging import getLogger
 from pkg_resources import get_distribution
 from barbecue import chef
-from openprocurement.api.models.auction_models.models import get_now, TZ
+from openprocurement.api.constants import TZ
 from openprocurement.api.utils import (
     upload_file as base_upload_file, get_file as base_get_file,
-    DOCUMENT_BLACKLISTED_FIELDS, context_unpack, calculate_business_date
+    DOCUMENT_BLACKLISTED_FIELDS, context_unpack, calculate_business_date, get_now
 )
 from openprocurement.auctions.core.utils import (
     check_complaint_status,

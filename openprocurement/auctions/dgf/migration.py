@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
-from openprocurement.api.models.auction_models.models import get_now, TZ
+from openprocurement.api.utils import get_now
 from openprocurement.api.traversal import Root
 from barbecue import chef
 from uuid import uuid4

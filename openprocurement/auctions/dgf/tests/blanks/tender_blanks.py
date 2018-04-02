@@ -9,7 +9,7 @@ from openprocurement.auctions.core.constants import (
     DGF_CDB2_ADDRESS_REQUIRED_FROM as DGF_ADDRESS_REQUIRED_FROM
 )
 from openprocurement.api.constants import SANDBOX_MODE
-from openprocurement.api.models import get_now, TZ
+from openprocurement.api.models.auction_models.models import get_now, TZ
 from openprocurement.auctions.dgf.tests.base import (
     test_auction_maximum_data,
     test_auction_data,

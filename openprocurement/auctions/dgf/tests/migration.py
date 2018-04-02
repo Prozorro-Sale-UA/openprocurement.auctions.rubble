@@ -5,7 +5,7 @@ from datetime import timedelta
 from uuid import uuid4
 from copy import deepcopy
 
-from openprocurement.api.models import get_now
+from openprocurement.api.models.auction_models.models import get_now
 from openprocurement.auctions.core.tests.base import snitch
 
 from openprocurement.auctions.dgf.migration import migrate_data, get_db_schema_version, set_db_schema_version, SCHEMA_VERSION

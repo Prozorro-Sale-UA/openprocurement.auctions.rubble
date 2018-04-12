@@ -13,10 +13,11 @@ from pyramid.security import Allow
 from openprocurement.api.models.auction_models.models import (
     Feature,
     validate_features_uniq, validate_lots_uniq, Identifier as BaseIdentifier,
-    Classification, validate_items_uniq, Address, Location,
+    Classification, Address, Location,
     schematics_embedded_role, IsoDateTimeType
 )
 from openprocurement.api.models.schematics_extender import ListType
+from openprocurement.api.validation import validate_items_uniq
 from openprocurement.api.models.models import Period
 from openprocurement.api.utils import calculate_business_date, get_request_from_root, get_now
 from openprocurement.api.interfaces import IAwardingNextCheck
@@ -157,7 +158,12 @@ class RectificationPeriod(Period):
     invalidationDate = IsoDateTimeType()
 
 
-create_role = (blacklist('owner_token', 'owner', '_attachments', 'revisions', 'date', 'dateModified', 'doc_id', 'auctionID', 'bids', 'documents', 'awards', 'questions', 'complaints', 'auctionUrl', 'status', 'enquiryPeriod', 'tenderPeriod', 'awardPeriod', 'procurementMethod', 'eligibilityCriteria', 'eligibilityCriteria_en', 'eligibilityCriteria_ru', 'awardCriteria', 'submissionMethod', 'cancellations', 'numberOfBidders', 'contracts') + schematics_embedded_role)
+create_role = (blacklist(
+    'owner_token', 'owner', '_attachments', 'revisions', 'date', 'dateModified', 'doc_id', 'auctionID', 'bids',
+    'documents', 'awards', 'questions', 'complaints', 'auctionUrl', 'status',
+    'enquiryPeriod', 'tenderPeriod', 'awardPeriod', 'procurementMethod', 'eligibilityCriteria',
+    'eligibilityCriteria_en', 'eligibilityCriteria_ru', 'awardCriteria', 'submissionMethod', 'cancellations',
+    'numberOfBidders', 'contracts') + schematics_embedded_role)
 edit_role = (edit_role + blacklist('enquiryPeriod', 'tenderPeriod', 'auction_value', 'auction_minimalStep', 'auction_guarantee', 'eligibilityCriteria', 'eligibilityCriteria_en', 'eligibilityCriteria_ru', 'awardCriteriaDetails', 'awardCriteriaDetails_en', 'awardCriteriaDetails_ru', 'procurementMethodRationale', 'procurementMethodRationale_en', 'procurementMethodRationale_ru', 'submissionMethodDetails', 'submissionMethodDetails_en', 'submissionMethodDetails_ru', 'minNumberOfQualifiedBids'))
 Administrator_role = (Administrator_role + whitelist('awards'))
 

@@ -23,13 +23,17 @@ from openprocurement.api.utils import calculate_business_date, get_request_from_
 from openprocurement.api.interfaces import IAwardingNextCheck
 from openprocurement.api.constants import SANDBOX_MODE, CPV_CODES, ORA_CODES, TZ, AUCTIONS_COMPLAINT_STAND_STILL_TIME as COMPLAINT_STAND_STILL_TIME
 
-from openprocurement.auctions.core.models import IAuction
+from openprocurement.auctions.core.models import (
+    IAuction,
+    get_auction,
+    Lot,
+    Cancellation as BaseCancellation,
+    Question as BaseQuestion,
+    flashProcuringEntity
+
+)
 from openprocurement.auctions.flash.models import (
     Auction as BaseAuction, Bid as BaseBid,
-    Cancellation as BaseCancellation,
-    Lot,
-    ProcuringEntity as BaseProcuringEntity, Question as BaseQuestion,
-    get_auction
 )
 
 
@@ -89,7 +93,7 @@ def bids_validation_wrapper(validation_func):
     return validator
 
 
-class ProcuringEntity(BaseProcuringEntity):
+class ProcuringEntity(flashProcuringEntity):
     identifier = ModelType(Identifier, required=True)
     additionalIdentifiers = ListType(ModelType(Identifier))
 

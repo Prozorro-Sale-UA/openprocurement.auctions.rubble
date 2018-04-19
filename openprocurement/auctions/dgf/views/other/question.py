@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-from openprocurement.api.models import get_now
 from openprocurement.api.utils import (
     json_view,
     context_unpack,
     APIResource,
 )
 from openprocurement.auctions.core.utils import (
+    get_now,
     apply_patch,
     save_auction,
     opresource,

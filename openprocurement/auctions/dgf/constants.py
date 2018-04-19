@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from openprocurement.api.models import TZ, ORA_CODES
+from openprocurement.api.constants import TZ, ORA_CODES
 
 
 def read_json(name):

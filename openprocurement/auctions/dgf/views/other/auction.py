@@ -2,16 +2,15 @@
 from openprocurement.api.utils import (
     json_view,
     context_unpack,
-    cleanup_bids_for_cancelled_lots,
     APIResource,
 )
 from openprocurement.auctions.core.utils import (
     save_auction,
     apply_patch,
     opresource,
+    cleanup_bids_for_cancelled_lots
 )
 from openprocurement.auctions.dgf.utils import (
-    create_awards,
     invalidate_bids_under_threshold
 )
 from openprocurement.auctions.core.validation import (
@@ -167,8 +166,8 @@ class AuctionAuctionResource(APIResource):
         apply_patch(self.request, save=False, src=self.request.validated['auction_src'])
         auction = self.request.validated['auction']
         invalidate_bids_under_threshold(auction)
-        if any([i.status == 'active' for i in auction.bids]): 
-            create_awards(self.request)
+        if any([i.status == 'active' for i in auction.bids]):
+            self.request.content_configurator.start_awarding()
         else:
             auction.status = 'unsuccessful'
         if save_auction(self.request):
@@ -192,8 +191,8 @@ class AuctionAuctionResource(APIResource):
         if all([i.auctionPeriod and i.auctionPeriod.endDate for i in auction.lots if i.numberOfBids > 1 and i.status == 'active']):
             cleanup_bids_for_cancelled_lots(auction)
             invalidate_bids_under_threshold(auction)
-            if any([i.status == 'active' for i in auction.bids]): 
-                create_awards(self.request)
+            if any([i.status == 'active' for i in auction.bids]):
+                self.request.content_configurator.start_awarding()
             else:
                 auction.status = 'unsuccessful'
         if save_auction(self.request):

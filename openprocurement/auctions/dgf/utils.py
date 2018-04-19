@@ -4,12 +4,13 @@ from itertools import izip_longest
 from logging import getLogger
 from pkg_resources import get_distribution
 from barbecue import chef
-from openprocurement.api.models import get_now, TZ
+from openprocurement.api.constants import TZ
 from openprocurement.api.utils import (
     upload_file as base_upload_file, get_file as base_get_file,
     DOCUMENT_BLACKLISTED_FIELDS, context_unpack, calculate_business_date
 )
 from openprocurement.auctions.core.utils import (
+    get_now,
     check_complaint_status,
     check_auction_status,
     remove_draft_bids
@@ -18,7 +19,6 @@ from openprocurement.auctions.core.utils import (
 from .constants import (
     DOCUMENT_TYPE_URL_ONLY,
     DOCUMENT_TYPE_OFFLINE,
-    NUMBER_OF_BIDS_TO_BE_QUALIFIED,
     MINIMAL_PERIOD_FROM_RECTIFICATION_END
 )
 
@@ -59,78 +59,7 @@ def check_bids(request):
             auction.status = 'unsuccessful'
         elif auction.numberOfBids == 1:
             auction.auctionPeriod.startDate = None
-            create_awards(request)
-
-
-def check_auction_status(request):
-    auction = request.validated['auction']
-    if auction.awards:
-        awards_statuses = set([award.status for award in auction.awards])
-    else:
-        awards_statuses = set([""])
-    if not awards_statuses.difference(set(['unsuccessful', 'cancelled'])):
-        LOGGER.info('Switched auction {} to {}'.format(auction.id, 'unsuccessful'),
-                    extra=context_unpack(request, {'MESSAGE_ID': 'switched_auction_unsuccessful'}))
-        auction.status = 'unsuccessful'
-    if auction.contracts and auction.contracts[-1].status == 'active':
-        LOGGER.info('Switched auction {} to {}'.format(auction.id, 'complete'),
-                    extra=context_unpack(request, {'MESSAGE_ID': 'switched_auction_complete'}))
-        auction.status = 'complete'
-
-
-def create_awards(request):
-    """
-        Function create NUMBER_OF_BIDS_TO_BE_QUALIFIED awards objects
-        First award always in pending.verification status
-        others in pending.waiting status
-    """
-    auction = request.validated['auction']
-    auction.status = 'active.qualification'
-    now = get_now()
-    auction.awardPeriod = type(auction).awardPeriod({'startDate': now})
-    bids = chef(auction.bids, auction.features or [], [], True)
-    # minNumberOfQualifiedBids == 1
-    bids_to_qualify = NUMBER_OF_BIDS_TO_BE_QUALIFIED \
-        if (len(bids) > NUMBER_OF_BIDS_TO_BE_QUALIFIED) \
-        else len(bids)
-    for bid, status in izip_longest(bids[:bids_to_qualify],
-                                    ['pending.verification'],
-                                    fillvalue='pending.waiting'):
-        bid = bid.serialize()
-        award = type(auction).awards.model_class({
-            '__parent__': request.context,
-            'bid_id': bid['id'],
-            'status': status,
-            'date': now,
-            'value': bid['value'],
-            'suppliers': bid['tenderers'],
-            'complaintPeriod': {'startDate': now}
-        })
-        if bid['status'] == 'invalid':
-            award.status = 'unsuccessful'
-            award.complaintPeriod.endDate = now
-        if award.status == 'pending.verification':
-            award.verificationPeriod = award.paymentPeriod = award.signingPeriod = {'startDate': now}
-            request.response.headers['Location'] = request.route_url('{}:Auction Awards'.format(
-                auction.procurementMethodType),
-                auction_id=auction.id,
-                award_id=award['id'])
-        auction.awards.append(award)
-
-
-def switch_to_next_award(request):
-    auction = request.validated['auction']
-    now = get_now()
-    waiting_awards = [i for i in auction.awards if i['status'] == 'pending.waiting']
-    if waiting_awards:
-        award = waiting_awards[0]
-        award.status = 'pending.verification'
-        award.verificationPeriod = award.paymentPeriod = award.signingPeriod = {'startDate': now}
-        request.response.headers['Location'] = request.route_url('{}:Auction Awards'.format(auction.procurementMethodType), auction_id=auction.id, award_id=award['id'])
-
-    elif all([award.status in ['cancelled', 'unsuccessful'] for award in auction.awards]):
-        auction.awardPeriod.endDate = now
-        auction.status = 'unsuccessful'
+            request.content_configurator.start_awarding()
 
 
 def check_auction_protocol(award):

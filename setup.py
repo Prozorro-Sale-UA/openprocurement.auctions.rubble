@@ -5,10 +5,12 @@ version = '1.1.1-sale'
 
 entry_points = {
     'openprocurement.auctions.core.plugins': [
-        'auctions.dgf = openprocurement.auctions.dgf:includeme'
+        'auctions.dgf.other = openprocurement.auctions.dgf.includeme:includeme_other',
+        'auctions.dgf.financial = openprocurement.auctions.dgf.includeme:includeme_financial'
     ],
     'openprocurement.api.migrations': [
-        'auctions = openprocurement.auctions.dgf.migration:migrate_data'
+        'auctions.dgf.other = openprocurement.auctions.dgf.migration:migrate_data',
+        'auctions.dgf.financial = openprocurement.auctions.dgf.migration:migrate_data'
     ]
 }
 

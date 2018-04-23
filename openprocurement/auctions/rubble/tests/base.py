@@ -46,7 +46,7 @@ test_organization = {
 test_procuringEntity = test_organization.copy()
 test_auction_data = {
     "title": u"футляри до державних нагород",
-    "rubbleID": u"219560",
+    "dgfID": u"219560",
     "tenderAttempts": 1,
     "procuringEntity": test_procuringEntity,
     "value": {

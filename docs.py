@@ -6,17 +6,17 @@ from datetime import timedelta, datetime
 
 from openprocurement.api.utils import get_now
 from openprocurement.api.tests.base import PrefixedRequestClass
-import openprocurement.auctions.dgf.tests.base as base_test
-from openprocurement.auctions.dgf.tests.base import test_auction_data as base_test_auction_data, test_bids, test_financial_bids
-from openprocurement.auctions.dgf.tests.base import test_auction_maximum_data
-from openprocurement.auctions.dgf.tests.tender import BaseAuctionWebTest
+import openprocurement.auctions.rubble.tests.base as base_test
+from openprocurement.auctions.rubble.tests.base import test_auction_data as base_test_auction_data, test_bids, test_financial_bids
+from openprocurement.auctions.rubble.tests.base import test_auction_maximum_data
+from openprocurement.auctions.rubble.tests.tender import BaseAuctionWebTest
 from webtest import TestApp
 
 now = datetime.now()
 
 test_auction_data = base_test_auction_data.copy()
 test_financial_auction_data = test_auction_data.copy()
-test_financial_auction_data["procurementMethodType"] = "dgfFinancialAssets"
+test_financial_auction_data["procurementMethodType"] = "exampleRubbleFinancial"
 
 bid = {
     "data": {

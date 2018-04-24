@@ -80,5 +80,5 @@ def includeme_financial(config, plugin_config=None):
         IAwardingNextCheck
     )
 
-    LOGGER.info("Included openprocurement.auctions.rubble.other plugin",
+    LOGGER.info("Included openprocurement.auctions.rubble.financial plugin",
                 extra={'MESSAGE_ID': 'included_plugin'})

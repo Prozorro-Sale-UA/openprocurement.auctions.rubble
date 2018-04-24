@@ -1,25 +1,20 @@
 # -*- coding: utf-8 -*-
-from openprocurement.auctions.core.utils import get_now
-from openprocurement.api.utils import (
+from openprocurement.auctions.core.utils import (
+    get_now,
     get_file,
     upload_file,
     update_file_content_type,
     json_view,
     context_unpack,
     APIResource,
-)
-from openprocurement.api.validation import (
-    validate_patch_document_data,
-)
-
-from openprocurement.auctions.core.validation import (
-    validate_file_update,
-    validate_file_upload,
-)
-from openprocurement.auctions.core.utils import (
     save_auction,
     apply_patch,
     opresource,
+)
+from openprocurement.auctions.core.validation import (
+    validate_file_update,
+    validate_file_upload,
+    validate_patch_document_data,
 )
 
 

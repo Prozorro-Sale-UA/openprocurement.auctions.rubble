@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import unittest
-from datetime import datetime, timedelta
 
 from openprocurement.auctions.core.tests.base import snitch
 from openprocurement.auctions.core.tests.blanks.chronograph_blanks import (
@@ -15,8 +14,10 @@ from openprocurement.auctions.core.tests.blanks.chronograph_blanks import (
     switch_to_pending_award,
     switch_to_complaint_award,
 )
-from openprocurement.api.utils import get_now
-from openprocurement.auctions.rubble.tests.base import BaseAuctionWebTest, test_lots, test_bids, test_financial_auction_data, test_financial_organization, test_financial_bids, test_organization
+from openprocurement.auctions.rubble.tests.base import (
+    BaseAuctionWebTest, test_lots, test_bids, test_financial_auction_data,
+    test_financial_organization, test_financial_bids,
+)
 from openprocurement.auctions.rubble.tests.blanks.chronograph_blanks import (
     # AuctionSwitchQualificationResourceTest
     switch_to_qualification,

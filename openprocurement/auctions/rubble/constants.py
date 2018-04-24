@@ -1,15 +1,6 @@
 from datetime import datetime, timedelta
-from openprocurement.api.constants import TZ, ORA_CODES
 
-
-def read_json(name):
-    import os.path
-    from json import loads
-    curr_dir = os.path.dirname(os.path.realpath(__file__))
-    file_path = os.path.join(curr_dir, name)
-    with open(file_path) as lang_file:
-        data = lang_file.read()
-    return loads(data)
+from openprocurement.auctions.core.constants import TZ, ORA_CODES, read_json
 
 #document types
 DOCUMENT_TYPE_OFFLINE = ['x_dgfAssetFamiliarization']

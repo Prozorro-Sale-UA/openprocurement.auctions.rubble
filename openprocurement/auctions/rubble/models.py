@@ -1,44 +1,26 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime, timedelta, time
-from schematics.types import StringType, URLType, IntType, BaseType, BooleanType
-from schematics.types.compound import ModelType
+
 from schematics.exceptions import ValidationError
 from schematics.transforms import blacklist, whitelist
+from schematics.types import StringType, IntType, BooleanType
+from schematics.types.compound import ModelType
 from schematics.types.serializable import serializable
-from urlparse import urlparse, parse_qs
-from string import hexdigits
-from zope.interface import implementer
 from pyramid.security import Allow
-from pytz import UTC
+from zope.interface import implementer
 
-from openprocurement.api.models.auction_models.models import (
-    Feature,
-    validate_features_uniq, validate_lots_uniq, Identifier as BaseIdentifier,
-    Classification, Address, Location,
-    schematics_embedded_role, IsoDateTimeType
-)
-from openprocurement.api.models.schematics_extender import ListType
-from openprocurement.api.validation import validate_items_uniq
-from openprocurement.api.models.models import Period
-from openprocurement.api.interfaces import IAwardingNextCheck
-from openprocurement.api.utils import calculate_business_date, get_request_from_root
-from openprocurement.api.constants import SANDBOX_MODE, CPV_CODES, ORA_CODES, TZ, AUCTIONS_COMPLAINT_STAND_STILL_TIME as COMPLAINT_STAND_STILL_TIME
-from openprocurement.auctions.core.utils import get_now
+from openprocurement.auctions.core.includeme import IAwardingNextCheck
 from openprocurement.auctions.core.models import (
-    IAuction,
     get_auction,
     Lot,
+    Period,
     Cancellation as BaseCancellation,
     Question as BaseQuestion,
-    flashProcuringEntity
-
-)
-from openprocurement.auctions.flash.models import (
-    Auction as BaseAuction, Bid as BaseBid,
-)
-
-
-from openprocurement.auctions.core.models import (
+    flashProcuringEntity,
+    Feature,
+    validate_items_uniq,
+    validate_features_uniq, validate_lots_uniq,
+    schematics_embedded_role, IsoDateTimeType,
     IAuction,
     calc_auction_end_time,
     edit_role,
@@ -47,32 +29,27 @@ from openprocurement.auctions.core.models import (
     dgfCDB2Item as Item,
     dgfOrganization as Organization,
     dgfCDB2Complaint as Complaint,
-    Identifier
+    Identifier,
+    ListType
 )
-
 from openprocurement.auctions.core.plugins.awarding.v2_1.models import Award
 from openprocurement.auctions.core.plugins.contracting.v2_1.models import Contract
+from openprocurement.auctions.core.utils import (
+    SANDBOX_MODE, TZ, calculate_business_date, get_request_from_root, get_now,
+    AUCTIONS_COMPLAINT_STAND_STILL_TIME as COMPLAINT_STAND_STILL_TIME
+)
 
-from .utils import calculate_enddate, get_auction_creation_date, generate_rectificationPeriod
+from openprocurement.auctions.flash.models import (
+    Auction as BaseAuction, Bid as BaseBid,
+)
 
 from .constants import (
-    DOCUMENT_TYPE_OFFLINE,
-    DOCUMENT_TYPE_URL_ONLY,
     DGF_ID_REQUIRED_FROM,
-    ORA_CODES, MINIMAL_EXPOSITION_PERIOD,
+    MINIMAL_EXPOSITION_PERIOD,
     MINIMAL_EXPOSITION_REQUIRED_FROM,
     MINIMAL_PERIOD_FROM_RECTIFICATION_END
 )
-
-
-def read_json(name):
-    import os.path
-    from json import loads
-    curr_dir = os.path.dirname(os.path.realpath(__file__))
-    file_path = os.path.join(curr_dir, name)
-    with open(file_path) as lang_file:
-        data = lang_file.read()
-    return loads(data)
+from .utils import get_auction_creation_date, generate_rectificationPeriod
 
   
 def bids_validation_wrapper(validation_func):
@@ -289,7 +266,7 @@ class Auction(BaseAuction):
             if awarding_check is not None:
                 checks.append(awarding_check)
         if self.status.startswith('active'):
-            from openprocurement.api.utils import calculate_business_date
+            from openprocurement.auctions.core.utils import calculate_business_date
             for complaint in self.complaints:
                 if complaint.status == 'claim' and complaint.dateSubmitted:
                     checks.append(calculate_business_date(complaint.dateSubmitted, COMPLAINT_STAND_STILL_TIME, self))

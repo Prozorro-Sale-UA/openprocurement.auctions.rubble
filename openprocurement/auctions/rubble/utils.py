@@ -1,19 +1,13 @@
 # -*- coding: utf-8 -*-
-from datetime import timedelta
-from itertools import izip_longest
 from logging import getLogger
+
 from pkg_resources import get_distribution
-from barbecue import chef
-from openprocurement.api.constants import TZ
-from openprocurement.api.utils import (
-    upload_file as base_upload_file, get_file as base_get_file,
-    DOCUMENT_BLACKLISTED_FIELDS, context_unpack, calculate_business_date
-)
+
 from openprocurement.auctions.core.utils import (
-    get_now,
-    check_complaint_status,
-    check_auction_status,
-    remove_draft_bids
+    check_complaint_status, check_auction_status, remove_draft_bids,
+    upload_file as base_upload_file, get_file as base_get_file,
+    API_DOCUMENT_BLACKLISTED_FIELDS as DOCUMENT_BLACKLISTED_FIELDS,
+    context_unpack, calculate_business_date, get_now, TZ
 )
 
 from .constants import (

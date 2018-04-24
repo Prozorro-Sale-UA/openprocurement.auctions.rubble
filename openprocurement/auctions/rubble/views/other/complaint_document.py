@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
-from openprocurement.api.utils import (
+from openprocurement.auctions.core.constants import STATUS4ROLE
+from openprocurement.auctions.core.utils import (
+    save_auction,
+    apply_patch,
+    opresource,
     get_file,
     upload_file,
     update_file_content_type,
@@ -7,28 +11,11 @@ from openprocurement.api.utils import (
     context_unpack,
     APIResource,
 )
-from openprocurement.api.validation import (
-    validate_patch_document_data,
-)
-
 from openprocurement.auctions.core.validation import (
     validate_file_update,
     validate_file_upload,
+    validate_patch_document_data,
 )
-from openprocurement.auctions.core.utils import (
-    save_auction,
-    apply_patch,
-    opresource,
-)
-
-
-
-
-STATUS4ROLE = {
-    'complaint_owner': ['draft', 'answered'],
-    'reviewers': ['pending'],
-    'auction_owner': ['claim'],
-}
 
 
 @opresource(name='rubbleOther:Auction Complaint Documents',

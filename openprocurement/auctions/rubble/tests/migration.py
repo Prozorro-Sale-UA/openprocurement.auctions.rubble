@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 import unittest
 
-from datetime import timedelta
 from uuid import uuid4
 from copy import deepcopy
 
-from openprocurement.api.utils import get_now
 from openprocurement.auctions.core.tests.base import snitch
 
 from openprocurement.auctions.rubble.migration import migrate_data, get_db_schema_version, set_db_schema_version, SCHEMA_VERSION
@@ -32,6 +30,7 @@ from openprocurement.auctions.rubble.tests.blanks.migration_blanks import (
     migrate_unsuccessful_unsuccessful_pending,
     migrate_unsuccessful_unsuccessful_active
 )
+
 
 class MigrateTest(BaseWebTest):
 

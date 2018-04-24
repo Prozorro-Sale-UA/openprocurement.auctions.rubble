@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-
-from openprocurement.api.utils import get_now
+from copy import deepcopy
 from datetime import timedelta
 from uuid import uuid4
-from copy import deepcopy
+
+from openprocurement.auctions.core.utils import get_now
 
 from openprocurement.auctions.rubble.migration import migrate_data
 # MigrateTestFrom1To2Bids

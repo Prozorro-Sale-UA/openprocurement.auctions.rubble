@@ -1,13 +1,6 @@
 # -*- coding: utf-8 -*-
 import unittest
-from datetime import timedelta
 from copy import deepcopy
-
-from openprocurement.api.utils import get_now
-from openprocurement.auctions.rubble.tests.base import (
-    BaseAuctionWebTest, test_bids, test_lots, test_organization, test_features_auction_data,
-    test_financial_auction_data, test_financial_bids, test_financial_organization, test_auction_data
-)
 
 from openprocurement.auctions.core.tests.auctions import (
     AuctionAuctionResourceTestMixin,
@@ -15,8 +8,19 @@ from openprocurement.auctions.core.tests.auctions import (
     AuctionMultipleLotAuctionResourceTestMixin
 )
 from openprocurement.auctions.core.tests.base import snitch
+from openprocurement.auctions.core.tests.blanks.auction_blanks import (
+    # AuctionSameValueAuctionResourceTest
+    post_auction_auction_not_changed,
+    post_auction_auction_reversed,
+    # AuctionFeaturesAuctionResourceTest
+    get_auction_features_auction
+)
 
 from openprocurement.auctions.rubble.constants import DEFAULT_PROCUREMENT_METHOD_TYPE_FINANCIAL
+from openprocurement.auctions.rubble.tests.base import (
+    BaseAuctionWebTest, test_bids, test_lots, test_organization, test_features_auction_data,
+    test_financial_auction_data, test_financial_bids, test_financial_organization,
+)
 from openprocurement.auctions.rubble.tests.blanks.auction_blanks import (
     # AuctionAuctionResourceTest
     post_auction_auction,
@@ -25,13 +29,7 @@ from openprocurement.auctions.rubble.tests.blanks.auction_blanks import (
     # AuctionMultipleLotAuctionResourceTest
     post_auction_auction_2_lots,
 )
-from openprocurement.auctions.core.tests.blanks.auction_blanks import (
-    # AuctionSameValueAuctionResourceTest
-    post_auction_auction_not_changed,
-    post_auction_auction_reversed,
-    # AuctionFeaturesAuctionResourceTest
-    get_auction_features_auction
-)
+
 
 class AuctionAuctionResourceTest(BaseAuctionWebTest, AuctionAuctionResourceTestMixin):
     #initial_data = auction_data

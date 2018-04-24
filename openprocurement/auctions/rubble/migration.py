@@ -1,15 +1,12 @@
 # -*- coding: utf-8 -*-
 import logging
-from openprocurement.api.utils import get_now, read_yaml
-from openprocurement.api.traversal import Root
-from barbecue import chef
-from uuid import uuid4
 
 from openprocurement.auctions.core.plugins.awarding.v2_1.migration import (
     migrate_awarding_1_0_to_awarding_2_1
 )
+from openprocurement.auctions.core.traversal import Root
 from openprocurement.auctions.core.utils import (
-    get_plugins, get_procurement_method_types
+    get_plugins, get_procurement_method_types, get_now, read_yaml
 )
 
 LOGGER = logging.getLogger(__name__)

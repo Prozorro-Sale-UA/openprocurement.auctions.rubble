@@ -8,7 +8,7 @@ import unittest
 # from iso8601 import parse_date
 # import pytz
 
-from openprocurement.auctions.rubble.models import RubbleOther, RubbleFinancial, RUBBLE_ID_REQUIRED_FROM
+from openprocurement.auctions.rubble.models import RubbleOther, RubbleFinancial, DGF_ID_REQUIRED_FROM
 from openprocurement.auctions.rubble.tests.base import test_auction_maximum_data, test_auction_data, test_financial_auction_data, test_organization, test_financial_organization, BaseWebTest, BaseAuctionWebTest, DEFAULT_ACCELERATION, test_bids, test_financial_bids
 
 from openprocurement.auctions.core.tests.base import snitch
@@ -38,8 +38,8 @@ from openprocurement.auctions.rubble.tests.blanks.tender_blanks import (
     # AuctionResourceTest
     create_auction_validation_accelerated,
     create_auction_invalid,
-    required_rubble_id,
-    required_rubble_item_address,
+    required_dgf_id,
+    required_dgf_item_address,
     create_auction_auctionPeriod,
     create_auction_rectificationPeriod_generated,
     create_auction_rectificationPeriod_set,
@@ -84,8 +84,8 @@ class AuctionResourceTest(BaseWebTest):
     test_auction_not_found = snitch(auction_not_found)
     test_create_auction_validation_accelerated = snitch(create_auction_validation_accelerated)
     test_create_auction_invalid = snitch(create_auction_invalid)
-    test_required_rubble_id = snitch(required_rubble_id)
-    test_required_rubble_item_address = snitch(required_rubble_item_address)
+    test_required_dgf_id = snitch(required_dgf_id)
+    test_required_dgf_item_address = snitch(required_dgf_item_address)
     test_create_auction_auctionPeriod = snitch(create_auction_auctionPeriod)
     test_create_auction_rectificationPeriod_generated = snitch(create_auction_rectificationPeriod_generated)
     test_create_auction_rectificationPeriod_set = snitch(create_auction_rectificationPeriod_set)
@@ -152,7 +152,7 @@ class FinancialAuctionResourceTest(AuctionResourceTest):
             auction.pop('procurementMethodDetails')
         self.assertEqual(set(auction), set([
             u'procurementMethodType', u'id', u'date', u'dateModified', u'auctionID', u'status', u'enquiryPeriod',
-            u'tenderPeriod', u'minimalStep', u'items', u'value', u'procuringEntity', u'next_check', u'rubbleID',
+            u'tenderPeriod', u'minimalStep', u'items', u'value', u'procuringEntity', u'next_check', u'dgfID',
             u'procurementMethod', u'awardCriteria', u'submissionMethod', u'title', u'owner', u'auctionPeriod',
             u'eligibilityCriteria', u'eligibilityCriteria_en', u'eligibilityCriteria_ru', u'tenderAttempts',
             u'rectificationPeriod'

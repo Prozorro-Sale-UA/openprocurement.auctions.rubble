@@ -7,6 +7,7 @@ from datetime import timedelta, datetime
 from openprocurement.api.utils import get_now
 from openprocurement.api.tests.base import PrefixedRequestClass
 import openprocurement.auctions.rubble.tests.base as base_test
+from openprocurement.auctions.rubble.constants import DEFAULT_PROCUREMENT_METHOD_TYPE_FINANCIAL
 from openprocurement.auctions.rubble.tests.base import test_auction_data as base_test_auction_data, test_bids, test_financial_bids
 from openprocurement.auctions.rubble.tests.base import test_auction_maximum_data
 from openprocurement.auctions.rubble.tests.tender import BaseAuctionWebTest
@@ -16,7 +17,7 @@ now = datetime.now()
 
 test_auction_data = base_test_auction_data.copy()
 test_financial_auction_data = test_auction_data.copy()
-test_financial_auction_data["procurementMethodType"] = "exampleRubbleFinancial"
+test_financial_auction_data["procurementMethodType"] = DEFAULT_PROCUREMENT_METHOD_TYPE_FINANCIAL
 
 bid = {
     "data": {

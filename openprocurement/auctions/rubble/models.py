@@ -58,7 +58,7 @@ from .utils import calculate_enddate, get_auction_creation_date, generate_rectif
 from .constants import (
     DOCUMENT_TYPE_OFFLINE,
     DOCUMENT_TYPE_URL_ONLY,
-    RUBBLE_ID_REQUIRED_FROM,
+    DGF_ID_REQUIRED_FROM,
     ORA_CODES, MINIMAL_EXPOSITION_PERIOD,
     MINIMAL_EXPOSITION_REQUIRED_FROM,
     MINIMAL_PERIOD_FROM_RECTIFICATION_END
@@ -194,7 +194,7 @@ class Auction(BaseAuction):
     cancellations = ListType(ModelType(Cancellation), default=list())
     complaints = ListType(ModelType(Complaint), default=list())
     contracts = ListType(ModelType(Contract), default=list())
-    rubbleID = StringType()
+    dgfID = StringType()
     documents = ListType(ModelType(Document), default=list())  # All documents and attachments related to the auction.
     enquiryPeriod = ModelType(Period)  # The period during which enquiries may be made and will be answered.
     rectificationPeriod = ModelType(RectificationPeriod)  # The period during which editing of main procedure fields are allowed
@@ -258,9 +258,9 @@ class Auction(BaseAuction):
         if value.currency != u'UAH':
             raise ValidationError(u"currency should be only UAH")
 
-    def validate_rubbleID(self, data, rubbleID):
-        if not rubbleID:
-            if get_auction_creation_date(data) > RUBBLE_ID_REQUIRED_FROM:
+    def validate_dgfID(self, data, dgfID):
+        if not dgfID:
+            if get_auction_creation_date(data) > DGF_ID_REQUIRED_FROM:
                 raise ValidationError(u'This field is required.')
 
     @serializable(serialize_when_none=False)

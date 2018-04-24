@@ -2,11 +2,10 @@ import logging
 
 from pyramid.interfaces import IRequest
 
-from openprocurement.api.interfaces import (
+from openprocurement.auctions.core.includeme import (
     IContentConfigurator,
     IAwardingNextCheck
 )
-
 from openprocurement.auctions.core.plugins.awarding.v2_1.adapters import (
     AwardingNextCheckV2_1
 )

@@ -1,16 +1,9 @@
 # -*- coding: utf-8 -*-
 from copy import deepcopy
 
-from openprocurement.auctions.rubble.tests.base import (
-    test_auction_data,
-    test_features_auction_data,
-    test_financial_organization,
-    test_financial_auction_data,
-    test_bids,
-    test_financial_bids,
-    test_organization
-)
-from openprocurement.api.tests.base import JSON_RENDERER_ERROR
+from openprocurement.auctions.core.tests.base import JSON_RENDERER_ERROR
+
+from openprocurement.auctions.rubble.tests.base import test_financial_organization
 
 
 # AuctionBidderResourceTest

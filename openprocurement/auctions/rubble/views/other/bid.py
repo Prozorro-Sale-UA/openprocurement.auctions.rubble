@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
-from openprocurement.api.utils import get_now
-from openprocurement.api.utils import (
+from openprocurement.auctions.core.utils import (
+    get_now,
     json_view,
     context_unpack,
     APIResource,
     set_ownership,
-)
-from openprocurement.auctions.core.utils import (
     save_auction,
     apply_patch,
     opresource,
@@ -15,7 +13,6 @@ from openprocurement.auctions.core.validation import (
     validate_bid_data,
     validate_patch_bid_data,
 )
-
 
 
 @opresource(name='rubbleOther:Auction Bids',

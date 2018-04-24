@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-from openprocurement.api.utils import error_handler
-from openprocurement.api.utils import get_now
+from openprocurement.auctions.core.utils import error_handler, get_now, TZ
+
 from openprocurement.auctions.rubble.utils import generate_rectificationPeriod
-from openprocurement.api.constants import TZ
 
 
 def validate_rectification_period_editing(request, **kwargs):

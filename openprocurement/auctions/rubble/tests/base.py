@@ -1,18 +1,17 @@
 # -*- coding: utf-8 -*-
 import os
-from datetime import datetime, timedelta
-from copy import deepcopy
-from datetime import datetime
-from uuid import uuid4
 from base64 import b64encode
+from copy import deepcopy
+from datetime import datetime, timedelta
 from urllib import urlencode
+from uuid import uuid4
 
-from openprocurement.auctions.core.utils import get_now
-from openprocurement.api.constants import SANDBOX_MODE
-from openprocurement.api.utils import apply_data_patch
 from openprocurement.auctions.core.tests.base import (
     BaseWebTest as CoreBaseWebTest,
     BaseAuctionWebTest as CoreBaseAuctionWebTest
+)
+from openprocurement.auctions.core.utils import (
+    apply_data_patch, get_now, SANDBOX_MODE
 )
 
 from openprocurement.auctions.rubble.constants import (

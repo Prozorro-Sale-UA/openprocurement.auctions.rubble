@@ -1,25 +1,22 @@
 # -*- coding: utf-8 -*-
-from openprocurement.api.utils import (
+from openprocurement.auctions.core.utils import (
     json_view,
     context_unpack,
     APIResource,
-)
-from openprocurement.api.validation import (
-    validate_patch_document_data,
-)
-
-from openprocurement.auctions.core.validation import (
-    validate_file_update,
-    validate_file_upload,
-)
-from openprocurement.auctions.core.utils import (
     save_auction,
     apply_patch,
     opresource,
     get_now,
 )
-from openprocurement.auctions.rubble.utils import upload_file, get_file, invalidate_bids_data, generate_rectificationPeriod
-from openprocurement.auctions.core.models import TZ
+from openprocurement.auctions.core.validation import (
+    validate_file_update,
+    validate_file_upload,
+    validate_patch_document_data,
+)
+
+from openprocurement.auctions.rubble.utils import (
+    upload_file, get_file, invalidate_bids_data, generate_rectificationPeriod
+)
 
 
 @opresource(name='rubbleOther:Auction Documents',

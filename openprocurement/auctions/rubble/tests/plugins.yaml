@@ -1,0 +1,11 @@
+---
+auctions.core:
+  plugins:
+    auctions.rubble.financial:
+      aliases: []
+      use_default: true
+      migration: false
+    auctions.rubble.other:
+      aliases: []
+      use_default: true
+      migration: false

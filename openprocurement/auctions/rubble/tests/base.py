@@ -8,7 +8,8 @@ from uuid import uuid4
 
 from openprocurement.auctions.core.tests.base import (
     BaseWebTest as CoreBaseWebTest,
-    BaseAuctionWebTest as CoreBaseAuctionWebTest
+    BaseAuctionWebTest as CoreBaseAuctionWebTest,
+    test_organization, base_test_bids
 )
 from openprocurement.auctions.core.utils import (
     apply_data_patch, get_now, SANDBOX_MODE
@@ -23,25 +24,6 @@ DEFAULT_ACCELERATION = 1440
 
 
 now = datetime.now()
-test_organization = {
-    "name": u"Державне управління справами",
-    "identifier": {
-        "scheme": u"UA-EDR",
-        "id": u"00037256",
-        "uri": u"http://www.dus.gov.ua/"
-    },
-    "address": {
-        "countryName": u"Україна",
-        "postalCode": u"01220",
-        "region": u"м. Київ",
-        "locality": u"м. Київ",
-        "streetAddress": u"вул. Банкова, 11, корпус 1"
-    },
-    "contactPoint": {
-        "name": u"Державне управління справами",
-        "telephone": u"0440000000"
-    }
-}
 test_procuringEntity = test_organization.copy()
 test_auction_data = {
     "title": u"футляри до державних нагород",
@@ -144,28 +126,6 @@ test_features_auction_data["features"] = [
                 "title": u"Більше 5 років"
             }
         ]
-    }
-]
-base_test_bids = [
-    {
-        "tenderers": [
-            test_organization
-        ],
-        "value": {
-            "amount": 469,
-            "currency": "UAH",
-            "valueAddedTaxIncluded": True
-        }
-    },
-    {
-        "tenderers": [
-            test_organization
-        ],
-        "value": {
-            "amount": 479,
-            "currency": "UAH",
-            "valueAddedTaxIncluded": True
-        }
     }
 ]
 

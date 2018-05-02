@@ -3,7 +3,6 @@ from openprocurement.auctions.core.utils import (
     context_unpack,
     json_view,
     set_ownership,
-    APIResource,
     get_now,
     apply_patch,
     check_auction_status,
@@ -14,6 +13,7 @@ from openprocurement.auctions.core.validation import (
     validate_complaint_data,
     validate_patch_complaint_data,
 )
+from openprocurement.auctions.core.views.mixins import AuctionComplaintResource
 
 
 @opresource(name='rubbleOther:Auction Complaints',
@@ -21,7 +21,7 @@ from openprocurement.auctions.core.validation import (
             path='/auctions/{auction_id}/complaints/{complaint_id}',
             auctionsprocurementMethodType="rubbleOther",
             description="Auction complaints")
-class AuctionComplaintResource(APIResource):
+class AuctionComplaintResource(AuctionComplaintResource):
 
     @json_view(content_type="application/json", validators=(validate_complaint_data,), permission='nobody')
     def collection_post(self):
@@ -53,18 +53,6 @@ class AuctionComplaintResource(APIResource):
                     'token': complaint.owner_token
                 }
             }
-
-    @json_view(permission='view_auction')
-    def collection_get(self):
-        """List complaints
-        """
-        return {'data': [i.serialize("view") for i in self.context.complaints]}
-
-    @json_view(permission='view_auction')
-    def get(self):
-        """Retrieving the complaint
-        """
-        return {'data': self.context.serialize("view")}
 
     @json_view(content_type="application/json", validators=(validate_patch_complaint_data,), permission='edit_complaint')
     def patch(self):

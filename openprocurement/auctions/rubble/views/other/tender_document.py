@@ -2,7 +2,6 @@
 from openprocurement.auctions.core.utils import (
     json_view,
     context_unpack,
-    APIResource,
     save_auction,
     apply_patch,
     opresource,
@@ -13,6 +12,7 @@ from openprocurement.auctions.core.validation import (
     validate_file_upload,
     validate_patch_document_data,
 )
+from openprocurement.auctions.core.views.mixins import AuctionDocumentResource
 
 from openprocurement.auctions.rubble.utils import (
     upload_file, get_file, invalidate_bids_data, generate_rectificationPeriod
@@ -24,7 +24,7 @@ from openprocurement.auctions.rubble.utils import (
             path='/auctions/{auction_id}/documents/{document_id}',
             auctionsprocurementMethodType="rubbleOther",
             description="Auction related binary files (PDFs, etc.)")
-class AuctionDocumentResource(APIResource):
+class AuctionDocumentResource(AuctionDocumentResource):
 
     def validate_document_editing_period(self, operation):
         auction_not_in_editable_state = (self.request.authenticated_role != 'auction' and self.request.validated['auction_status'] != 'active.tendering' or \
@@ -40,18 +40,6 @@ class AuctionDocumentResource(APIResource):
             self.request.errors.status = 403
             return
         return True
-
-    @json_view(permission='view_auction')
-    def collection_get(self):
-        """Auction Documents List"""
-        if self.request.params.get('all', ''):
-            collection_data = [i.serialize("view") for i in self.context.documents]
-        else:
-            collection_data = sorted(dict([
-                (i.id, i.serialize("view"))
-                for i in self.context.documents
-            ]).values(), key=lambda i: i['dateModified'])
-        return {'data': collection_data}
 
     @json_view(permission='upload_auction_documents', validators=(validate_file_upload,))
     def collection_post(self):

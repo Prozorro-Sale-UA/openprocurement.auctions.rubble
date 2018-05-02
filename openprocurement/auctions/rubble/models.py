@@ -15,11 +15,8 @@ from openprocurement.auctions.core.models import (
     Lot,
     Period,
     Cancellation as BaseCancellation,
-    Question as BaseQuestion,
-    flashProcuringEntity,
-    Feature,
     validate_items_uniq,
-    validate_features_uniq, validate_lots_uniq,
+    validate_lots_uniq,
     schematics_embedded_role, IsoDateTimeType,
     IAuction,
     calc_auction_end_time,
@@ -27,20 +24,18 @@ from openprocurement.auctions.core.models import (
     Administrator_role,
     dgfCDB2Document as Document,
     dgfCDB2Item as Item,
-    dgfOrganization as Organization,
     dgfCDB2Complaint as Complaint,
-    Identifier,
-    ListType
+    ListType,
+    validate_not_available,
+    Bid as BaseBid,
+    Auction as BaseAuction,
+    FinancialOrganization
 )
 from openprocurement.auctions.core.plugins.awarding.v2_1.models import Award
 from openprocurement.auctions.core.plugins.contracting.v2_1.models import Contract
 from openprocurement.auctions.core.utils import (
     SANDBOX_MODE, TZ, calculate_business_date, get_request_from_root, get_now,
     AUCTIONS_COMPLAINT_STAND_STILL_TIME as COMPLAINT_STAND_STILL_TIME
-)
-
-from openprocurement.auctions.flash.models import (
-    Auction as BaseAuction, Bid as BaseBid,
 )
 
 from .constants import (
@@ -71,11 +66,6 @@ def bids_validation_wrapper(validation_func):
     return validator
 
 
-class ProcuringEntity(flashProcuringEntity):
-    identifier = ModelType(Identifier, required=True)
-    additionalIdentifiers = ListType(ModelType(Identifier))
-
-
 class Bid(BaseBid):
     class Options:
         roles = {
@@ -83,7 +73,6 @@ class Bid(BaseBid):
         }
 
     status = StringType(choices=['active', 'draft', 'invalid'], default='active')
-    tenderers = ListType(ModelType(Organization), required=True, min_size=1, max_size=1)
     documents = ListType(ModelType(Document), default=list())
     qualified = BooleanType(required=True, choices=[True])
 
@@ -91,17 +80,9 @@ class Bid(BaseBid):
     def validate_value(self, data, value):
         BaseBid._validator_functions['value'](self, data, value)
 
-class Question(BaseQuestion):
-    author = ModelType(Organization, required=True)
-
 
 class Cancellation(BaseCancellation):
     documents = ListType(ModelType(Document), default=list())
-
-
-def validate_not_available(items, *args):
-    if items:
-        raise ValidationError(u"Option not available in this procurementMethodType")
 
 
 def rounding_shouldStartAfter(start_after, auction, use_from=datetime(2016, 6, 1, tzinfo=TZ)):
@@ -150,7 +131,6 @@ edit_role = (edit_role + blacklist('enquiryPeriod', 'tenderPeriod', 'auction_val
 Administrator_role = (Administrator_role + whitelist('awards'))
 
 
-
 class IRubbleAuction(IAuction):
     """Marker interface for Rubble auctions"""
 
@@ -164,6 +144,12 @@ class Auction(BaseAuction):
             'edit_active.tendering': (blacklist('enquiryPeriod', 'tenderPeriod', 'rectificationPeriod', 'auction_value', 'auction_minimalStep', 'auction_guarantee', 'eligibilityCriteria', 'eligibilityCriteria_en', 'eligibilityCriteria_ru', 'minNumberOfQualifiedBids') + edit_role),
             'Administrator': (whitelist('rectificationPeriod') + Administrator_role),
         }
+
+    def __local_roles__(self):
+        roles = dict([('{}_{}'.format(self.owner, self.owner_token), 'auction_owner')])
+        for i in self.bids:
+            roles['{}_{}'.format(i.owner, i.owner_token)] = 'bid_owner'
+        return roles
 
     _procedure_type = "rubbleOther"
     awards = ListType(ModelType(Award), default=list())
@@ -179,10 +165,7 @@ class Auction(BaseAuction):
     tenderAttempts = IntType(choices=[1, 2, 3, 4])
     auctionPeriod = ModelType(AuctionAuctionPeriod, required=True, default={})
     procurementMethodType = StringType()
-    procuringEntity = ModelType(ProcuringEntity, required=True)
     status = StringType(choices=['draft', 'active.tendering', 'active.auction', 'active.qualification', 'active.awarded', 'complete', 'cancelled', 'unsuccessful'], default='active.tendering')
-    questions = ListType(ModelType(Question), default=list())
-    features = ListType(ModelType(Feature), validators=[validate_features_uniq, validate_not_available])
     lots = ListType(ModelType(Lot), default=list(), validators=[validate_lots_uniq, validate_not_available])
     items = ListType(ModelType(Item), required=True, min_size=1, validators=[validate_items_uniq])
     minNumberOfQualifiedBids = IntType(choices=[1, 2])
@@ -286,16 +269,6 @@ RubbleOther = Auction
 # Rubble Financial models
 
 
-def validate_ua_fin(items, *args):
-    if items and not any([i.scheme == u"UA-FIN" for i in items]):
-        raise ValidationError(u"One of additional classifications should be UA-FIN.")
-
-
-class FinantialOrganization(Organization):
-    identifier = ModelType(Identifier, required=True)
-    additionalIdentifiers = ListType(ModelType(Identifier), required=True, validators=[validate_ua_fin])
-
-
 class Document(Document):
     documentType = StringType(choices=[
         'auctionNotice', 'awardNotice', 'contractNotice',
@@ -319,7 +292,7 @@ class Bid(Bid):
             'create': whitelist('value', 'tenderers', 'parameters', 'lotValues', 'status', 'qualified', 'eligible'),
         }
     documents = ListType(ModelType(Document), default=list())
-    tenderers = ListType(ModelType(FinantialOrganization), required=True, min_size=1, max_size=1)
+    tenderers = ListType(ModelType(FinancialOrganization), required=True, min_size=1, max_size=1)
     eligible = BooleanType(required=True, choices=[True])
 
 

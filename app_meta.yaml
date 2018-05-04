@@ -1,0 +1,16 @@
+---
+plugins:
+  auctions.rubble.financial:
+    aliases: []
+    use_default: true
+    migration: false
+    auctions.rubble.other:
+      aliases: []
+      use_default: true
+      migration: false
+config:
+  main:
+    auth.file: src/openprocurement/rubble/tests/auth.ini
+  database:
+    couchdb.db_name: flash_tests
+    couchdb.url: http://op:op@localhost:5984/

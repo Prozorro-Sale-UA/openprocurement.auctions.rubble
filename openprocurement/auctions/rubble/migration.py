@@ -6,7 +6,7 @@ from openprocurement.auctions.core.plugins.awarding.v2_1.migration import (
 )
 from openprocurement.auctions.core.traversal import Root
 from openprocurement.auctions.core.utils import (
-    get_plugins, get_procurement_method_types, get_now, read_yaml
+    get_plugins, get_procurement_method_types, get_now
 )
 
 LOGGER = logging.getLogger(__name__)
@@ -26,9 +26,10 @@ def set_db_schema_version(db, version):
 
 
 def migrate_data(registry, destination=None):
-    plugins_config = read_yaml(registry.settings.get('plugins'))
+    registry.app_meta(['plugins'])
+    plugins_config = registry.app_meta(['plugins'])
     existing_plugins = get_plugins(plugins_config)
-    if registry.settings.get('plugins') and not any(existing_plugins):
+    if registry.app_meta(['plugins']) and not any(existing_plugins):
         return
     cur_version = get_db_schema_version(registry.db)
     if cur_version == SCHEMA_VERSION:

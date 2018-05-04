@@ -8,9 +8,9 @@ entry_points = {
         'auctions.rubble.other = openprocurement.auctions.rubble.includeme:includeme_other',
         'auctions.rubble.financial = openprocurement.auctions.rubble.includeme:includeme_financial'
     ],
-    'openprocurement.api.migrations': [
-        'auctions.rubble.other = openprocurement.auctions.rubble.migration:migrate_data',
-        'auctions.rubble.financial = openprocurement.auctions.rubble.migration:migrate_data'
+    'openprocurement.auctions.rubble.plugins': [
+        'rubble.other.migration = openprocurement.auctions.rubble.migration:migrate_data',
+        'rubble.financial.migration = openprocurement.auctions.rubble.migration:migrate_data'
     ]
 }
 

@@ -135,11 +135,6 @@ def invalidate_bids_under_threshold(auction):
             bid['status'] = 'invalid'
 
 
-def get_auction_creation_date(data):
-    auction_creation_date = (data.get('revisions')[0].date if data.get('revisions') else get_now())
-    return auction_creation_date
-
-
 def remove_invalid_bids(request):
     auction = request.validated['auction']
     if [bid for bid in auction.bids if getattr(bid, "status", "active") == "invalid"]:

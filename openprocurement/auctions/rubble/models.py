@@ -35,7 +35,7 @@ from openprocurement.auctions.core.plugins.awarding.v2_1.models import Award
 from openprocurement.auctions.core.plugins.contracting.v2_1.models import Contract
 from openprocurement.auctions.core.utils import (
     SANDBOX_MODE, TZ, calculate_business_date, get_request_from_root, get_now,
-    AUCTIONS_COMPLAINT_STAND_STILL_TIME as COMPLAINT_STAND_STILL_TIME
+    AUCTIONS_COMPLAINT_STAND_STILL_TIME as COMPLAINT_STAND_STILL_TIME, get_auction_creation_date
 )
 
 from .constants import (
@@ -44,7 +44,7 @@ from .constants import (
     MINIMAL_EXPOSITION_REQUIRED_FROM,
     MINIMAL_PERIOD_FROM_RECTIFICATION_END
 )
-from .utils import get_auction_creation_date, generate_rectificationPeriod
+from .utils import generate_rectificationPeriod
 
   
 def bids_validation_wrapper(validation_func):

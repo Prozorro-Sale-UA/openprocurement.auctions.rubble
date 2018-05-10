@@ -10,6 +10,7 @@ from openprocurement.auctions.core.validation import (
     validate_patch_auction_data,
 )
 from openprocurement.auctions.core.views.mixins import AuctionResource
+from openprocurement.auctions.core.interfaces import IAuctionManager
 
 from openprocurement.auctions.rubble.utils import (
     check_status,
@@ -87,6 +88,7 @@ class AuctionResource(AuctionResource):
             }
 
         """
+        self.request.registry.getAdapter(self.context, IAuctionManager).change_auction(self.request)
         auction = self.context
         if self.request.authenticated_role != 'Administrator' and auction.status in ['complete', 'unsuccessful', 'cancelled']:
             self.request.errors.add('body', 'data', 'Can\'t update auction in current ({}) status'.format(auction.status))

@@ -7,13 +7,15 @@ from openprocurement.auctions.core.includeme import (
     IAwardingNextCheck,
     get_evenly_plugins
 )
+from openprocurement.auctions.core.interfaces import IAuctionManager
 from openprocurement.auctions.core.plugins.awarding.v2_1.adapters import (
     AwardingNextCheckV2_1
 )
 
 from openprocurement.auctions.rubble.adapters import (
     AuctionRubbleOtherConfigurator,
-    AuctionRubbleFinancialConfigurator
+    AuctionRubbleFinancialConfigurator,
+    AuctionRubbleManagerAdapter
 )
 from openprocurement.auctions.rubble.constants import (
     DEFAULT_PROCUREMENT_METHOD_TYPE_OTHER,
@@ -51,6 +53,12 @@ def includeme_other(config, plugin_map):
         (IRubbleAuction,),
         IAwardingNextCheck
     )
+    config.registry.registerAdapter(
+        AuctionRubbleManagerAdapter,
+        (IRubbleAuction,),
+        IAuctionManager
+    )
+
 
     LOGGER.info("Included openprocurement.auctions.rubble.other plugin",
                 extra={'MESSAGE_ID': 'included_plugin'})
@@ -82,6 +90,11 @@ def includeme_financial(config, plugin_map):
         AwardingNextCheckV2_1,
         (IRubbleAuction,),
         IAwardingNextCheck
+    )
+    config.registry.registerAdapter(
+        AuctionRubbleManagerAdapter,
+        (IRubbleAuction,),
+        IAuctionManager
     )
 
     LOGGER.info("Included openprocurement.auctions.rubble.financial plugin",

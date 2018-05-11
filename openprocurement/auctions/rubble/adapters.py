@@ -24,7 +24,16 @@ class AuctionRubbleFinancialConfigurator(AuctionConfigurator,
     model = RubbleFinancial
 
 
-class AuctionRubbleManagerAdapter(AuctionManagerAdapter):
+class AuctionRubbleOtherManagerAdapter(AuctionManagerAdapter):
+
+    def create_auction(self, request):
+        pass
+
+    def change_auction(self, request):
+        pass
+
+
+class AuctionRubbleFinancialManagerAdapter(AuctionManagerAdapter):
 
     def create_auction(self, request):
         pass

@@ -15,14 +15,16 @@ from openprocurement.auctions.core.plugins.awarding.v2_1.adapters import (
 from openprocurement.auctions.rubble.adapters import (
     AuctionRubbleOtherConfigurator,
     AuctionRubbleFinancialConfigurator,
-    AuctionRubbleManagerAdapter
+    AuctionRubbleOtherManagerAdapter,
+    AuctionRubbleFinancialManagerAdapter
 )
 from openprocurement.auctions.rubble.constants import (
     DEFAULT_PROCUREMENT_METHOD_TYPE_OTHER,
     DEFAULT_PROCUREMENT_METHOD_TYPE_FINANCIAL
 )
 from openprocurement.auctions.rubble.models import (
-    IRubbleAuction,
+    IRubbleOtherAuction,
+    IRubbleFinancialAuction,
     RubbleOther,
     RubbleFinancial
 )
@@ -45,17 +47,17 @@ def includeme_other(config, plugin_map):
     # Register adapters
     config.registry.registerAdapter(
         AuctionRubbleOtherConfigurator,
-        (IRubbleAuction, IRequest),
+        (IRubbleOtherAuction, IRequest),
         IContentConfigurator
     )
     config.registry.registerAdapter(
         AwardingNextCheckV2_1,
-        (IRubbleAuction,),
+        (IRubbleOtherAuction,),
         IAwardingNextCheck
     )
     config.registry.registerAdapter(
-        AuctionRubbleManagerAdapter,
-        (IRubbleAuction,),
+        AuctionRubbleOtherManagerAdapter,
+        (IRubbleOtherAuction,),
         IAuctionManager
     )
 
@@ -83,17 +85,17 @@ def includeme_financial(config, plugin_map):
     # Register Adapters
     config.registry.registerAdapter(
         AuctionRubbleFinancialConfigurator,
-        (IRubbleAuction, IRequest),
+        (IRubbleFinancialAuction, IRequest),
         IContentConfigurator
     )
     config.registry.registerAdapter(
         AwardingNextCheckV2_1,
-        (IRubbleAuction,),
+        (IRubbleFinancialAuction,),
         IAwardingNextCheck
     )
     config.registry.registerAdapter(
-        AuctionRubbleManagerAdapter,
-        (IRubbleAuction,),
+        AuctionRubbleFinancialManagerAdapter,
+        (IRubbleFinancialAuction,),
         IAuctionManager
     )
 

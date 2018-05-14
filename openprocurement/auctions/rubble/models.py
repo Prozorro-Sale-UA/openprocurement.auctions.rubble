@@ -131,11 +131,15 @@ edit_role = (edit_role + blacklist('enquiryPeriod', 'tenderPeriod', 'auction_val
 Administrator_role = (Administrator_role + whitelist('awards'))
 
 
-class IRubbleAuction(IAuction):
-    """Marker interface for Rubble auctions"""
+class IRubbleOtherAuction(IAuction):
+    """Marker interface for RubbleOther auctions"""
 
 
-@implementer(IRubbleAuction)
+class IRubbleFinancialAuction(IAuction):
+    """Marker interface for RubbleFinancial auctions"""
+
+
+@implementer(IRubbleOtherAuction)
 class Auction(BaseAuction):
     """Data regarding auction process - publicly inviting prospective contractors to submit bids for evaluation and selecting a winner or winners."""
     class Options:
@@ -296,7 +300,7 @@ class Bid(Bid):
     eligible = BooleanType(required=True, choices=[True])
 
 
-@implementer(IAuction)
+@implementer(IRubbleFinancialAuction)
 class Auction(RubbleOther):
     """Data regarding auction process - publicly inviting prospective contractors to submit bids for evaluation and selecting a winner or winners."""
     _procedure_type = "rubbleFinancial"

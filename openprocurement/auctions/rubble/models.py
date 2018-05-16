@@ -14,17 +14,18 @@ from openprocurement.auctions.core.models import (
     get_auction,
     Lot,
     Period,
-    Cancellation as BaseCancellation,
+    dgfCancellation,
     validate_items_uniq,
     validate_lots_uniq,
-    schematics_embedded_role, IsoDateTimeType,
+    schematics_embedded_role,
+    IsoDateTimeType,
     IAuction,
     calc_auction_end_time,
     edit_role,
     Administrator_role,
-    dgfCDB2Document as Document,
-    dgfCDB2Item as Item,
-    dgfCDB2Complaint as Complaint,
+    dgfCDB2Document,
+    dgfCDB2Item,
+    dgfCDB2Complaint,
     ListType,
     validate_not_available,
     Bid as BaseBid,
@@ -73,7 +74,7 @@ class Bid(BaseBid):
         }
 
     status = StringType(choices=['active', 'draft', 'invalid'], default='active')
-    documents = ListType(ModelType(Document), default=list())
+    documents = ListType(ModelType(dgfCDB2Document), default=list())
     qualified = BooleanType(required=True, choices=[True])
 
     @bids_validation_wrapper
@@ -81,8 +82,8 @@ class Bid(BaseBid):
         BaseBid._validator_functions['value'](self, data, value)
 
 
-class Cancellation(BaseCancellation):
-    documents = ListType(ModelType(Document), default=list())
+class Cancellation(dgfCancellation):
+    documents = ListType(ModelType(dgfCDB2Document), default=list())
 
 
 def rounding_shouldStartAfter(start_after, auction, use_from=datetime(2016, 6, 1, tzinfo=TZ)):
@@ -159,10 +160,10 @@ class Auction(BaseAuction):
     awards = ListType(ModelType(Award), default=list())
     bids = ListType(ModelType(Bid), default=list())  # A list of all the companies who entered submissions for the auction.
     cancellations = ListType(ModelType(Cancellation), default=list())
-    complaints = ListType(ModelType(Complaint), default=list())
+    complaints = ListType(ModelType(dgfCDB2Complaint), default=list())
     contracts = ListType(ModelType(Contract), default=list())
     dgfID = StringType()
-    documents = ListType(ModelType(Document), default=list())  # All documents and attachments related to the auction.
+    documents = ListType(ModelType(dgfCDB2Document), default=list())  # All documents and attachments related to the auction.
     enquiryPeriod = ModelType(Period)  # The period during which enquiries may be made and will be answered.
     rectificationPeriod = ModelType(RectificationPeriod)  # The period during which editing of main procedure fields are allowed
     tenderPeriod = ModelType(Period)  # The period when the auction is open for submissions. The end date is the closing date for auction submissions.
@@ -171,7 +172,7 @@ class Auction(BaseAuction):
     procurementMethodType = StringType()
     status = StringType(choices=['draft', 'active.tendering', 'active.auction', 'active.qualification', 'active.awarded', 'complete', 'cancelled', 'unsuccessful'], default='active.tendering')
     lots = ListType(ModelType(Lot), default=list(), validators=[validate_lots_uniq, validate_not_available])
-    items = ListType(ModelType(Item), required=True, min_size=1, validators=[validate_items_uniq])
+    items = ListType(ModelType(dgfCDB2Item), required=True, min_size=1, validators=[validate_items_uniq])
     minNumberOfQualifiedBids = IntType(choices=[1, 2])
 
     def __acl__(self):
@@ -273,7 +274,7 @@ RubbleOther = Auction
 # Rubble Financial models
 
 
-class Document(Document):
+class dgfFinCDB2Document(dgfCDB2Document):
     documentType = StringType(choices=[
         'auctionNotice', 'awardNotice', 'contractNotice',
         'notice', 'biddingDocuments', 'technicalSpecifications',
@@ -289,13 +290,15 @@ class Document(Document):
         'x_presentation', 'x_nda',
     ])
 
+dgfFinCDB2Document.__name__ = 'Document'
+
 
 class Bid(Bid):
     class Options:
         roles = {
             'create': whitelist('value', 'tenderers', 'parameters', 'lotValues', 'status', 'qualified', 'eligible'),
         }
-    documents = ListType(ModelType(Document), default=list())
+    documents = ListType(ModelType(dgfFinCDB2Document), default=list())
     tenderers = ListType(ModelType(FinancialOrganization), required=True, min_size=1, max_size=1)
     eligible = BooleanType(required=True, choices=[True])
 
@@ -304,7 +307,7 @@ class Bid(Bid):
 class Auction(RubbleOther):
     """Data regarding auction process - publicly inviting prospective contractors to submit bids for evaluation and selecting a winner or winners."""
     _procedure_type = "rubbleFinancial"
-    documents = ListType(ModelType(Document), default=list())  # All documents and attachments related to the auction.
+    documents = ListType(ModelType(dgfFinCDB2Document), default=list())  # All documents and attachments related to the auction.
     bids = ListType(ModelType(Bid), default=list())
     procurementMethodType = StringType()
     eligibilityCriteria = StringType(default=u"До участі допускаються лише ліцензовані фінансові установи.")

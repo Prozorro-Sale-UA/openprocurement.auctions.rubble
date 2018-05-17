@@ -439,13 +439,18 @@ class BaseAuctionWebTest(CoreBaseAuctionWebTest):
         self.second_award_id = self.second_award['id']
         self.app.authorization = authorization
 
-    def generate_docservice_url(self):
-        uuid = uuid4().hex
-        key = self.app.app.registry.docservice_key
-        keyid = key.hex_vk()[:8]
-        signature = b64encode(key.signature("{}\0{}".format(uuid, '0' * 32)))
-        query = {'Signature': signature, 'KeyID': keyid}
-        return "http://localhost/get/{}?{}".format(uuid, urlencode(query))
+    def check_award_status(self, auction_id, award_id, target_status):
+        response = self.app.get(
+            '/auctions/{0}/awards/{1}'.format(
+                auction_id,
+                award_id))
+        current_status = response.json['data']['status']
+        self.assertEqual(
+            current_status,
+            target_status,
+            "Award status {0} isn't expected. Current status: {1}".format(
+                current_status,
+                target_status))
 
     def patch_award(self, award_id, status, bid_token=None):
         if bid_token:

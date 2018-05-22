@@ -26,10 +26,10 @@ def set_db_schema_version(db, version):
 
 
 def migrate_data(registry, destination=None):
-    registry.app_meta(['plugins'])
-    plugins_config = registry.app_meta(['plugins'])
+    registry.app_meta.plugins
+    plugins_config = registry.app_meta.plugins
     existing_plugins = get_plugins(plugins_config)
-    if registry.app_meta(['plugins']) and not any(existing_plugins):
+    if registry.app_meta.plugins and not any(existing_plugins):
         return
     cur_version = get_db_schema_version(registry.db)
     if cur_version == SCHEMA_VERSION:

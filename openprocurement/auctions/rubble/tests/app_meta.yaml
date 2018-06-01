@@ -1,5 +1,6 @@
 ---
 plugins:
+  auctions.transferring:
   auctions.core:
     plugins:
       auctions.rubble.financial:

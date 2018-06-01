@@ -123,7 +123,7 @@ class RectificationPeriod(Period):
 
 
 create_role = (blacklist(
-    'owner_token', 'owner', '_attachments', 'revisions', 'date', 'dateModified', 'doc_id', 'auctionID', 'bids',
+    'owner_token', 'transfer_token', 'owner', '_attachments', 'revisions', 'date', 'dateModified', 'doc_id', 'auctionID', 'bids',
     'documents', 'awards', 'questions', 'complaints', 'auctionUrl', 'status',
     'enquiryPeriod', 'tenderPeriod', 'awardPeriod', 'procurementMethod', 'eligibilityCriteria',
     'eligibilityCriteria_en', 'eligibilityCriteria_ru', 'awardCriteria', 'submissionMethod', 'cancellations',

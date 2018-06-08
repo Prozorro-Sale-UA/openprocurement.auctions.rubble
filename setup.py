@@ -18,7 +18,6 @@ requires = [
     'setuptools',
     'openprocurement.api',
     'openprocurement.auctions.core',
-    'openprocurement.auctions.flash',
 ]
 
 test_requires = requires + []

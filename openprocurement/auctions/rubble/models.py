@@ -17,7 +17,7 @@ from openprocurement.auctions.core.models import (
     dgfCancellation,
     validate_items_uniq,
     validate_lots_uniq,
-    schematics_embedded_role,
+    auction_embedded_role,
     IsoDateTimeType,
     IAuction,
     calc_auction_end_time,
@@ -47,7 +47,7 @@ from .constants import (
 )
 from .utils import generate_rectificationPeriod
 
-  
+
 def bids_validation_wrapper(validation_func):
     def validator(klass, data, value):
         orig_data = data
@@ -123,11 +123,34 @@ class RectificationPeriod(Period):
 
 
 create_role = (blacklist(
-    'owner_token', 'transfer_token', 'owner', '_attachments', 'revisions', 'date', 'dateModified', 'doc_id', 'auctionID', 'bids',
-    'documents', 'awards', 'questions', 'complaints', 'auctionUrl', 'status',
-    'enquiryPeriod', 'tenderPeriod', 'awardPeriod', 'procurementMethod', 'eligibilityCriteria',
-    'eligibilityCriteria_en', 'eligibilityCriteria_ru', 'awardCriteria', 'submissionMethod', 'cancellations',
-    'numberOfBidders', 'contracts') + schematics_embedded_role)
+    '_attachments',
+    'auctionID',
+    'auctionUrl',
+    'awardCriteria',
+    'awardPeriod',
+    'awards',
+    'bids',
+    'cancellations',
+    'complaints',
+    'contracts',
+    'date',
+    'dateModified',
+    'doc_id',
+    'documents',
+    'eligibilityCriteria',
+    'eligibilityCriteria_en',
+    'eligibilityCriteria_ru',
+    'enquiryPeriod',
+    'numberOfBidders',
+    'owner',
+    'procurementMethod',
+    'questions',
+    'revisions',
+    'status',
+    'submissionMethod',
+    'tenderPeriod'
+) + auction_embedded_role)
+
 edit_role = (edit_role + blacklist('enquiryPeriod', 'tenderPeriod', 'auction_value', 'auction_minimalStep', 'auction_guarantee', 'eligibilityCriteria', 'eligibilityCriteria_en', 'eligibilityCriteria_ru', 'awardCriteriaDetails', 'awardCriteriaDetails_en', 'awardCriteriaDetails_ru', 'procurementMethodRationale', 'procurementMethodRationale_en', 'procurementMethodRationale_ru', 'submissionMethodDetails', 'submissionMethodDetails_en', 'submissionMethodDetails_ru', 'minNumberOfQualifiedBids'))
 Administrator_role = (Administrator_role + whitelist('awards'))
 

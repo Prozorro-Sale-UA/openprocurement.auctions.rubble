@@ -20,6 +20,12 @@ from openprocurement.auctions.rubble.constants import (
     DEFAULT_PROCUREMENT_METHOD_TYPE_OTHER
 )
 
+
+from openprocurement.auctions.rubble.tests.fixtures import PARTIAL_MOCK_CONFIG
+
+from openprocurement.auctions.core.tests.base import MOCK_CONFIG as BASE_MOCK_CONFIG
+from openprocurement.auctions.core.utils import connection_mock_config
+
 DEFAULT_ACCELERATION = 1440
 
 
@@ -194,6 +200,12 @@ for i in test_bids:
     test_financial_bids.append(bid)
 
 
+MOCK_CONFIG = connection_mock_config(PARTIAL_MOCK_CONFIG,
+                                     base=BASE_MOCK_CONFIG,
+                                     connector=('plugins', 'api', 'plugins',
+                                                'auctions.core', 'plugins'))
+
+
 class BaseWebTest(CoreBaseWebTest):
 
     """Base Web Test to test openprocurement.auctions.rubble.
@@ -202,12 +214,14 @@ class BaseWebTest(CoreBaseWebTest):
     """
 
     relative_to = os.path.dirname(__file__)
+    mock_config = MOCK_CONFIG
 
 
 class BaseAuctionWebTest(CoreBaseAuctionWebTest):
     relative_to = os.path.dirname(__file__)
     initial_data = test_auction_data
     initial_organization = test_organization
+    mock_config = MOCK_CONFIG
 
     def go_to_rectificationPeriod_end(self):
         now = get_now()

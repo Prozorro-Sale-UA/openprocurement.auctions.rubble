@@ -50,6 +50,7 @@ from openprocurement.auctions.rubble.tests.blanks.tender_blanks import (
     patch_auction,
     patch_auction_rectificationPeriod_invalidationDate,
     patch_old_auction_rectificationPeriod_invalidationDate,
+    delete_procurementMethodDetails,
     auction_Administrator_change,
     # AuctionFieldsEditingTest
     patch_auction_denied,
@@ -102,6 +103,7 @@ class AuctionResourceTest(BaseWebTest):
     test_dateModified_auction = snitch(dateModified_auction)
     test_guarantee = snitch(guarantee)
     test_auction_Administrator_change = snitch(auction_Administrator_change)
+    test_delete_procurementMethodDetails = snitch(delete_procurementMethodDetails)
 
 
 class AuctionFieldsEditingTest(BaseAuctionWebTest):

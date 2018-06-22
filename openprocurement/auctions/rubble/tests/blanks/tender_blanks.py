@@ -1346,3 +1346,25 @@ def first_bid_auction(self):
     self.assertEqual(response.status, '403 Forbidden')
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['errors'][0]["description"], "Can't update document in current (complete) auction status")
+
+
+@unittest.skipIf(not SANDBOX_MODE, 'procurementMethodDetails is absent while SANDBOX_MODE is False')
+def delete_procurementMethodDetails(self):
+    data = deepcopy(self.initial_data)
+    data['procurementMethodDetails'] = 'some procurementMethodDetails'
+
+    response = self.app.post_json('/auctions', {'data': data})
+    self.assertEqual(response.status, '201 Created')
+    self.assertEqual(response.content_type, 'application/json')
+    self.assertEqual(response.json['data']['procurementMethodDetails'], data['procurementMethodDetails'])
+    auction = response.json['data']
+
+    self.app.authorization = ('Basic', ('administrator', ''))
+    response = self.app.patch_json(
+        '/auctions/{}'.format(auction['id']),
+        {'data': {'procurementMethodDetails': None}}
+    )
+    self.assertNotIn('procurementMethodDetails', response.json['data'])
+
+    response = self.app.get('/auctions/{}'.format(auction['id']))
+    self.assertNotIn('procurementMethodDetails', response.json['data'])

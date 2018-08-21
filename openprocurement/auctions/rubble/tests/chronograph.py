@@ -67,6 +67,7 @@ class AuctionAuctionPeriodResourceTest(BaseAuctionWebTest):
     test_reset_auction_period = snitch(reset_auction_period)
 
 
+@unittest.skip("option not available")
 class AuctionComplaintSwitchResourceTest(BaseAuctionWebTest):
 
     test_switch_to_pending = snitch(switch_to_pending)

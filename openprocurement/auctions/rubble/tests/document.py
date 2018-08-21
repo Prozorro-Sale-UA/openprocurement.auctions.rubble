@@ -66,7 +66,9 @@ class AuctionDocumentWithDSResourceTest(BaseAuctionWebTest, AuctionDocumentResou
 
         # test document POST
 
-        response = self.app.post_json('/auctions/{}/documents'.format(self.auction_id),
+        response = self.app.post_json('/auctions/{}/documents?acc_token={}'.format(
+            self.auction_id, self.auction_token
+        ),
             {'data': {
                 'title': u'укр.doc',
                 'url': self.generate_docservice_url(),
@@ -87,7 +89,9 @@ class AuctionDocumentWithDSResourceTest(BaseAuctionWebTest, AuctionDocumentResou
 
         # test document PATCH
 
-        response = self.app.patch_json('/auctions/{}/documents/{}'.format(self.auction_id, doc_id), {"data": {
+        response = self.app.patch_json('/auctions/{}/documents/{}?acc_token={}'.format(
+            self.auction_id, doc_id, self.auction_token
+        ), {"data": {
             "description": "document description",
             "documentType": 'auctionNotice'
         }})
@@ -101,7 +105,9 @@ class AuctionDocumentWithDSResourceTest(BaseAuctionWebTest, AuctionDocumentResou
 
         # test document PUT
 
-        response = self.app.put_json('/auctions/{}/documents/{}'.format(self.auction_id, doc_id),
+        response = self.app.put_json('/auctions/{}/documents/{}?acc_token={}'.format(
+            self.auction_id, doc_id, self.auction_token
+        ),
             {'data': {
                 'title': u'name.doc',
                 'url': self.generate_docservice_url(),
@@ -116,7 +122,9 @@ class AuctionDocumentWithDSResourceTest(BaseAuctionWebTest, AuctionDocumentResou
 
         self.go_to_rectificationPeriod_end()
 
-        response = self.app.post_json('/auctions/{}/documents'.format(self.auction_id),
+        response = self.app.post_json('/auctions/{}/documents?acc_token={}'.format(
+            self.auction_id, self.auction_token
+        ),
             {'data': {
                 'title': u'укр.doc',
                 'url': self.generate_docservice_url(),
@@ -131,7 +139,9 @@ class AuctionDocumentWithDSResourceTest(BaseAuctionWebTest, AuctionDocumentResou
 
         self.check_bids_are_active()
 
-        response = self.app.patch_json('/auctions/{}/documents/{}'.format(self.auction_id, doc_id), {"data": {
+        response = self.app.patch_json('/auctions/{}/documents/{}?acc_token={}'.format(
+            self.auction_id, doc_id, self.auction_token
+        ), {"data": {
             "description": "document description",
             "documentType": 'auctionNotice'
         }}, status=403)
@@ -143,7 +153,9 @@ class AuctionDocumentWithDSResourceTest(BaseAuctionWebTest, AuctionDocumentResou
 
         self.check_bids_are_active()
 
-        response = self.app.post_json('/auctions/{}/documents'.format(self.auction_id),
+        response = self.app.post_json('/auctions/{}/documents?acc_token={}'.format(
+            self.auction_id, self.auction_token
+        ),
             {'data': {
                 'title': u'укр.doc',
                 'url': self.generate_docservice_url(),

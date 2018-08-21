@@ -29,9 +29,15 @@ class AuctionContractResourceTest(BaseAuctionWebTest):
     initial_status = 'active.auction'
     initial_bids = test_bids
 
-    test_create_auction_contract_invalid = snitch(create_auction_contract_invalid)
-    test_create_auction_contract = snitch(create_auction_contract)
-    test_create_auction_contract_in_complete_status = snitch(create_auction_contract_in_complete_status)
+    test_create_auction_contract_invalid = unittest.skip('option not available')(
+        snitch(create_auction_contract_invalid)
+    )
+    test_create_auction_contract = unittest.skip('option not available')(
+        snitch(create_auction_contract)
+    )
+    test_create_auction_contract_in_complete_status = unittest.skip('option not available')(
+        snitch(create_auction_contract_in_complete_status)
+    )
     test_patch_auction_contract = snitch(patch_auction_contract)
     test_get_auction_contract = snitch(get_auction_contract)
     test_get_auction_contracts = snitch(get_auction_contracts)
@@ -63,9 +69,6 @@ class AuctionContractResourceTest(BaseAuctionWebTest):
         self.award_value = self.award['value']
         self.award_suppliers = self.award['suppliers']
 
-        self.set_status('active.qualification')
-
-        self.app.authorization = ('Basic', ('token', ''))
         response = self.app.post('/auctions/{}/awards/{}/documents?acc_token={}'.format(
             self.auction_id, self.award_id, self.auction_token), upload_files=[('file', 'auction_protocol.pdf', 'content')])
         self.assertEqual(response.status, '201 Created')
@@ -81,8 +84,12 @@ class AuctionContractResourceTest(BaseAuctionWebTest):
         self.assertEqual(response.json["data"]["documentType"], 'auctionProtocol')
         self.assertEqual(response.json["data"]["author"], 'auction_owner')
 
-        self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.award_id), {"data": {"status": "pending.payment"}})
-        self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.award_id), {"data": {"status": "active"}})
+        self.app.patch_json('/auctions/{}/awards/{}?acc_token={}'.format(
+            self.auction_id, self.award_id, self.auction_token
+        ), {"data": {"status": "pending.payment"}})
+        self.app.patch_json('/auctions/{}/awards/{}?acc_token={}'.format(
+            self.auction_id, self.award_id, self.auction_token
+        ), {"data": {"status": "active"}})
 
 
 
@@ -140,9 +147,6 @@ class AuctionContractDocumentResourceTest(BaseAuctionWebTest, AuctionContractDoc
         self.award_value = self.award['value']
         self.award_suppliers = self.award['suppliers']
 
-        self.set_status('active.qualification')
-
-        self.app.authorization = ('Basic', ('token', ''))
         response = self.app.post('/auctions/{}/awards/{}/documents?acc_token={}'.format(
             self.auction_id, self.award_id, self.auction_token), upload_files=[('file', 'auction_protocol.pdf', 'content')])
         self.assertEqual(response.status, '201 Created')
@@ -158,11 +162,15 @@ class AuctionContractDocumentResourceTest(BaseAuctionWebTest, AuctionContractDoc
         self.assertEqual(response.json["data"]["documentType"], 'auctionProtocol')
         self.assertEqual(response.json["data"]["author"], 'auction_owner')
 
-        self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.award_id), {"data": {"status": "pending.payment"}})
-        self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, self.award_id), {"data": {"status": "active"}})
-        # Create contract for award
-        response = self.app.post_json('/auctions/{}/contracts'.format(self.auction_id), {'data': {'title': 'contract title', 'description': 'contract description', 'awardID': self.award_id}})
-        contract = response.json['data']
+        self.app.patch_json('/auctions/{}/awards/{}?acc_token={}'.format(
+            self.auction_id, self.award_id, self.auction_token
+        ), {"data": {"status": "pending.payment"}})
+        self.app.patch_json('/auctions/{}/awards/{}?acc_token={}'.format(
+            self.auction_id, self.award_id, self.auction_token
+        ), {"data": {"status": "active"}})
+        # Assure contract for award is created
+        response = self.app.get('/auctions/{}/contracts'.format(self.auction_id))
+        contract = response.json['data'][0]
         self.contract_id = contract['id']
 
 

@@ -16,7 +16,7 @@ from openprocurement.auctions.rubble.tests.base import (
 )
 
 
-
+@unittest.skip("option not available")
 class AuctionComplaintResourceTest(BaseAuctionWebTest, AuctionComplaintResourceTestMixin):
     pass
 
@@ -28,7 +28,7 @@ class AuctionLotAwardComplaintResourceTest(BaseAuctionWebTest):
 
     test_create_auction_complaint_lot = snitch(create_auction_complaint_lot)
 
-
+@unittest.skip("option not available")
 class AuctionComplaintDocumentResourceTest(BaseAuctionWebTest, InsiderAuctionComplaintDocumentResourceTestMixin):
 
     def setUp(self):
@@ -40,7 +40,7 @@ class AuctionComplaintDocumentResourceTest(BaseAuctionWebTest, InsiderAuctionCom
         self.complaint_id = complaint['id']
         self.complaint_owner_token = response.json['access']['token']
 
-
+@unittest.skip("option not available")
 class FinancialAuctionComplaintResourceTest(BaseAuctionWebTest):
     initial_data = test_financial_auction_data
     initial_organization = test_financial_organization
@@ -50,7 +50,7 @@ class FinancialAuctionLotAwardComplaint(BaseAuctionWebTest):
     initial_data = test_financial_auction_data
     initial_organization = test_financial_organization
 
-
+@unittest.skip("option not available")
 class FinancialAuctionComplaintDocumentResourceTest(BaseAuctionWebTest):
     initial_data = test_financial_auction_data
     initial_organization = test_financial_organization

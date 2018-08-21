@@ -467,18 +467,20 @@ class BaseAuctionWebTest(CoreBaseAuctionWebTest):
                 target_status))
 
     def patch_award(self, award_id, status, bid_token=None):
+        token = self.auction_token
         if bid_token:
-            response = self.app.patch_json('/auctions/{}/awards/{}?acc_token={}'.format(self.auction_id, award_id, bid_token), {"data": {"status": status}})
-            self.assertEqual(response.status, '200 OK')
-            self.assertEqual(response.content_type, 'application/json')
-            return response
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, award_id), {"data": {"status": status}})
+            token = bid_token
+        response = self.app.patch_json('/auctions/{}/awards/{}?acc_token={}'.format(
+            self.auction_id, award_id, token
+        ), {"data": {"status": status}})
         self.assertEqual(response.status, '200 OK')
         self.assertEqual(response.content_type, 'application/json')
         return response
 
     def forbidden_patch_award(self, award_id, before_status, status):
-        response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, award_id), {"data": {"status": status}}, status=403)
+        response = self.app.patch_json('/auctions/{}/awards/{}?acc_token={}'.format(
+            self.auction_id, award_id, self.auction_token
+        ), {"data": {"status": status}}, status=403)
         self.assertEqual(response.status, '403 Forbidden')
         self.assertEqual(response.content_type, 'application/json')
         self.assertEqual(response.json['errors'][0]["description"], "Can't switch award ({}) status to ({}) status".format(before_status, status))

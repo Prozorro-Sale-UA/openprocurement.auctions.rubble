@@ -46,8 +46,9 @@ def migrate_one_pending(self):
     self.assertEqual(response.json['data'][1]['status'], u'pending.waiting')
     pending_award = response.json['data'][0]
 
-    response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, pending_award['id']),
-                                   {"data": {"status": "unsuccessful"}})
+    response = self.app.patch_json('/auctions/{}/awards/{}?acc_token={}'.format(
+        self.auction_id, pending_award['id'], self.auction_token
+    ), {"data": {"status": "unsuccessful"}})
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['data']['status'], u'unsuccessful')
@@ -135,8 +136,9 @@ def migrate_one_active(self):
     self.assertEqual(response.json['data'][1]['status'], u'pending.waiting')
     active_award = response.json['data'][0]
 
-    response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, active_award['id']),
-                                   {"data": {"status": "unsuccessful"}})
+    response = self.app.patch_json('/auctions/{}/awards/{}?acc_token={}'.format(
+        self.auction_id, active_award['id'], self.auction_token
+    ), {"data": {"status": "unsuccessful"}})
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['data']['status'], u'unsuccessful')
@@ -287,12 +289,16 @@ def migrate_pending_to_unsuccesful(self):
     pending_award = response.json['data'][0]
     waiting_award = response.json['data'][1]
 
-    response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, pending_award['id']), {"data": {"status": "unsuccessful"}})
+    response = self.app.patch_json('/auctions/{}/awards/{}?acc_token={}'.format(
+        self.auction_id, pending_award['id'], self.auction_token
+    ), {"data": {"status": "unsuccessful"}})
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['data']['status'], u'unsuccessful')
 
-    response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, waiting_award['id']), {"data": {"status": "unsuccessful"}})
+    response = self.app.patch_json('/auctions/{}/awards/{}?acc_token={}'.format(
+        self.auction_id, waiting_award['id'], self.auction_token
+    ), {"data": {"status": "unsuccessful"}})
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['data']['status'], u'unsuccessful')
@@ -339,7 +345,9 @@ def migrate_pending_to_complete(self):
     pending_award = response.json['data'][0]
     waiting_award = response.json['data'][1]
 
-    response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, pending_award['id']), {"data": {"status": "unsuccessful"}})
+    response = self.app.patch_json('/auctions/{}/awards/{}?acc_token={}'.format(
+        self.auction_id, pending_award['id'], self.auction_token
+    ), {"data": {"status": "unsuccessful"}})
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['data']['status'], u'unsuccessful')
@@ -358,12 +366,16 @@ def migrate_pending_to_complete(self):
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json["data"]["documentType"], 'auctionProtocol')
 
-    response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, waiting_award['id']), {"data": {"status": "pending.payment"}})
+    response = self.app.patch_json('/auctions/{}/awards/{}?acc_token={}'.format(
+        self.auction_id, waiting_award['id'], self.auction_token
+    ), {"data": {"status": "pending.payment"}})
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['data']['status'], u'pending.payment')
 
-    response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, waiting_award['id']), {"data": {"status": "active"}})
+    response = self.app.patch_json('/auctions/{}/awards/{}?acc_token={}'.format(
+        self.auction_id, waiting_award['id'], self.auction_token
+    ), {"data": {"status": "active"}})
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['data']['status'], u'active')
@@ -374,7 +386,9 @@ def migrate_pending_to_complete(self):
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['data']['status'], u'active.awarded')
 
-    response = self.app.patch_json('/auctions/{}/contracts/{}'.format(self.auction_id, contract['id']), {"data": {"status": "active"}})
+    response = self.app.patch_json('/auctions/{}/contracts/{}?acc_token={}'.format(
+        self.auction_id, contract['id'], self.auction_token
+    ), {"data": {"status": "active"}})
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['data']['status'], u'active')
@@ -455,12 +469,16 @@ def migrate_active_to_unsuccessful(self):
     active_award = response.json['data'][0]
     waiting_award = response.json['data'][1]
 
-    response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, active_award['id']), {"data": {"status": "unsuccessful"}})
+    response = self.app.patch_json('/auctions/{}/awards/{}?acc_token={}'.format(
+        self.auction_id, active_award['id'], self.auction_token
+    ), {"data": {"status": "unsuccessful"}})
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['data']['status'], u'unsuccessful')
 
-    response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, waiting_award['id']), {"data": {"status": "unsuccessful"}})
+    response = self.app.patch_json('/auctions/{}/awards/{}?acc_token={}'.format(
+        self.auction_id, waiting_award['id'], self.auction_token
+    ), {"data": {"status": "unsuccessful"}})
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['data']['status'], u'unsuccessful')
@@ -539,7 +557,9 @@ def migrate_active_to_complete(self):
     self.assertEqual(response.json['data'][0]['status'], u'active')
     self.assertEqual(response.json['data'][1]['status'], u'pending.waiting')
 
-    response = self.app.patch_json('/auctions/{}/contracts/{}'.format(self.auction_id, contract_id), {"data": {"status": "active"}})
+    response = self.app.patch_json('/auctions/{}/contracts/{}?acc_token={}'.format(
+        self.auction_id, contract_id, self.auction_token
+    ), {"data": {"status": "active"}})
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['data']['status'], u'active')
@@ -597,7 +617,9 @@ def migrate_cancelled_pending_to_complete(self):
     pending_award = response.json['data'][1]
     waiting_award = response.json['data'][2]
 
-    response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, pending_award['id']), {"data": {"status": "unsuccessful"}})
+    response = self.app.patch_json('/auctions/{}/awards/{}?acc_token={}'.format(
+        self.auction_id, pending_award['id'], self.auction_token
+    ), {"data": {"status": "unsuccessful"}})
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['data']['status'], u'unsuccessful')
@@ -616,12 +638,16 @@ def migrate_cancelled_pending_to_complete(self):
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json["data"]["documentType"], 'auctionProtocol')
 
-    response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, waiting_award['id']), {"data": {"status": "pending.payment"}})
+    response = self.app.patch_json('/auctions/{}/awards/{}?acc_token={}'.format(
+        self.auction_id, waiting_award['id'], self.auction_token
+    ), {"data": {"status": "pending.payment"}})
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['data']['status'], u'pending.payment')
 
-    response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, waiting_award['id']), {"data": {"status": "active"}})
+    response = self.app.patch_json('/auctions/{}/awards/{}?acc_token={}'.format(
+        self.auction_id, waiting_award['id'], self.auction_token
+    ), {"data": {"status": "active"}})
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['data']['status'], u'active')
@@ -632,7 +658,9 @@ def migrate_cancelled_pending_to_complete(self):
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['data']['status'], u'active.awarded')
 
-    response = self.app.patch_json('/auctions/{}/contracts/{}'.format(self.auction_id, contract['id']), {"data": {"status": "active"}})
+    response = self.app.patch_json('/auctions/{}/contracts/{}?acc_token={}'.format(
+        self.auction_id, contract['id'], self.auction_token
+    ), {"data": {"status": "active"}})
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['data']['status'], u'active')
@@ -684,7 +712,9 @@ def migrate_unsuccessful_pending_to_complete(self):
     self.assertEqual(response.json['data'][1]['status'], u'pending.payment')
     pending_award = response.json['data'][1]
 
-    response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, pending_award['id']), {"data": {"status": "active"}})
+    response = self.app.patch_json('/auctions/{}/awards/{}?acc_token={}'.format(
+        self.auction_id, pending_award['id'], self.auction_token
+    ), {"data": {"status": "active"}})
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['data']['status'], u'active')
@@ -695,7 +725,9 @@ def migrate_unsuccessful_pending_to_complete(self):
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['data']['status'], u'active.awarded')
 
-    response = self.app.patch_json('/auctions/{}/contracts/{}'.format(self.auction_id, contract['id']), {"data": {"status": "active"}})
+    response = self.app.patch_json('/auctions/{}/contracts/{}?acc_token={}'.format(
+        self.auction_id, contract['id'], self.auction_token
+    ), {"data": {"status": "active"}})
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['data']['status'], u'active')
@@ -783,7 +815,9 @@ def migrate_unsuccessful_active_to_complete(self):
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['data']['status'], u'active.awarded')
 
-    response = self.app.patch_json('/auctions/{}/contracts/{}'.format(self.auction_id, contract['id']), {"data": {"status": "active"}})
+    response = self.app.patch_json('/auctions/{}/contracts/{}?acc_token={}'.format(
+        self.auction_id, contract['id'], self.auction_token
+    ), {"data": {"status": "active"}})
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['data']['status'], u'active')
@@ -840,7 +874,9 @@ def migrate_cancelled_unsuccessful_pending(self):
     self.assertEqual(response.json['data'][2]['status'], u'pending.payment')
     pending_award = response.json['data'][2]
 
-    response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, pending_award['id']), {"data": {"status": "active"}})
+    response = self.app.patch_json('/auctions/{}/awards/{}?acc_token={}'.format(
+        self.auction_id, pending_award['id'], self.auction_token
+    ), {"data": {"status": "active"}})
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['data']['status'], u'active')
@@ -851,7 +887,9 @@ def migrate_cancelled_unsuccessful_pending(self):
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['data']['status'], u'active.awarded')
 
-    response = self.app.patch_json('/auctions/{}/contracts/{}'.format(self.auction_id, contract['id']), {"data": {"status": "active"}})
+    response = self.app.patch_json('/auctions/{}/contracts/{}?acc_token={}'.format(
+        self.auction_id, contract['id'], self.auction_token
+    ), {"data": {"status": "active"}})
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['data']['status'], u'active')
@@ -901,7 +939,9 @@ def migrate_cancelled_unsuccessful_cancelled_pending_to_unsuccessful(self):
     self.assertIn('verificationPeriod', auction['awards'][3])
     self.assertIn('paymentPeriod', auction['awards'][3])
 
-    response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, pending_award['id']), {"data": {"status": "active"}})
+    response = self.app.patch_json('/auctions/{}/awards/{}?acc_token={}'.format(
+        self.auction_id, pending_award['id'], self.auction_token
+    ), {"data": {"status": "active"}})
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['data']['status'], u'active')
@@ -911,7 +951,9 @@ def migrate_cancelled_unsuccessful_cancelled_pending_to_unsuccessful(self):
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['data']['status'], u'active.awarded')
 
-    response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, pending_award['id']), {"data": {"status": "unsuccessful"}})
+    response = self.app.patch_json('/auctions/{}/awards/{}?acc_token={}'.format(
+        self.auction_id, pending_award['id'], self.auction_token
+    ), {"data": {"status": "unsuccessful"}})
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['data']['status'], u'unsuccessful')
@@ -1003,7 +1045,9 @@ def migrate_cancelled_unsuccessful_cancelled_active_to_unsuccessful(self):
     self.assertIn('paymentPeriod', auction['awards'][3])
     self.assertIn('signingPeriod', auction['awards'][3])
 
-    response = self.app.patch_json('/auctions/{}/awards/{}'.format(self.auction_id, active_award['id']), {"data": {"status": "unsuccessful"}})
+    response = self.app.patch_json('/auctions/{}/awards/{}?acc_token={}'.format(
+        self.auction_id, active_award['id'], self.auction_token
+    ), {"data": {"status": "unsuccessful"}})
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
     self.assertEqual(response.json['data']['status'], u'unsuccessful')

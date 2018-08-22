@@ -5,7 +5,11 @@ PARTIAL_MOCK_CONFIG = {
             "rubble.financial.migration":None
         },
         "migration":False,
-        "aliases":[]
+        "aliases":[],
+        "accreditation": {
+            "create": [1],
+            "edit": [2]
+        }
     },
     "auctions.rubble.other":{
         "use_default":True,
@@ -13,6 +17,10 @@ PARTIAL_MOCK_CONFIG = {
             "rubble.other.migration":None
         },
         "migration":False,
-        "aliases":[]
+        "aliases":[],
+        "accreditation": {
+            "create": [1],
+            "edit": [2]
+        }
     }
 }

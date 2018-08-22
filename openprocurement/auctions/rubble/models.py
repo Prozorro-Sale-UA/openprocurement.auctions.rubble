@@ -117,7 +117,7 @@ class AuctionAuctionPeriod(Period):
         if not auction.revisions and not startDate:
             raise ValidationError(u'This field is required.')
 
-            
+
 class RectificationPeriod(Period):
     invalidationDate = IsoDateTimeType()
 
@@ -179,7 +179,7 @@ class Auction(BaseAuction):
             roles['{}_{}'.format(i.owner, i.owner_token)] = 'bid_owner'
         return roles
 
-    _procedure_type = "rubbleOther"
+    _internal_type = "rubbleOther"
     awards = ListType(ModelType(Award), default=list())
     bids = ListType(ModelType(Bid), default=list())  # A list of all the companies who entered submissions for the auction.
     cancellations = ListType(ModelType(Cancellation), default=list())
@@ -329,7 +329,7 @@ class Bid(Bid):
 @implementer(IRubbleFinancialAuction)
 class Auction(RubbleOther):
     """Data regarding auction process - publicly inviting prospective contractors to submit bids for evaluation and selecting a winner or winners."""
-    _procedure_type = "rubbleFinancial"
+    _internal_type = "rubbleFinancial"
     documents = ListType(ModelType(dgfFinCDB2Document), default=list())  # All documents and attachments related to the auction.
     bids = ListType(ModelType(Bid), default=list())
     procurementMethodType = StringType()

@@ -85,11 +85,6 @@ def includeme_financial(config, plugin_map):
     for procurementMethodType in procurement_method_types:
         config.add_auction_procurementMethodType(RubbleFinancial,
                                                  procurementMethodType)
-        # add accreditation level
-        if not plugin_map.get('accreditation'):
-            config.registry.accreditation['auction'][procurementMethodType] = DEFAULT_LEVEL_OF_ACCREDITATION
-        else:
-            config.registry.accreditation['auction'][procurementMethodType] = plugin_map['accreditation']
 
     config.scan("openprocurement.auctions.rubble.views.financial")
 

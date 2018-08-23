@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import re
 import unittest
 # from calendar import monthrange
 # from copy import deepcopy
@@ -8,10 +7,26 @@ import unittest
 # from iso8601 import parse_date
 # import pytz
 
-from openprocurement.auctions.rubble.models import RubbleOther, RubbleFinancial, DGF_ID_REQUIRED_FROM
-from openprocurement.auctions.rubble.tests.base import test_auction_maximum_data, test_auction_data, test_financial_auction_data, test_organization, test_financial_organization, BaseWebTest, BaseAuctionWebTest, DEFAULT_ACCELERATION, test_bids, test_financial_bids
+from openprocurement.auctions.rubble.models import (
+    RubbleOther,
+    RubbleFinancial,
+)
+from openprocurement.auctions.rubble.tests.base import (
+    test_auction_maximum_data,
+    test_auction_data,
+    test_financial_auction_data,
+    test_organization,
+    test_financial_organization,
+    BaseWebTest,
+    BaseAuctionWebTest,
+    test_bids,
+    test_financial_bids
+)
 
 from openprocurement.auctions.core.tests.base import snitch
+from openprocurement.auctions.core.tests.tender import (
+    ExtractCredentialsMixin
+)
 from openprocurement.auctions.core.tests.blanks.tender_blanks import (
     simple_add_auction
 )
@@ -122,8 +137,7 @@ class AuctionProcessTest(BaseAuctionWebTest):
     test_one_invalid_bid_auction = snitch(one_invalid_bid_auction)
     test_first_bid_auction = snitch(first_bid_auction)
 
-
-    #setUp = BaseWebTest.setUp
+    # setUp = BaseWebTest.setUp
     def setUp(self):
         super(AuctionProcessTest.__bases__[0], self).setUp()
 
@@ -144,7 +158,7 @@ class FinancialAuctionResourceTest(AuctionResourceTest):
 
     def test_create_auction_generated(self):
         data = self.initial_data.copy()
-        #del data['awardPeriod']
+        # del data['awardPeriod']
         data.update({'id': 'hash', 'doc_id': 'hash2', 'auctionID': 'hash3'})
         response = self.app.post_json('/auctions', {'data': data})
         self.assertEqual(response.status, '201 Created')
@@ -173,6 +187,10 @@ class FinancialAuctionProcessTest(AuctionProcessTest):
     initial_organization = test_financial_organization
 
 
+class AuctionExtractCredentialsTest(BaseAuctionWebTest, ExtractCredentialsMixin):
+    pass
+
+
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(AuctionProcessTest))
@@ -183,6 +201,7 @@ def suite():
     suite.addTest(unittest.makeSuite(FinancialAuctionResourceTest))
     suite.addTest(unittest.makeSuite(FinancialAuctionFieldsEditingTest))
     suite.addTest(unittest.makeSuite(FinancialAuctionTest))
+    suite.addTest(unittest.makeSuite(AuctionExtractCredentialsTest))
     return suite
 
 

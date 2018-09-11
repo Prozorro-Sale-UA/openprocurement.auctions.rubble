@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 
-from openprocurement.auctions.core.constants import TZ, ORA_CODES, read_json
+from openprocurement.api.constants import ORA_CODES
+from openprocurement.auctions.core.constants import TZ, read_json
 
 # document types
 DOCUMENT_TYPE_OFFLINE = ['x_dgfAssetFamiliarization']

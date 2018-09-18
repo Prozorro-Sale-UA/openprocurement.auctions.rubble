@@ -126,15 +126,6 @@ def calculate_enddate(auction, period, duration):
     period.endDate = calculate_business_date(period.endDate, round_to_18_hour_delta, auction, False)
 
 
-def invalidate_bids_under_threshold(auction):
-    """Invalidate bids that lower value.amount + minimalStep.amount"""
-    value_threshold = round(auction['value']['amount'] +
-                            auction['minimalStep']['amount'], 2)
-    for bid in auction['bids']:
-        if bid['value']['amount'] < value_threshold:
-            bid['status'] = 'invalid'
-
-
 def remove_invalid_bids(request):
     auction = request.validated['auction']
     if [bid for bid in auction.bids if getattr(bid, "status", "active") == "invalid"]:

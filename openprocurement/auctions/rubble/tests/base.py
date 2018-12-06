@@ -31,6 +31,32 @@ DEFAULT_ACCELERATION = 1440
 
 now = datetime.now()
 test_procuringEntity = test_organization.copy()
+
+test_item = {
+    "description": u"Земля для військовослужбовців",
+    "classification": {
+        "scheme": u"CPV",
+        "id": u"66113000-5",
+        "description": u"Земельні ділянки"
+    },
+    "unit": {
+        "name": u"item",
+        "code": u"44617100-9"
+    },
+    "quantity": 5.001,
+    "contractPeriod": {
+        "startDate": (now + timedelta(days=2)).isoformat(),
+        "endDate": (now + timedelta(days=5)).isoformat()
+    },
+    "address": {
+        "countryName": u"Україна",
+        "postalCode": "79000",
+        "region": u"м. Київ",
+        "locality": u"м. Київ",
+        "streetAddress": u"вул. Банкова 1"
+    }
+}
+
 test_auction_data = {
     "title": u"футляри до державних нагород",
     "dgfID": u"219560",
@@ -44,32 +70,7 @@ test_auction_data = {
         "amount": 35,
         "currency": u"UAH"
     },
-    "items": [
-        {
-            "description": u"Земля для військовослужбовців",
-            "classification": {
-                "scheme": u"CPV",
-                "id": u"66113000-5",
-                "description": u"Земельні ділянки"
-            },
-            "unit": {
-                "name": u"item",
-                "code": u"44617100-9"
-            },
-            "quantity": 5.001,
-            "contractPeriod": {
-                "startDate": (now + timedelta(days=2)).isoformat(),
-                "endDate": (now + timedelta(days=5)).isoformat()
-            },
-            "address": {
-                "countryName": u"Україна",
-                "postalCode": "79000",
-                "region": u"м. Київ",
-                "locality": u"м. Київ",
-                "streetAddress": u"вул. Банкова 1"
-            }
-        }
-    ],
+    "items": [test_item],
     "auctionPeriod": {
         "startDate": (now.date() + timedelta(days=14)).isoformat()
     },

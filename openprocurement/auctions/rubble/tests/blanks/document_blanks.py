@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+
 def create_auction_document(self):
     response = self.app.get('/auctions/{}/documents'.format(self.auction_id))
     self.assertEqual(response.status, '200 OK')
@@ -95,87 +96,80 @@ def create_auction_document(self):
 
 
 def put_auction_offline_document(self):
-    response = self.app.post_json('/auctions/{}/documents?acc_token={}'.format(
-        self.auction_id, self.auction_token
-    ),
-        {'data': {
-            'title': u'Порядок ознайомлення з майном / Порядок ознайомлення з активом у кімнаті даних',
-            'documentType': 'x_dgfAssetFamiliarization',
-            'accessDetails': u'Ознайомитись з рогом єдинорога можна: 30 лютого, коли сонце зійде на заході, печера Ілона Маска, плато Азімова, Марс'
-        }})
-    self.assertEqual(response.status, '201 Created')
-    self.assertEqual(response.content_type, 'application/json')
-    doc_id = response.json["data"]['id']
-    self.assertIn(doc_id, response.headers['Location'])
-    self.assertEqual(u'Порядок ознайомлення з майном / Порядок ознайомлення з активом у кімнаті даних', response.json["data"]["title"])
-    self.assertEqual(u'Ознайомитись з рогом єдинорога можна: 30 лютого, коли сонце зійде на заході, печера Ілона Маска, плато Азімова, Марс', response.json["data"]["accessDetails"])
-    self.assertEqual('offline/on-site-examination', response.json["data"]["format"])
-    self.assertEqual('x_dgfAssetFamiliarization', response.json["data"]["documentType"])
+    offline_document = {
+        'title': 'test title',
+        'documentType': 'x_dgfAssetFamiliarization',
+        'accessDetails': 'test accessDetails'
+    }
+    entrypoint_pattern = '/auctions/{}/documents?acc_token={}'
+    entrypoint = entrypoint_pattern.format(self.auction_id, self.auction_token)
+    request_data = {'data': offline_document}
+    response = self.app.post_json(entrypoint, request_data)
+    document_id = response.json["data"]['id']
     dateModified = response.json["data"]['dateModified']
     datePublished = response.json["data"]['datePublished']
 
-    response = self.app.put_json('/auctions/{}/documents/{}?acc_token={}'.format(
-        self.auction_id, doc_id, self.auction_token
-    ),
-        {'data': {
-            'title': u'Новий порядок ознайомлення',
-            'documentType': 'x_dgfAssetFamiliarization',
-        }}, status=422)
+    entrypoint_pattern = '/auctions/{}/documents/{}?acc_token={}'
+    entrypoint = entrypoint_pattern.format(self.auction_id, document_id, self.auction_token)
+    document = {
+        'title': 'new test title',
+        'documentType': 'x_dgfAssetFamiliarization'
+    }
+    response = self.app.put_json(entrypoint, {'data': document}, status=422)
     self.assertEqual(response.status, '422 Unprocessable Entity')
-    self.assertEqual(response.content_type, 'application/json')
-    self.assertEqual(response.json['errors'], [
-        {u'description': [u'This field is required.'], u'location': u'body', u'name': u'accessDetails'}
-    ])
 
-    response = self.app.put_json('/auctions/{}/documents/{}?acc_token={}'.format(
-        self.auction_id, doc_id, self.auction_token
-    ),
-        {'data': {
-            'title': u'Новий порядок ознайомлення',
-            'documentType': 'x_dgfAssetFamiliarization',
-            'accessDetails': u'Ознайомитись з рогом єдинорога можна: 30 лютого, коли сонце зійде на заході, печера Ілона Маска, плато Азімова, Марс',
-            'hash': 'md5:' + '0' * 32,
-        }}, status=422)
+    document = {
+        'title': 'new title',
+        'documentType': 'x_dgfAssetFamiliarization',
+        'accessDetails': 'new accessDetails',
+        'hash': 'md5:' + '0' * 32
+    }
+
+    response = self.app.put_json(entrypoint, {'data': document}, status=422)
     self.assertEqual(response.status, '422 Unprocessable Entity')
-    self.assertEqual(response.content_type, 'application/json')
-    self.assertEqual(response.json['errors'], [{'description': [u'This field is not required.'], u'location': u'body', u'name': u'hash'}])
 
-    response = self.app.put_json('/auctions/{}/documents/{}?acc_token={}'.format(
-        self.auction_id, doc_id, self.auction_token
-    ),
-        {'data': {
-            'title': u'Порядок ознайомлення з майном #2',
-            'documentType': 'x_dgfAssetFamiliarization',
-            'accessDetails': u'Ознайомитись з рогом єдинорога можна: 30 лютого, коли сонце зійде на заході, печера Ілона Маска, плато Азімова, Марс'
-        }})
+    response = self.app.put_json(entrypoint, {'data': document}, status=422)
+    self.assertEqual(response.status, '422 Unprocessable Entity')
+
+    new_title = 'new title'
+    new_access_details = 'new accessDetails'
+    document = {
+        'title': new_title,
+        'documentType': 'x_dgfAssetFamiliarization',
+        'accessDetails': new_access_details
+    }
+    response = self.app.put_json(entrypoint, {'data': document})
     self.assertEqual(response.status, '200 OK')
-    self.assertEqual(response.content_type, 'application/json')
-    self.assertEqual(doc_id, response.json["data"]["id"])
-    self.assertEqual(u'Порядок ознайомлення з майном #2', response.json["data"]["title"])
-    self.assertEqual(u'Ознайомитись з рогом єдинорога можна: 30 лютого, коли сонце зійде на заході, печера Ілона Маска, плато Азімова, Марс', response.json["data"]["accessDetails"])
-    self.assertEqual('offline/on-site-examination', response.json["data"]["format"])
-    self.assertEqual('x_dgfAssetFamiliarization', response.json["data"]["documentType"])
 
-    auction = self.db.get(self.auction_id)
-    self.assertEqual(u'Порядок ознайомлення з майном #2', auction['documents'][-1]["title"])
-    self.assertEqual(u'Ознайомитись з рогом єдинорога можна: 30 лютого, коли сонце зійде на заході, печера Ілона Маска, плато Азімова, Марс', auction['documents'][-1]["accessDetails"])
-    self.assertEqual('offline/on-site-examination', auction['documents'][-1]["format"])
-    self.assertEqual('x_dgfAssetFamiliarization', auction['documents'][-1]["documentType"])
+    new_document = response.json["data"]
+    self.assertEqual(document_id, response.json["data"]["id"])
+    self.assertEqual(new_title, new_document["title"])
+    self.assertEqual(new_access_details, new_document["accessDetails"])
+    self.assertEqual('offline/on-site-examination', new_document["format"])
+    self.assertEqual('x_dgfAssetFamiliarization', new_document["documentType"])
+
+    entrypoint_pattern = '/auctions/{}/documents/{}'
+    entrypoint = entrypoint_pattern.format(self.auction_id, document_id)
+    response = self.app.get(entrypoint)
+    document = response.json['data']
+
+    self.assertEqual(document['title'], new_title)
+    self.assertEqual(document['accessDetails'], new_access_details)
 
     response = self.app.get('/auctions/{}/documents'.format(self.auction_id))
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
-    self.assertEqual(doc_id, response.json["data"][-1]["id"])
-    self.assertEqual(u'Порядок ознайомлення з майном #2', response.json["data"][-1]["title"])
-    self.assertEqual(u'Ознайомитись з рогом єдинорога можна: 30 лютого, коли сонце зійде на заході, печера Ілона Маска, плато Азімова, Марс', response.json["data"][-1]["accessDetails"])
+    self.assertEqual(document_id, response.json["data"][-1]["id"])
+    self.assertEqual(new_title, response.json["data"][-1]["title"])
+    self.assertEqual(new_access_details, response.json["data"][-1]["accessDetails"])
     self.assertEqual('offline/on-site-examination', response.json["data"][-1]["format"])
     self.assertEqual('x_dgfAssetFamiliarization', response.json["data"][-1]["documentType"])
 
-    response = self.app.get('/auctions/{}/documents/{}'.format(self.auction_id, doc_id))
+    response = self.app.get('/auctions/{}/documents/{}'.format(self.auction_id, document_id))
     self.assertEqual(response.status, '200 OK')
     self.assertEqual(response.content_type, 'application/json')
-    self.assertEqual(doc_id, response.json["data"]["id"])
-    self.assertEqual(u'Порядок ознайомлення з майном #2', response.json["data"]["title"])
+    self.assertEqual(document_id, response.json["data"]["id"])
+    self.assertEqual(new_title, response.json["data"]["title"])
     dateModified2 = response.json["data"]['dateModified']
     self.assertTrue(dateModified < dateModified2)
     self.assertEqual(dateModified, response.json["data"]["previousVersions"][0]['dateModified'])

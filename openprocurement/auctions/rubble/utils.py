@@ -9,7 +9,6 @@ from openprocurement.auctions.core.utils import (
     remove_draft_bids,
     upload_file as base_upload_file,
     get_file as base_get_file,
-    API_DOCUMENT_BLACKLISTED_FIELDS as DOCUMENT_BLACKLISTED_FIELDS,
     context_unpack,
     calculate_business_date,
     get_now,
@@ -20,6 +19,7 @@ from openprocurement.auctions.core.utils import (
 from .constants import (
     DOCUMENT_TYPE_URL_ONLY,
     DOCUMENT_TYPE_OFFLINE,
+    DOCUMENT_BLACKLISTED_FIELDS
 )
 from openprocurement.auctions.core.interfaces import IAuctionManager
 

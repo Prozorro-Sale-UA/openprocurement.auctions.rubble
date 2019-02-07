@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 import os
 
-version = '1.2.3'
+VERSION = '1.2.4'
 
 entry_points = {
     'openprocurement.auctions.core.plugins': [
@@ -27,7 +27,7 @@ docs_requires = requires + [
 ]
 
 setup(name='openprocurement.auctions.rubble',
-      version=version,
+      version=VERSION,
       description="",
       long_description=open("README.rst").read() + "\n" +
                        open(os.path.join("docs", "HISTORY.txt")).read(),

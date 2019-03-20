@@ -6,8 +6,12 @@ from copy import deepcopy
 
 from openprocurement.auctions.core.tests.base import snitch
 
-from openprocurement.auctions.rubble.migration import migrate_data, get_db_schema_version, set_db_schema_version, SCHEMA_VERSION
-from openprocurement.auctions.rubble.tests.base import BaseWebTest, BaseAuctionWebTest, test_bids
+from openprocurement.auctions.rubble.migration import (
+    RubbleMigrationsRunner,
+    RenameDgfIdToLotIdentifierStep,
+    MigrateAwardingStep
+)
+from openprocurement.auctions.rubble.tests.base import BaseWebTest, BaseAuctionWebTest, test_bids, test_auction_data
 from openprocurement.auctions.rubble.tests.blanks.migration_blanks import (
     # MigrateTestFrom1To2Bids
     migrate_one_pending,
@@ -28,7 +32,8 @@ from openprocurement.auctions.rubble.tests.blanks.migration_blanks import (
     migrate_awards_number,
     # MigrateTestFrom1To2WithThreeBids
     migrate_unsuccessful_unsuccessful_pending,
-    migrate_unsuccessful_unsuccessful_active
+    migrate_unsuccessful_unsuccessful_active,
+    migrate_dgfId_to_lotIdentefier
 )
 
 
@@ -36,12 +41,14 @@ class MigrateTest(BaseWebTest):
 
     def setUp(self):
         super(MigrateTest, self).setUp()
-        migrate_data(self.app.app.registry)
+        self.runner = RubbleMigrationsRunner(self.db)
+        self.steps = (MigrateAwardingStep,)
+        self.runner.migrate(self.steps)
 
     def test_migrate(self):
-        self.assertEqual(get_db_schema_version(self.db), SCHEMA_VERSION)
-        migrate_data(self.app.app.registry, 1)
-        self.assertEqual(get_db_schema_version(self.db), SCHEMA_VERSION)
+        self.assertEqual(self.runner._get_db_schema_version(), self.runner.SCHEMA_VERSION)
+        self.runner.migrate(self.steps)
+        self.assertEqual(self.runner._get_db_schema_version(), self.runner.SCHEMA_VERSION)
 
 
 class MigrateTestFrom1To2Bids(BaseAuctionWebTest):
@@ -54,8 +61,10 @@ class MigrateTestFrom1To2Bids(BaseAuctionWebTest):
 
     def setUp(self):
         super(MigrateTestFrom1To2Bids, self).setUp()
-        migrate_data(self.app.app.registry)
-        set_db_schema_version(self.db, 0)
+        self.runner = RubbleMigrationsRunner(self.db)
+        self.steps = (MigrateAwardingStep, )
+        self.runner.migrate(self.steps)
+        self.runner._set_db_schema_version(0)
         auction = self.db.get(self.auction_id)
         auction['bids'][0]['value']['amount'] = auction['value']['amount']
         self.db.save(auction)
@@ -79,8 +88,10 @@ class MigrateTestFrom1To2WithTwoBids(BaseAuctionWebTest):
 
     def setUp(self):
         super(MigrateTestFrom1To2WithTwoBids, self).setUp()
-        migrate_data(self.app.app.registry)
-        set_db_schema_version(self.db, 0)
+        self.runner = RubbleMigrationsRunner(self.db)
+        self.steps = (MigrateAwardingStep, )
+        self.runner.migrate(self.steps)
+        self.runner._set_db_schema_version(0)
 
 
 class MigrateTestFrom1To2WithThreeBids(BaseAuctionWebTest):
@@ -91,12 +102,25 @@ class MigrateTestFrom1To2WithThreeBids(BaseAuctionWebTest):
 
     def setUp(self):
         super(MigrateTestFrom1To2WithThreeBids, self).setUp()
-        migrate_data(self.app.app.registry)
-        set_db_schema_version(self.db, 0)
+        self.runner = RubbleMigrationsRunner(self.db)
+        self.steps = (MigrateAwardingStep,)
+        self.runner.migrate(self.steps)
+        self.runner._set_db_schema_version(0)
         auction = self.db.get(self.auction_id)
         auction['bids'].append(deepcopy(auction['bids'][0]))
         auction['bids'][-1]['id'] = uuid4().hex
         self.db.save(auction)
+
+
+class MigrateTestDgfIdToLotIdentifier(BaseAuctionWebTest):
+    initial_data = test_auction_data
+    test_migrate_dgfId_to_lotIdentefier = snitch(migrate_dgfId_to_lotIdentefier)
+
+
+    def setUp(self):
+        super(MigrateTestDgfIdToLotIdentifier, self).setUp()
+        self.runner = RubbleMigrationsRunner(self.db)
+        self.steps = (RenameDgfIdToLotIdentifierStep, )
 
 
 def suite():
@@ -105,6 +129,7 @@ def suite():
     suite.addTest(unittest.makeSuite(MigrateTestFrom1To2Bids))
     suite.addTest(unittest.makeSuite(MigrateTestFrom1To2WithTwoBids))
     suite.addTest(unittest.makeSuite(MigrateTestFrom1To2WithThreeBids))
+    suite.addTest(unittest.makeSuite(MigrateTestDgfIdToLotIdentifier))
     return suite
 
 

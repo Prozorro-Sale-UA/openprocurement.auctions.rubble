@@ -172,7 +172,7 @@ class FinancialAuctionResourceTest(AuctionResourceTest):
             auction.pop('procurementMethodDetails')
         self.assertEqual(set(auction), set([
             u'procurementMethodType', u'id', u'date', u'dateModified', u'auctionID', u'status', u'enquiryPeriod',
-            u'tenderPeriod', u'minimalStep', u'items', u'value', u'procuringEntity', u'next_check', u'dgfID',
+            u'tenderPeriod', u'minimalStep', u'items', u'value', u'procuringEntity', u'next_check', u'lotIdentifier',
             u'procurementMethod', u'awardCriteria', u'submissionMethod', u'title', u'owner', u'auctionPeriod',
             u'eligibilityCriteria', u'eligibilityCriteria_en', u'eligibilityCriteria_ru', u'tenderAttempts',
             u'rectificationPeriod'

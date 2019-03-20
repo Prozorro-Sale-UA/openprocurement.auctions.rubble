@@ -22,7 +22,7 @@ AWARD_PAYMENT_TIME = timedelta(days=20)
 CONTRACT_SIGNING_TIME = timedelta(days=20)
 
 # time constants
-DGF_ID_REQUIRED_FROM = datetime(2017, 1, 1, tzinfo=TZ)
+LOTIDENTIFIER_ID_REQUIRED_FROM = datetime(2017, 1, 1, tzinfo=TZ)
 DGF_DECISION_REQUIRED_FROM = datetime(2017, 1, 1, tzinfo=TZ)
 CLASSIFICATION_PRECISELY_FROM = datetime(2017, 7, 19, tzinfo=TZ)
 MINIMAL_EXPOSITION_REQUIRED_FROM = datetime(2017, 11, 17, tzinfo=TZ)

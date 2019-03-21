@@ -430,8 +430,8 @@ def create_auction_rectificationPeriod_generated(self):
     self.assertIn('auctionPeriod', auction)
     self.assertNotIn('startDate', auction['auctionPeriod'])
     self.assertEqual(parse_date(self.initial_data['auctionPeriod']['startDate']).date(), parse_date(auction['auctionPeriod']['shouldStartAfter'], TZ).date())
-    tender_period_end_date = parse_date(auction['tenderPeriod']['endDate']).replace(tzinfo=None)
-    rectification_period_end_date = parse_date(auction['rectificationPeriod']['endDate']).replace(tzinfo=None)
+    tender_period_end_date = parse_date(auction['tenderPeriod']['endDate'])
+    rectification_period_end_date = parse_date(auction['rectificationPeriod']['endDate'])
 
     timedelta_during_periods_ends = tender_period_end_date - rectification_period_end_date
     if not SANDBOX_MODE:

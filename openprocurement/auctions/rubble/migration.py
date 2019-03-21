@@ -28,7 +28,21 @@ class RenameDgfIdToLotIdentifierStep(BaseMigrationStep):
 
     def setUp(self):
         self.view = 'auctions/all'
-        self.procurement_method_types = ['rubbleOther', 'rubbleFinancial']
+
+    def _skip_predicate(self, auction):
+        """
+        If return True than migration for such auction should be skipped, otherwise migrate it
+        :param auction:
+        :return: True or False
+        """
+        is_dgf_id_is_absent = bool('dgfID' not in auction)
+        target_pmts = self.resources.aliases_info.get_package_aliases('openprocurement.auctions.rubble')
+        pmt_is_suitable = auction['procurementMethodType'] in target_pmts
+
+        if is_dgf_id_is_absent or not pmt_is_suitable:
+            return True
+
+        return False
 
     def migrate_document(self, auction):
         """
@@ -36,11 +50,11 @@ class RenameDgfIdToLotIdentifierStep(BaseMigrationStep):
         :param auction:
         :return: auction if updated else None
         """
-        if auction['procurementMethodType'] in self.procurement_method_types:
-            if auction.get('dgfID'):
-                auction['lotIdentifier'] = auction.pop('dgfID')
-                return auction
-        return None
+        if self._skip_predicate(auction):
+            return None
+
+        auction['lotIdentifier'] = auction.pop('dgfID')
+        return auction
 
 
 class MigrateAwardingStep(BaseMigrationStep):
@@ -49,13 +63,28 @@ class MigrateAwardingStep(BaseMigrationStep):
         self.view = 'auctions/all'
         self.procurement_method_types = ['rubbleOther', 'rubbleFinancial']
 
+    def _skip_predicate(self, auction):
+        """
+        If return True than migration for such auction should be skipped, otherwise migrate it
+        :param auction:
+        :return: True or False
+        """
+        target_pmts = self.resources.aliases_info.get_package_aliases('openprocurement.auctions.rubble')
+        pmt_is_suitable = auction['procurementMethodType'] in target_pmts
+
+        if not pmt_is_suitable:
+            return True
+
+        return False
+
     def migrate_document(self, auction):
-        if auction['procurementMethodType'] in self.procurement_method_types:
-            migrate_awarding_1_0_to_awarding_2_1(auction, self.procurement_method_types)
-            auction = Auction(auction)
-            auction = auction.to_primitive()
-            return auction
-        return None
+        if self._skip_predicate(auction):
+            return None
+
+        migrate_awarding_1_0_to_awarding_2_1(auction, self.procurement_method_types)
+        auction = Auction(auction)
+        auction = auction.to_primitive()
+        return auction
 
 
 MIGRATION_STEPS = (MigrateAwardingStep, RenameDgfIdToLotIdentifierStep)

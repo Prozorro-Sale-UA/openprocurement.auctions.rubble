@@ -14,7 +14,7 @@ from openprocurement.auctions.rubble.models import Auction
 
 
 LOGGER = logging.getLogger(__name__)
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 SCHEMA_DOC = 'openprocurement_auctions_dgf_schema'
 
 

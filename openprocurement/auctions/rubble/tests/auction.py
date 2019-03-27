@@ -28,6 +28,9 @@ from openprocurement.auctions.rubble.tests.blanks.auction_blanks import (
     post_auction_auction_lot,
     # AuctionMultipleLotAuctionResourceTest
     post_auction_auction_2_lots,
+    # RubbleAuctionBridgePatchPeriod
+    set_auction_period,
+    reset_auction_period
 )
 
 
@@ -199,6 +202,12 @@ class FinancialAuctionFeaturesAuctionResourceTest(AuctionFeaturesAuctionResource
     ]
 
 
+class RubbleAuctionBridgePatchPeriodTest(BaseAuctionWebTest):
+   initial_bids = test_bids
+
+   test_set_auction_period = snitch(set_auction_period)
+   test_reset_auction_period = snitch(reset_auction_period)
+
 
 def suite():
     suite = unittest.TestSuite()
@@ -208,6 +217,7 @@ def suite():
     suite.addTest(unittest.makeSuite(FinancialAuctionAuctionResourceTest))
     suite.addTest(unittest.makeSuite(FinancialAuctionSameValueAuctionResourceTest))
     suite.addTest(unittest.makeSuite(FinancialAuctionFeaturesAuctionResourceTest))
+    suite.addTest(unittest.makeSuite(RubbleAuctionBridgePatchPeriodTest))
     return suite
 
 

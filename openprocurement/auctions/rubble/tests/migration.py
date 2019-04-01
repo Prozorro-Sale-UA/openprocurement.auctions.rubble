@@ -46,6 +46,7 @@ class MigrateTest(BaseWebTest):
         migration_resources = MigrationResourcesDTO_mock(self.db, aliases_info_dict)
 
         self.runner = RubbleMigrationsRunner(migration_resources)
+        self.runner.SCHEMA_VERSION = 1
         self.steps = (MigrateAwardingStep,)
         self.runner.migrate(self.steps)
 
@@ -69,6 +70,7 @@ class MigrateTestFrom1To2Bids(BaseAuctionWebTest):
         migration_resources = MigrationResourcesDTO_mock(self.db, aliases_info_dict)
 
         self.runner = RubbleMigrationsRunner(migration_resources)
+        self.runner.SCHEMA_VERSION = 1
         self.steps = (MigrateAwardingStep, )
         self.runner.migrate(self.steps)
         self.runner._set_db_schema_version(0)
@@ -99,6 +101,7 @@ class MigrateTestFrom1To2WithTwoBids(BaseAuctionWebTest):
         migration_resources = MigrationResourcesDTO_mock(self.db, aliases_info_dict)
 
         self.runner = RubbleMigrationsRunner(migration_resources)
+        self.runner.SCHEMA_VERSION = 1
         self.steps = (MigrateAwardingStep, )
         self.runner.migrate(self.steps)
         self.runner._set_db_schema_version(0)
@@ -116,6 +119,7 @@ class MigrateTestFrom1To2WithThreeBids(BaseAuctionWebTest):
         migration_resources = MigrationResourcesDTO_mock(self.db, aliases_info_dict)
 
         self.runner = RubbleMigrationsRunner(migration_resources)
+        self.runner.SCHEMA_VERSION = 1
         self.steps = (MigrateAwardingStep,)
         self.runner.migrate(self.steps)
         self.runner._set_db_schema_version(0)
@@ -136,6 +140,7 @@ class MigrateTestDgfIdToLotIdentifier(BaseAuctionWebTest):
         migration_resources = MigrationResourcesDTO_mock(self.db, aliases_info_dict)
 
         self.runner = RubbleMigrationsRunner(migration_resources)
+        self.runner.SCHEMA_VERSION = 1
         self.steps = (RenameDgfIdToLotIdentifierStep, )
 
 

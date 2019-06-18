@@ -60,6 +60,7 @@ from openprocurement.auctions.rubble.tests.blanks.tender_blanks import (
     create_auction_rectificationPeriod_set,
     create_auction_generated,
     create_auction,
+    create_auction_tender_attempts,
     create_auction_with_item_with_schema_properties,
     create_auction_with_item_with_invalid_schema_properties,
     additionalClassifications,
@@ -109,6 +110,7 @@ class AuctionResourceTest(BaseWebTest):
     test_create_auction_rectificationPeriod_set = snitch(create_auction_rectificationPeriod_set)
     test_create_auction_generated = snitch(create_auction_generated)
     test_create_auction = snitch(create_auction)
+    test_create_auction_tender_attempts = snitch(create_auction_tender_attempts)
     test_create_auction_with_item_with_schema_properties = snitch(create_auction_with_item_with_schema_properties)
     test_create_auction_with_item_with_invalid_schema_properties = snitch(create_auction_with_item_with_invalid_schema_properties)
     test_additionalClassifications = snitch(additionalClassifications)

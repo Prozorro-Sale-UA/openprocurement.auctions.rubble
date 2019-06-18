@@ -528,6 +528,29 @@ def create_auction(self):
     self.assertEqual(data['guarantee']['currency'], "USD")
 
 
+def create_auction_tender_attempts(self):
+    max_tender_attempts = 10
+    auction_data = deepcopy(self.initial_data)
+
+    for attempt in range(1, max_tender_attempts+1):
+        auction_data["tenderAttempts"] = attempt
+        response = self.app.post_json('/auctions', {"data": auction_data})
+        self.assertEqual(response.status, '201 Created')
+        self.assertEqual(response.content_type, 'application/json')
+        self.assertEqual(response.json['data']['tenderAttempts'], attempt)
+
+    auction_data["tenderAttempts"] = max_tender_attempts + 1
+    response = self.app.post_json('/auctions', {"data": auction_data}, status=422)
+    self.assertEqual(response.status, '422 Unprocessable Entity')
+    self.assertEqual(response.content_type, 'application/json')
+    self.assertEqual(
+        response.json['errors'],
+        [{u'description': [u'Value must be one of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].'],
+          u'location': u'body',
+          u'name': u'tenderAttempts'}]
+    )
+
+
 def create_auction_with_item_with_schema_properties(self):
     """
         Test flexible fields
